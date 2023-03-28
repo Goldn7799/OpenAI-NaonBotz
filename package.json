@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Whatsapp Bot AI with OpenAI GPT-4 API",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "node test.js"
   },
