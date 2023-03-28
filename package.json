@@ -1,0 +1,29 @@
+{
+  "name": "open_ai-naonbotz",
+  "version": "1.0.0",
+  "description": "Whatsapp Bot AI with OpenAI GPT-4 API",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Goldn7799/OpenAI-NaonBotz.git"
+  },
+  "keywords": [
+    "AI",
+    "Bot",
+    "Whatsapp"
+  ],
+  "author": "SGSTudio",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Goldn7799/OpenAI-NaonBotz/issues"
+  },
+  "homepage": "https://github.com/Goldn7799/OpenAI-NaonBotz#readme",
+  "dependencies": {
+    "node-fetch": "^3.3.1",
+    "openai": "^3.2.1",
+    "whatsapp-web.js": "^1.19.5"
+  }
+}
