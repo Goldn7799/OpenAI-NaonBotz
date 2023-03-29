@@ -8,21 +8,21 @@ const host = primaryHost;
 host.initialize();
 
 //setup
-let groupWhitelist = []
+let groupWhitelist = [], groupReply = [];
 
 //Ans
 host.on("message", async (m)=>{
   const chat = await m.getChat();
-  let isWhiteList = false;
-  groupWhitelist.map(items =>{
-    if(items === m.from){
-      isWhiteList = true;
-    };
-  })
+  let isWhiteList = false, isGroupReply = false;
+  if(groupWhitelist.includes(m.from)){
+    isWhiteList = true;
+  };
+  if(groupReply.includes(m.from)){
+    isGroupReply = true;
+  };
   const next = async ()=>{
-    console.log(groupWhitelist)
     if(((!chat.isGroup)||isWhiteList)&&m.type === "chat"){
-      const senderID = (chat.isGroup) ? m.author : m.from;
+      // const senderID = (chat.isGroup) ? m.author : m.from;
       // const senderContact = host.getContactById(await senderID);
       queueAdd({
         id: makeid(8),
@@ -41,6 +41,18 @@ host.on("message", async (m)=>{
       }else if(m.body === ".leavegpt"){
         m.reply("Berhasil keluar");
         groupWhitelist = groupWhitelist.filter(item => item !== m.from)
+      }else if(m.body === ".startgpt"){
+        m.reply("Reply saja chat ini dengan pertanyaan atau semacam nya!");
+        groupReply.push(m.from);
+      }else if(isGroupReply&&m.hasQuotedMsg){
+        const quoted = await m.getQuotedMessage();
+        if (quoted.body.length > 0&&quoted.fromMe){
+          queueAdd({
+            id: makeid(8),
+            chat: chat,
+            message: m.body
+          }, m);
+        }else { next(); }
       }else { next(); };
     };
   }else { next(); };
