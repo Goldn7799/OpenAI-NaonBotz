@@ -106,3 +106,7 @@ dist
 # Npm Cache
 yarn.lock
 package-lock.json
+
+# webjs
+.wwebjs_auth/
+lib/ffmpeg/
