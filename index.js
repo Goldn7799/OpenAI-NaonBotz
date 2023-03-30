@@ -6,14 +6,15 @@ const { bot, user } = require("./globalConfig.js");
 const host = primaryHost;
 
 try {
+  //Check if ApiKey is avabile or not
   if (bot.openAI_APIKEY.length > 5||bot.openAI_APIKEY) {
-    //connect
+    //connect To Whatsapp
     host.initialize();
   
-    //setup
+    //setup Global Variable
     let groupWhitelist = [], groupReply = [];
   
-    //Ans
+    //Run command if match at condition
     host.on("message", async (m)=>{
       const chat = await m.getChat();
       let isWhiteList = false, isGroupReply = false;
@@ -23,19 +24,16 @@ try {
       if(groupReply.includes(m.from)){
         isGroupReply = true;
       };
-      //return chat
+      //return generate AI chat
       const next = async ()=>{
         if(((!chat.isGroup)||isWhiteList)&&m.type === "chat"){
           const senderID = (chat.isGroup) ? m.author : m.from;
-          // const senderContact = host.getContactById(await senderID);
           queueAdd({
             id: makeid(8),
             chat: chat,
             message: m.body,
             senderID: senderID
           }, m);
-          // chat.sendMessage("Generating Response...", { mentions: [ await senderContact ] })
-          // m.reply(await generateText(m.body));
         };
       }
       //Genral Command
