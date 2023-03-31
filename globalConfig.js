@@ -7,11 +7,20 @@ const bot = {
   "restricedFeature": false,
   "consoleImage": false,
   "sessionName": "primary",
-  "openAI_APIKEY": "YOUR_APIKEY",
-  "openAI_organization": "YOUR_ORGANIZATION"
+  "openAI_APIKEY": "your",
+  "openAI_organization": "your"
+}
+
+const systemConf = {
+  "sim": {
+    "high": 0.9,
+    "medium": 0.75,
+    "low": 0.65
+  }
 }
 
 module.exports = {
   user,
-  bot
+  bot,
+  systemConf
 }
