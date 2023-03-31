@@ -40,17 +40,33 @@ try {
       if (chat.isGroup) {
         if(m.type === "chat"){
           if(m.body === ".joingpt"){
-            m.reply("Berhasil menambahkan");
-            groupWhitelist.push(m.from);
+            if(isWhiteList){
+              m.reply("Already joined");
+            }else {
+              m.reply("Succes added GPT");
+              groupWhitelist.push(m.from);
+            }
           }else if(m.body === ".leavegpt"){
-            m.reply("Berhasil keluar");
-            groupWhitelist = groupWhitelist.filter(item => item !== m.from)
+            if(!isWhiteList){
+              m.reply("Already leave");
+            }else {
+              m.reply("Succes leave");
+              groupWhitelist = groupWhitelist.filter(item => item !== m.from)
+            }
           }else if(m.body === ".startgpt"){
             m.reply("Reply saja chat ini dengan pertanyaan atau semacam nya!");
             groupReply.push(m.from);
           }else if(m.hasQuotedMsg){
             const quoted = await m.getQuotedMessage();
-            if (quoted.body.length > 0&&quoted.fromMe){
+            if((!quoted.fromMe)&&quoted.type === "chat"&&quoted.body.length > 0&&m.type === "chat"&&(m.body.toLowerCase() === "really"||m.body === ".aires"||m.body.toLowerCase() === "benarkah")){
+              const senderID = (m.author) ? m.author : m.from;
+              queueAdd({
+                id: makeid(8),
+                chat: chat,
+                message: quoted.body,
+                senderID: senderID
+              }, m);
+            }else if (quoted.body.length > 0&&quoted.fromMe){
               const senderID = (chat.isGroup) ? m.author : m.from;
               queueAdd({
                 id: makeid(8),
