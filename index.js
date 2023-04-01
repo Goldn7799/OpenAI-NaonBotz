@@ -148,10 +148,50 @@ try {
                 const contact = await host.getContactById(participant.id._serialized);
                 mentions.push(contact);
               }
-              chat.sendMessage(m.body, { mentions })
+              let text;
+              if(m.hasQuotedMsg){
+                const quoted = await m.getQuotedMessage();
+                if(quoted.body.length > 0){
+                  text = quoted.body;
+                }else {
+                  text = m.body;
+                }
+              }else {
+                text = m.body;
+              }
+              chat.sendMessage(await text, { mentions })
             }else {
               await m.reply("You not *Admin*");
             }
+          }else if(matchItem(m.body, ".totext", systemConf.sim.high)){
+            const rawMedia = (m.hasQuotedMsg) ? (((await m.getQuotedMessage()).hasMedia) ? ((await m.getQuotedMessage()).downloadMedia()) : ((m.hasMedia) ? (await m.downloadMedia()) : false)) : ((m.hasMedia) ? (await m.downloadMedia()) : false);
+            const media = await rawMedia;
+            if(media.mimetype === "image/png"||media.mimetype === "image/jpeg"||media.mimetype === "image/jpg"){
+              if(media){
+                const base64Image = `data:${media.mimetype};base64,${media.data}`;
+                try {
+                  console.log("Reading Text")
+                  chat.sendMessage("Waitt a sec")
+                  const worker = await Tesseract.createWorker({
+                    logger: mc => {
+                      drawProgressBar(mc.progress)
+                    }
+                  })
+                  await worker.loadLanguage("eng");
+                  await worker.initialize("eng");
+                  const { data: { text } } = await worker.recognize(base64Image);
+                  console.log(`\nResult : ${text}`);
+                  if(text){
+                    await m.reply(text);
+                  }else {
+                    await m.reply("cant detect text on this image")
+                  };
+                  worker.terminate();
+                }catch(e) {
+                  console.log("Failed Reading Text")
+                }
+              }else { await m.reply("Who image?") }
+            }else { await m.reply("Is Not Image") }
           }else { next(); };
         }else if(m.type === "chat"){ next() }
         else if(m.type === "sticker"||m.type === "image"){
