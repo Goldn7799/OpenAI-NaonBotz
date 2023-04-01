@@ -78,8 +78,8 @@ try {
               await chat.sendMessage("Waitt a sec..");
               const media = await m.downloadMedia();
               if(media.mimetype === "image/png"||media.mimetype === "image/jpeg"||media.mimetype === "image/gif"||media.mimetype === "image/webp"){
-                await m.reply("Done!!");
                 await chat.sendMessage(media, { mentions: [await host.getContactById(senderID)], sendMediaAsSticker: true, stickerAuthor: "SGStudio", stickerName: "Ai Botz|NaonBotz" })
+                await m.reply("Done!!");
               }else {
                 await m.reply("Unknown Format")
               }
