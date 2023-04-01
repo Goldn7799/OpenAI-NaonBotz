@@ -1,7 +1,8 @@
 const { primaryHost } = require("./lib/whatsapp/Connection.js");
 const { generateText } = require("./lib/OpenAI/OpenAI.js");
+const Tesseract = require("tesseract.js")
 const { queueAdd, queue } = require("./lib/OpenAI/queue.js");
-const { makeid, matchItem } = require("./lib/utility/Utility.js");
+const { makeid, matchItem, drawProgressBar, convertWebPtoPNG } = require("./lib/utility/Utility.js");
 const { bot, user, systemConf } = require("./globalConfig.js");
 const host = primaryHost;
 
@@ -36,10 +37,42 @@ try {
           }, m);
         };
       }
+      const readText = async ()=>{
+        if(m.hasMedia){
+          const media = await m.downloadMedia();
+          if(media.mimetype === "image/png"||media.mimetype === "image/jpeg"||media.mimetype === "image/webp"||media.mimetype === "image/jpg"){
+            const rawBase64Image = `data:${media.mimetype};base64,${media.data}`;
+            const base64Image = (media.mimetype === "image/webp") ? await convertWebPtoPNG(rawBase64Image) : rawBase64Image;
+            try {
+              console.log("Reading Text")
+              const worker = await Tesseract.createWorker({
+                logger: mc => {
+                  drawProgressBar(mc.progress)
+                }
+              })
+              await worker.loadLanguage("eng");
+              await worker.initialize("eng");
+              const { data: { text } } = await worker.recognize(base64Image);
+              console.log(`\nResult : ${text}`);
+              if(text){
+                queueAdd({
+                  id: makeid(8),
+                  chat: chat,
+                  message: text,
+                  senderID: senderID
+                }, m);
+              };
+              worker.terminate();
+            }catch(e) {
+              console.log("Failed Reading Text")
+            }
+          };
+        };
+      }
       //common command
       const commonCommand = async ()=>{
         if(m.body.length > 0){
-          if(matchItem(m.body.toLowerCase(), ".stkr", systemConf.sim.high)){
+          if(matchItem(m.body.toLowerCase(), ".sticker", systemConf.sim.high)){
             if(m.hasMedia){
               const chat = await m.getChat();
               await chat.sendMessage("Waitt a sec..");
@@ -83,8 +116,54 @@ try {
             }else {
               await m.reply(`Is not a sticker, is a ${m.type}`);
             }
+          }else if(matchItem(m.body, ".tagall", systemConf.sim.high)&&chat.isGroup){
+            let isSenderAdmin = false;
+            for(let participant of chat.participants){
+              if(participant.id._serialized === senderID&&participant.isAdmin){
+                isSenderAdmin = true;
+              }
+            };
+            if(isSenderAdmin){
+              let text = "*TagAll*\n";
+              let mentions = [];
+              for(let participant of chat.participants){
+                const contact = await host.getContactById(participant.id._serialized);
+                mentions.push(contact);
+                text += `@${participant.id.user} \n`;
+              }
+              await chat.sendMessage(text, { mentions })
+            }else {
+              await m.reply("You not *Admin*");
+            }
+          }else if(matchItem(m.body, ".hidetag", systemConf.sim.high)&&chat.isGroup){
+            let isSenderAdmin = false;
+            for(let participant of chat.participants){
+              if(participant.id._serialized === senderID&&participant.isAdmin){
+                isSenderAdmin = true;
+              }
+            };
+            if(isSenderAdmin){
+              let mentions = [];
+              for(let participant of chat.participants){
+                const contact = await host.getContactById(participant.id._serialized);
+                mentions.push(contact);
+              }
+              chat.sendMessage(m.body, { mentions })
+            }else {
+              await m.reply("You not *Admin*");
+            }
           }else { next(); };
-        }else if(m.type === "chat"){ next() };
+        }else if(m.type === "chat"){ next() }
+        else if(m.type === "sticker"||m.type === "image"){
+          if(m.hasQuotedMsg&&m.hasMedia){
+            const quoted = await m.getQuotedMessage();
+            if(quoted.fromMe){
+              readText();
+            };
+          }else if(!chat.isGroup&&m.hasMedia){
+            readText();
+          }
+        };
       }
       //Genral Command
       if (chat.isGroup) {

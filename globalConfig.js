@@ -7,8 +7,8 @@ const bot = {
   "restricedFeature": false,
   "consoleImage": false,
   "sessionName": "primary",
-  "openAI_APIKEY": "your",
-  "openAI_organization": "your"
+  "openAI_APIKEY": "Your",
+  "openAI_organization": "Your"
 }
 
 const systemConf = {
