@@ -18,6 +18,7 @@ const systemConf = {
     "low": 0.65
   },
   "interface": {
+    "enabled": true,
     "port": 2023,
     "password": "admin"
   }

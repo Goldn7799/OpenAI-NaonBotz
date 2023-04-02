@@ -11,7 +11,9 @@ try {
   if (bot.openAI_APIKEY.length > 10||bot.openAI_APIKEY) {
     //connect To Whatsapp
     host.initialize();
-    interface.start();
+    if(systemConf.interface.enabled){
+      interface.start();
+    };
   
     //setup Global Variable
     let groupWhitelist = [], groupReply = [];
