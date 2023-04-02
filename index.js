@@ -1,9 +1,9 @@
 const { primaryHost } = require("./lib/whatsapp/Connection.js");
-const { generateText } = require("./lib/OpenAI/OpenAI.js");
 const Tesseract = require("tesseract.js")
-const { queueAdd, queue } = require("./lib/OpenAI/queue.js");
+const { queueAdd, queue } = require("./lib/OpenAI/Queue.js");
 const { makeid, matchItem, drawProgressBar, convertWebPtoPNG } = require("./lib/utility/Utility.js");
 const { bot, user, systemConf } = require("./globalConfig.js");
+const { interface } = require("./lib/whatsapp/Interface.js");
 const host = primaryHost;
 
 try {
@@ -11,6 +11,7 @@ try {
   if (bot.openAI_APIKEY.length > 10||bot.openAI_APIKEY) {
     //connect To Whatsapp
     host.initialize();
+    interface.start();
   
     //setup Global Variable
     let groupWhitelist = [], groupReply = [];
@@ -33,7 +34,7 @@ try {
             id: makeid(8),
             chat: chat,
             message: m.body,
-            senderID: senderID
+            senderContact: await host.getContactById(senderID)
           }, m);
         };
       }
@@ -45,9 +46,11 @@ try {
             const base64Image = (media.mimetype === "image/webp") ? await convertWebPtoPNG(rawBase64Image) : rawBase64Image;
             try {
               console.log("Reading Text")
+              let progress = 0;
               const worker = await Tesseract.createWorker({
                 logger: mc => {
-                  drawProgressBar(mc.progress)
+                  progress += mc.progress;
+                  drawProgressBar(progress)
                 }
               })
               await worker.loadLanguage("eng");
@@ -59,7 +62,7 @@ try {
                   id: makeid(8),
                   chat: chat,
                   message: text,
-                  senderID: senderID
+                  senderContact: await host.getContactById(senderID)
                 }, m);
               };
               worker.terminate();
@@ -172,9 +175,11 @@ try {
                 try {
                   console.log("Reading Text")
                   chat.sendMessage("Waitt a sec")
+                  let progress = 0;
                   const worker = await Tesseract.createWorker({
                     logger: mc => {
-                      drawProgressBar(mc.progress)
+                      progress += mc.progress;
+                      drawProgressBar(progress)
                     }
                   })
                   await worker.loadLanguage("eng");
@@ -233,15 +238,14 @@ try {
                 id: makeid(8),
                 chat: chat,
                 message: quoted.body,
-                senderID: senderID
+                senderContact: await host.getContactById(senderID)
               }, m);
             }else if (quoted.body.length > 0&&quoted.fromMe){
-              const senderID = (chat.isGroup) ? m.author : m.from;
               queueAdd({
                 id: makeid(8),
                 chat: chat,
                 message: m.body,
-                senderID: senderID
+                senderContact: await host.getContactById(senderID)
               }, m);
             }else { commonCommand(); }
           }else { commonCommand(); };

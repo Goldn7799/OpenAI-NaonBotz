@@ -7,8 +7,8 @@ const bot = {
   "restricedFeature": false,
   "consoleImage": false,
   "sessionName": "primary",
-  "openAI_APIKEY": "Your",
-  "openAI_organization": "Your"
+  "openAI_APIKEY": "You",
+  "openAI_organization": "You"
 }
 
 const systemConf = {
@@ -16,6 +16,10 @@ const systemConf = {
     "high": 0.9,
     "medium": 0.75,
     "low": 0.65
+  },
+  "interface": {
+    "port": 2023,
+    "password": "admin"
   }
 }
 
