@@ -50,7 +50,7 @@ try {
               if(base64Image){
                 try {
                   console.log("Reading Text")
-                  chat.sendMessage("Waitt a sec")
+                  chat.sendMessage("Detecting Text...")
                   let progress = 0;
                   const worker = await Tesseract.createWorker({
                     logger: mc => {
@@ -65,7 +65,12 @@ try {
                   const { data: { text } } = await worker.recognize(base64Image);
                   console.log(`\nResult : ${text}`);
                   if(text){
-                    await m.reply(text);
+                    queueAdd({
+                      id: makeid(8),
+                      chat: chat,
+                      message: text,
+                      senderContact: await host.getContactById(senderID)
+                    }, m);
                   }else {
                     await m.reply("cant detect text on this image")
                   };
