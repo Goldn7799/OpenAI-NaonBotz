@@ -6,9 +6,9 @@ const user = [
 const bot = {
   "restricedFeature": false,
   "consoleImage": false,
-  "sessionName": "primary",
-  "openAI_APIKEY": "You",
-  "openAI_organization": "You"
+  "sessionName": "NaonBotz",
+  "openAI_APIKEY": "Your",
+  "openAI_organization": "Your"
 }
 
 const systemConf = {

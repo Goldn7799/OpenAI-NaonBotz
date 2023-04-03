@@ -86,7 +86,7 @@ try {
                 await chat.sendMessage(media, { mentions: [await host.getContactById(senderID)], sendMediaAsSticker: true, stickerAuthor: "SGStudio", stickerName: "Ai Botz|NaonBotz" })
                 await m.reply("Done!!");
               }else {
-                await m.reply("Unknown Format")
+                await m.reply("Unknown Format");
               }
             }else if(m.hasQuotedMsg){
               const quoted = await m.getQuotedMessage();
