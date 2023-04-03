@@ -43,34 +43,38 @@ try {
       const readText = async ()=>{
         if(m.hasMedia){
           const media = await m.downloadMedia();
-          if(media.mimetype === "image/png"||media.mimetype === "image/jpeg"||media.mimetype === "image/webp"||media.mimetype === "image/jpg"){
-            const rawBase64Image = `data:${media.mimetype};base64,${media.data}`;
-            const base64Image = (media.mimetype === "image/webp") ? await convertWebPtoPNG(rawBase64Image) : rawBase64Image;
-            try {
-              console.log("Reading Text")
-              let progress = 0;
-              const worker = await Tesseract.createWorker({
-                logger: mc => {
-                  progress += mc.progress;
-                  drawProgressBar(progress)
+          if(media){
+            if(media.mimetype === "image/png"||media.mimetype === "image/jpeg"||media.mimetype === "image/jpg"||media.mimetype === "image/gif"||media.mimetype === "image/webp"){
+              const rawBase64Image = `data:${media.mimetype};base64,${media.data}`;
+              const base64Image = (media.mimetype === "image/webp") ? await convertWebPtoPNG(rawBase64Image) : rawBase64Image;
+              if(base64Image){
+                try {
+                  console.log("Reading Text")
+                  chat.sendMessage("Waitt a sec")
+                  let progress = 0;
+                  const worker = await Tesseract.createWorker({
+                    logger: mc => {
+                      if(mc.progress){
+                        progress += mc.progress;
+                        drawProgressBar(progress)
+                      };
+                    }
+                  })
+                  await worker.loadLanguage("eng");
+                  await worker.initialize("eng");
+                  const { data: { text } } = await worker.recognize(base64Image);
+                  console.log(`\nResult : ${text}`);
+                  if(text){
+                    await m.reply(text);
+                  }else {
+                    await m.reply("cant detect text on this image")
+                  };
+                  worker.terminate();
+                }catch(e) {
+                  console.log("Failed Reading Text")
                 }
-              })
-              await worker.loadLanguage("eng");
-              await worker.initialize("eng");
-              const { data: { text } } = await worker.recognize(base64Image);
-              console.log(`\nResult : ${text}`);
-              if(text){
-                queueAdd({
-                  id: makeid(8),
-                  chat: chat,
-                  message: text,
-                  senderContact: await host.getContactById(senderID)
-                }, m);
-              };
-              worker.terminate();
-            }catch(e) {
-              console.log("Failed Reading Text")
-            }
+              }else { console.log("failed Convert webp to png") };
+            };
           };
         };
       }
@@ -171,8 +175,8 @@ try {
           }else if(matchItem(m.body, ".totext", systemConf.sim.high)){
             const rawMedia = (m.hasQuotedMsg) ? (((await m.getQuotedMessage()).hasMedia) ? ((await m.getQuotedMessage()).downloadMedia()) : ((m.hasMedia) ? (await m.downloadMedia()) : false)) : ((m.hasMedia) ? (await m.downloadMedia()) : false);
             const media = await rawMedia;
-            if(media.mimetype === "image/png"||media.mimetype === "image/jpeg"||media.mimetype === "image/jpg"){
-              if(media){
+            if(media){
+              if(media.mimetype === "image/png"||media.mimetype === "image/jpeg"||media.mimetype === "image/jpg"||media.mimetype === "image/gif"){
                 const base64Image = `data:${media.mimetype};base64,${media.data}`;
                 try {
                   console.log("Reading Text")
@@ -180,8 +184,10 @@ try {
                   let progress = 0;
                   const worker = await Tesseract.createWorker({
                     logger: mc => {
-                      progress += mc.progress;
-                      drawProgressBar(progress)
+                      if(mc.progress){
+                        progress += mc.progress;
+                        drawProgressBar(progress)
+                      };
                     }
                   })
                   await worker.loadLanguage("eng");
@@ -197,8 +203,8 @@ try {
                 }catch(e) {
                   console.log("Failed Reading Text")
                 }
-              }else { await m.reply("Who image?") }
-            }else { await m.reply("Is Not Image") }
+              }else { await m.reply("Is Not Image") }
+            }else { await m.reply("Who image?") }
           }else { next(); };
         }else if(m.type === "chat"){ next() }
         else if(m.type === "sticker"||m.type === "image"){
