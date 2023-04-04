@@ -7,8 +7,8 @@ const bot = {
   "restricedFeature": false,
   "consoleImage": false,
   "sessionName": "NaonBotz",
-  "openAI_APIKEY": "Your",
-  "openAI_organization": "Your"
+  "openAI_APIKEY": "You",
+  "openAI_organization": "You"
 }
 
 const systemConf = {

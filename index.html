@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  <title>OpenAI - NaonBotz</title>
+</head>
+<body class="text-white">
+  <style>
+    body {
+      background-color: rgb(39, 39, 39);
+    }
+    .centerPlus {
+      display: flex;
+      justify-content: center; /* mengatur posisi horizontal */
+      align-items: center; /* mengatur posisi vertikal */
+      height: 100vh;
+    }
+    .login {
+      padding-left: 15px;
+      padding-right: 15px;
+      width: 400px;
+      height: 400px;
+      background-color: rgba(0, 132, 255, 0.568);
+      border-radius: 5%;
+    }
+    .login h2 {
+      margin-top: 5px;
+      margin-bottom: 80px;
+    }
+    .login .item {
+      margin-top: 50px;
+    }
+    .login .lockIcon {
+      width: 100px;
+      height: 100px;
+      margin-top: -50px;
+    }
+  </style>
+  <div id="root"></div>
+  <script src="https://cdn.statically.io/gh/devanka761/notipin/v1.26.00/all.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+  <script type="module">
+    const root = document.getElementById("root");
+    let globalData = {
+      api: "",
+      password: "",
+      db: {},
+      chatList: {}
+    }
+    const page = {
+      "login": ()=>{
+        root.innerHTML = `
+          <center class="centerPlus">
+            <div class="login">
+              <h2>Login</h2>
+              <img class="lockIcon" src="https://cdn-icons-png.flaticon.com/512/272/272456.png" alt="Lock Icon">
+              <div class="item">
+                <div class="mb-3">
+                  <div class="input-group">
+                    <span class="input-group-text" id="basic-addon3">http://</span>
+                    <input id="host" type="text" class="form-control" placeholder="Host" aria-label="Server" value="localhost">
+                    <span class="input-group-text" id="basic-addon3">:</span>
+                    <input id="port" type="text" class="form-control" placeholder="Port" aria-label="Server" value="2023">
+                  </div>
+                  </div>
+                  <div class="input-group mb-3">
+                    <div class="input-group-text">
+                      <input id="showPassword" class="form-check-input mt-0" type="checkbox" value="" aria-label="Checkbox for following text input">
+                    </div>
+                    <input id="password" type="password" class="form-control" placeholder="Password" aria-label="Username" aria-describedby="basic-addon1">
+                  </div>
+                  <button id="loginButton" type="button" class="btn btn-warning">Login</button>
+                </div>
+              </div>
+          </center>
+        `;
+        const host = document.getElementById("host");
+        const port = document.getElementById("port");
+        const password = document.getElementById("password");
+        const showPassword = document.getElementById("showPassword");
+        const loginButton = document.getElementById("loginButton");
+        showPassword.addEventListener("click", ()=>{
+          if(showPassword.checked){
+            password.type = "text";
+          }else {
+            password.type = "password";
+          }
+        });
+        loginButton.addEventListener("click", async ()=>{
+          if(host.value.length > 0&&port.value.length > 0&&password.value.length > 0){
+            const api = `http://${host.value}:${port.value}`;
+            const login = await fetch(`${api}/data/${password.value}`, { method: "GET" })
+            .then((ress) => {
+              if(ress.status === 200){
+                return ress.json();
+              }else if(ress.status === 403){
+                return false;
+              }else {
+                throw ress.status;
+              }
+            }).then((res) =>{
+              if(res){
+                return res;
+              }else {
+                Notipin.Alert({
+                  msg: "Wrong Password", // Pesan kamu
+                  yes: "Ok", // Tulisan di tombol 'Yes'
+                  onYes: () => { /* Kode di sini */ },
+                  type: "NORMAl",
+                  mode: "DARK",
+                });
+                return false;
+              }
+            }).catch((err) => {
+              Notipin.Alert({
+                msg: `Error to fetch : ${err}`, // Pesan kamu
+                yes: "Ok", // Tulisan di tombol 'Yes'
+                onYes: () => { /* Kode di sini */ },
+                type: "NORMAl",
+                mode: "DARK",
+              })
+              return false;
+            });
+            if(login){
+              globalData.api = api;
+              globalData.password = password.value;
+              page.home();
+            };
+          }else {
+            Notipin.Alert({
+              msg: "Please fill all items", // Pesan kamu
+              yes: "Ok", // Tulisan di tombol 'Yes'
+              onYes: () => { /* Kode di sini */ },
+              type: "NORMAl",
+              mode: "DARK",
+            })
+          }
+        })
+      },
+      "home": ()=>{
+        let isActived = true;
+        root.innerHTML = `
+          <div>
+            <nav class="navbar bg-dark navbar-expand-lg bg-body-tertiary" data-bs-theme="dark">
+              <div class="container-fluid">
+                <a class="navbar-brand" href="#">NanBotz</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                  <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="#">Link</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                      <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Dropdown
+                      </a>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#">Action</a></li>
+                        <li><a class="dropdown-item" href="#">Another action</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                      </ul>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link disabled">Disabled</a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </nav>
+            <p>Ping : <b id="ping"></b> | Ram : <b id="ram"></b> | Node : <b id="node"></b> | Queue : <b id="queue"></b> | Uptime : <b id="uptime"></b></p>
+          </div>
+        `;
+        const getDB = async ()=>{
+          const start = Date.now();
+          const rawRes = await fetch(`${globalData.api}/data/${globalData.password}`).catch((err)=>{
+            Notipin.Alert({
+              msg: "Disconnected...", // Pesan kamu
+              yes: "Ok", // Tulisan di tombol 'Yes'
+              onYes: () => { window.location.reload(); },
+              type: "DANGER",
+              mode: "DARK",
+            })
+          });
+          const res = await rawRes.json();
+          if(rawRes.status === 200){
+            globalData.db = res;
+            let chats = ``;
+            const end = Date.now();
+            const pingTime = end - start;
+            const uptimeInSeconds = res.os.uptime;
+            const upHours = Math.floor(uptimeInSeconds / 3600);
+            const upMinutes = Math.floor((uptimeInSeconds % 3600) / 60);
+            const upSeconds = Math.floor(uptimeInSeconds % 60);
+            document.getElementById("ping").innerText = pingTime + "Ms";
+            document.getElementById("ram").innerText = `${(res.os.freemem / 1000000).toFixed(2)}MB Free of ${(res.os.totalmem / 1000000).toFixed(2)}MB`;
+            document.getElementById("node").innerText = `${(res.os.nodemem / 1024 / 1024).toFixed(2)}MB`;
+            document.getElementById('queue').innerText = `${res.queue.length}`;
+            document.getElementById("uptime").innerText = `${upHours}H-${upMinutes}M-${upSeconds}S`;
+            // res.chatLog.map(async (item) => {
+            //   if(!Object.keys(globalData.chatList).includes(item.from)){
+            //     const rawChat = await fetch(`${globalData.api}/getchat/${item.from}`, { method: "POST" });
+            //     if(rawChat.status === 200){
+            //       const chat = await rawChat.json().data;
+            //       console.log(chat);
+            //       globalData.chatList[item.from] = chat;
+            //     }
+            //   }
+            // })
+          }else {
+            globalData.db = false;
+          }
+          setTimeout(() => {
+            if(isActived){
+              getDB();
+            };
+          }, 1000);
+        };
+        getDB();
+      }
+    }
+    page.login()
+  </script>
+</body>
+</html>

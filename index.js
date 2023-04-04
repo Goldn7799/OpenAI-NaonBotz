@@ -1,6 +1,6 @@
 const { primaryHost } = require("./lib/whatsapp/Connection.js");
 const Tesseract = require("tesseract.js")
-const { queueAdd, queue } = require("./lib/OpenAI/Queue.js");
+const { queueAdd } = require("./lib/OpenAI/Queue.js");
 const { makeid, matchItem, drawProgressBar, convertWebPtoPNG } = require("./lib/utility/Utility.js");
 const { bot, user, systemConf } = require("./globalConfig.js");
 const { interface } = require("./lib/whatsapp/Interface.js");
@@ -214,10 +214,14 @@ try {
         }else if(m.type === "chat"){ next() }
         else if(m.type === "sticker"||m.type === "image"){
           if(m.hasQuotedMsg&&m.hasMedia){
-            const quoted = await m.getQuotedMessage();
-            if(quoted.fromMe){
-              readText();
-            };
+            try{
+              const quoted = await m.getQuotedMessage();
+              if(quoted.fromMe){
+                readText();
+              };
+            }catch(e){
+              console.log("terjad error : A")
+            }
           }else if(!chat.isGroup&&m.hasMedia){
             readText();
           }
@@ -244,23 +248,25 @@ try {
             await m.reply("Reply saja chat ini dengan pertanyaan atau semacam nya!");
             groupReply.push(m.from);
           }else if(m.hasQuotedMsg){
-            const quoted = await m.getQuotedMessage();
-            if((!quoted.fromMe)&&quoted.type === "chat"&&quoted.body.length > 0&&m.type === "chat"&&(matchItem(m.body.toLowerCase(), "realy", systemConf.sim.high)||matchItem(m.body.toLowerCase(), ".aires", systemConf.sim.high)||matchItem(m.body.toLowerCase(), "benarkah", systemConf.sim.high))){
-              const senderID = (m.author) ? m.author : m.from;
-              queueAdd({
-                id: makeid(8),
-                chat: chat,
-                message: quoted.body,
-                senderContact: await host.getContactById(senderID)
-              }, m);
-            }else if (quoted.body.length > 0&&quoted.fromMe){
-              queueAdd({
-                id: makeid(8),
-                chat: chat,
-                message: m.body,
-                senderContact: await host.getContactById(senderID)
-              }, m);
+            try {
+              const quoted = await m.getQuotedMessage();
+              if((!quoted.fromMe)&&quoted.type === "chat"&&quoted.body.length > 0&&m.type === "chat"&&(matchItem(m.body.toLowerCase(), "realy", systemConf.sim.high)||matchItem(m.body.toLowerCase(), ".aires", systemConf.sim.high)||matchItem(m.body.toLowerCase(), "benarkah", systemConf.sim.high))){
+                const senderID = (m.author) ? m.author : m.from;
+                queueAdd({
+                  id: makeid(8),
+                  chat: chat,
+                  message: quoted.body,
+                  senderContact: await host.getContactById(senderID)
+                }, m);
+              }else if (quoted.body.length > 0&&quoted.fromMe){
+                queueAdd({
+                  id: makeid(8),
+                  chat: chat,
+                  message: m.body,
+                  senderContact: await host.getContactById(senderID)
+                }, m);
             }else { commonCommand(); }
+            }catch(e){ console.log("Terjadi Error : B") }
           }else { commonCommand(); };
         }else { commonCommand(); }
       }else { commonCommand(); };
