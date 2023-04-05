@@ -38,6 +38,44 @@
       height: 100px;
       margin-top: -50px;
     }
+    #chatlog {
+      background-color: rgb(24, 24, 24);
+      border-radius: 8px;
+      width: 95%;
+      height: 500px;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      text-align: left;
+      padding-left: 10px;
+      padding-top: 10px;
+      padding-right: 5px;
+    }
+    .chatListChat h6 img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+    .chatListChat {
+      background-color: rgb(44, 44, 44);
+      border-radius: 2px;
+      padding-top: 5px;
+      margin-bottom: 10px;
+      padding-left: 2.5px;
+      padding-bottom: 2.5px;
+      margin-top: -16px;
+      margin-left: 18px;
+    }
+    .chatListChat p {
+      margin-left: 5px;
+    }
+    .arrow-right {
+      width: 0;
+      height: 0;
+      border-top: 0px solid transparent;
+      border-bottom: 16px solid transparent;
+      border-right: 18px solid rgb(44, 44, 44);
+    }
   </style>
   <div id="root"></div>
   <script src="https://cdn.statically.io/gh/devanka761/notipin/v1.26.00/all.js"></script>
@@ -160,11 +198,11 @@
                     </li>
                     <li class="nav-item dropdown">
                       <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Dropdown
+                        Action Menu
                       </a>
                       <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Action</a></li>
-                        <li><a class="dropdown-item" href="#">Another action</a></li>
+                        <li><a class="dropdown-item" id="clearlog" href="#">Clear Logs</a></li>
+                        <li><a class="dropdown-item" id="clearchatlog" href="#">Clear Chat Logs</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#">Something else here</a></li>
                       </ul>
@@ -176,9 +214,140 @@
                 </div>
               </div>
             </nav>
-            <p>Ping : <b id="ping"></b> | Ram : <b id="ram"></b> | Node : <b id="node"></b> | Queue : <b id="queue"></b> | Uptime : <b id="uptime"></b></p>
+            <p>Ping : <b id="ping"></b> | Ram : <b id="ram"></b> | Node : <b id="node"></b> | Queue : <b id="queue"></b> | Chat Logs : <b id="chatlogslength"></b> | Uptime : <b id="uptime"></b></p>
+            <center><div id="chatlog"></div></center>
           </div>
         `;
+        document.getElementById("clearlog").addEventListener("click", ()=>{
+          Notipin.Confirm({
+            msg: "Do you want to clear logs?", // Pesan kamu
+            yes: "Yes", // Tulisan di tombol 'Yes'
+            no: "No", // Tulisan di tombol 'No'
+            onYes: async () => {
+              await fetch(`${globalData.api}/request/clearlog/${globalData.password}`, { method: "POST" })
+              .then(rawRes => { return rawRes.json() })
+              .then(res => {
+                if (res.succes){
+                  Notipin.Alert({
+                    msg: "Succes deleting logs", // Pesan kamu
+                    yes: "Ok", // Tulisan di tombol 'Yes'
+                    onYes: () => {  },
+                    type: "BLUE",
+                    mode: "DARK",
+                  })
+                }else {
+                  Notipin.Alert({
+                    msg: "Failed deleting Logs", // Pesan kamu
+                    yes: "Ok", // Tulisan di tombol 'Yes'
+                    onYes: () => {  },
+                    type: "INFO",
+                    mode: "DARK",
+                  })
+                }
+              }).catch(err => {
+                Notipin.Alert({
+                  msg: `${err}`, // Pesan kamu
+                  yes: "Ok", // Tulisan di tombol 'Yes'
+                  onYes: () => {  },
+                  type: "DANGER",
+                  mode: "DARK",
+                })
+              })
+            },
+            onNo: () => { /* Kode di sini */ },
+            type: "INFO",
+            mode: "DARK",
+          })
+        })
+        document.getElementById("clearchatlog").addEventListener("click", ()=>{
+          Notipin.Confirm({
+            msg: "Do you want to clear chat logs?", // Pesan kamu
+            yes: "Yes", // Tulisan di tombol 'Yes'
+            no: "No", // Tulisan di tombol 'No'
+            onYes: async () => {
+              await fetch(`${globalData.api}/request/clearchatlog/${globalData.password}`, { method: "POST" })
+              .then(rawRes => { return rawRes.json() })
+              .then(res => {
+                if (res.succes){
+                  Notipin.Alert({
+                    msg: "Succes deleting chat logs", // Pesan kamu
+                    yes: "Ok", // Tulisan di tombol 'Yes'
+                    onYes: () => {  },
+                    type: "BLUE",
+                    mode: "DARK",
+                  })
+                }else {
+                  Notipin.Alert({
+                    msg: "Failed deleting chat Logs", // Pesan kamu
+                    yes: "Ok", // Tulisan di tombol 'Yes'
+                    onYes: () => {  },
+                    type: "INFO",
+                    mode: "DARK",
+                  })
+                }
+              }).catch(err => {
+                Notipin.Alert({
+                  msg: `${err}`, // Pesan kamu
+                  yes: "Ok", // Tulisan di tombol 'Yes'
+                  onYes: () => {  },
+                  type: "DANGER",
+                  mode: "DARK",
+                })
+              })
+            },
+            onNo: () => { /* Kode di sini */ },
+            type: "INFO",
+            mode: "DARK",
+          })
+        })
+        const colors = [
+          "AliceBlue",
+          "Beige",
+          "Cornsilk",
+          "FloralWhite",
+          "Gainsboro",
+          "GhostWhite",
+          "HoneyDew",
+          "Ivory",
+          "Lavender",
+          "LavenderBlush",
+          "LemonChiffon",
+          "LightBlue",
+          "LightCoral",
+          "LightCyan",
+          "LightGoldenRodYellow",
+          "LightGray",
+          "LightGrey",
+          "LightGreen",
+          "LightPink",
+          "LightSalmon",
+          "LightSeaGreen",
+          "LightSkyBlue",
+          "LightSlateGray",
+          "LightSlateGrey",
+          "LightSteelBlue",
+          "LightYellow",
+          "MintCream",
+          "MistyRose",
+          "NavajoWhite",
+          "OldLace",
+          "PaleGoldenRod",
+          "PaleGreen",
+          "PaleTurquoise",
+          "PaleVioletRed",
+          "PapayaWhip",
+          "PeachPuff",
+          "SeaShell",
+          "Snow",
+          "WhiteSmoke",
+          "Yellow",
+          "YellowGreen"
+        ];
+        const getColor = ()=>{
+          return colors[Math.floor(Math.random() * colors.length)];
+        }
+        const chatLogRoom = document.getElementById("chatlog");
+        let chatColor = {};
         const getDB = async ()=>{
           const start = Date.now();
           const rawRes = await fetch(`${globalData.api}/data/${globalData.password}`).catch((err)=>{
@@ -205,16 +374,26 @@
             document.getElementById("node").innerText = `${(res.os.nodemem / 1024 / 1024).toFixed(2)}MB`;
             document.getElementById('queue').innerText = `${res.queue.length}`;
             document.getElementById("uptime").innerText = `${upHours}H-${upMinutes}M-${upSeconds}S`;
-            // res.chatLog.map(async (item) => {
-            //   if(!Object.keys(globalData.chatList).includes(item.from)){
-            //     const rawChat = await fetch(`${globalData.api}/getchat/${item.from}`, { method: "POST" });
-            //     if(rawChat.status === 200){
-            //       const chat = await rawChat.json().data;
-            //       console.log(chat);
-            //       globalData.chatList[item.from] = chat;
-            //     }
-            //   }
-            // })
+            document.getElementById("chatlogslength").innerText = `${res.chatLog.length}`;
+            let chatLog = ``;
+            res.chatLog.map(item =>{
+              if(!Object.keys(chatColor).includes(item.from)){
+                chatColor[item.from] = `${getColor()}`;
+              };
+              if(item.author){
+                if(!Object.keys(chatColor).includes(item.author)){
+                  chatColor[item.author] = `${getColor()}`;
+                };
+              };
+              chatLog += `
+                <span><div class="arrow-right"></div><div class="chatListChat">
+                  <h6><img src="https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg" alt="user icon" /><span>${item._data.notifyName}<b style="color: ${(item.author) ? chatColor[item.author] : chatColor[item.from]};">(~${(item.author) ? item.author : item.from})</b> <span style="color: yellowgreen;">from</span> ${item.chatName}<b style="color: ${chatColor[item.from]};">(${item.from})</b></span></h4>
+                  <p>${item.body}</p>
+                </div></span>
+              `;
+            })
+            chatLogRoom.innerHTML = chatLog;
+            chatLogRoom.scrollTop = chatLogRoom.scrollHeight;
           }else {
             globalData.db = false;
           }
