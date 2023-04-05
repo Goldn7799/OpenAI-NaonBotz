@@ -86,7 +86,7 @@ try {
       //common command
       const commonCommand = async ()=>{
         if(m.body.length > 0){
-          if(matchItem(m.body.toLowerCase(), ".sticker", systemConf.sim.high)){
+          if(matchItem(m.body.toLowerCase(), ".sticker", systemConf.sim.high)||m.body.toLocaleLowerCase() === ".s"){
             if(m.hasMedia){
               const chat = await m.getChat();
               await chat.sendMessage("Waitt a sec..");
@@ -96,6 +96,7 @@ try {
                 await m.reply("Done!!");
               }else {
                 await m.reply("Unknown Format");
+                console.log(media.mimetype);
               }
             }else if(m.hasQuotedMsg){
               const quoted = await m.getQuotedMessage();
@@ -107,7 +108,8 @@ try {
                   await chat.sendMessage(media, { mentions: [await host.getContactById(senderID)], sendMediaAsSticker: true, stickerAuthor: "SGStudio", stickerName: "Ai Botz|NaonBotz" })
                   await m.reply("Done!!");
                 }else {
-                  await m.reply("Unknown Format")
+                  await m.reply("Unknown Format");
+                  console.log(media.mimetype);
                 }
               }else {
                 await m.reply(`Is not a photo, is a ${m.type}`);
@@ -126,6 +128,7 @@ try {
                 await m.reply("Done!!");
               }else {
                 await m.reply("unknown Format");
+                console.log(media.mimetype);
               }
             }else {
               await m.reply(`Is not a sticker, is a ${m.type}`);
@@ -149,7 +152,7 @@ try {
             }else {
               await m.reply("You not *Admin*");
             }
-          }else if(matchItem(m.body, ".hidetag", systemConf.sim.high)&&chat.isGroup){
+          }else if(matchItem(m.body.split(" ")[0], ".hidetag", systemConf.sim.high)&&chat.isGroup){
             let isSenderAdmin = false;
             for(let participant of chat.participants){
               if(participant.id._serialized === senderID&&participant.isAdmin){
@@ -168,10 +171,10 @@ try {
                 if(quoted.body.length > 0){
                   text = quoted.body;
                 }else {
-                  text = m.body;
+                  text = m.body.replace(".hidetag", "");
                 }
               }else {
-                text = m.body;
+                text = m.body.replace(".hidetag", "");
               }
               chat.sendMessage(await text, { mentions })
             }else {
