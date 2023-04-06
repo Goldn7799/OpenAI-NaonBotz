@@ -359,7 +359,8 @@
         }
         const chatLogRoom = document.getElementById("chatlog");
         let chatColor = {};
-        let currentChatList = ``, isChatLogFirst = true;
+        let currentChatList = ``;
+        // let isChatLogFirst = true;
         const getDB = async ()=>{
           const start = Date.now();
           const rawRes = await fetch(`${globalData.api}/data/${globalData.password}`).catch((err)=>{
@@ -431,10 +432,10 @@
                 chatLogRoom.scrollTop = chatLogRoom.scrollHeight;
               }else {
                 chatLogRoom.innerHTML = chatLog;
-                if(isChatLogFirst){
-                  isChatLogFirst = false;
-                  chatLogRoom.scrollTop = chatLogRoom.scrollHeight;
-                };
+                // if(isChatLogFirst){
+                //   isChatLogFirst = false;
+                //   chatLogRoom.scrollTop = chatLogRoom.scrollHeight;
+                // };
               }
             };
           }else {
