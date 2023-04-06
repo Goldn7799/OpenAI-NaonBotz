@@ -388,7 +388,7 @@
               chatLog += `
                 <span><div style="border-right: 18px solid ${currentBackground};" class="arrow-right"></div><div style="background-color: ${currentBackground};" class="chatListChat">
                   <h6><img src="https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg" alt="user icon" /><span>${(item.fromMe) ? `<b style="color: lime;">BOT</b>` : item._data.notifyName}<b style="color: ${(item.author) ? chatColor[item.author] : chatColor[item.from]};">(~${(item.author) ? item.author : item.from})</b> <span style="color: yellowgreen;">from</span> ${item.chatName}<b style="color: ${chatColor[item.from]};">(${item.from})</b></span></h4>
-                  <p>${item.body}</p>
+                  <p>${(item.type === "chat") ? item.body : `<b style="color: orange;">${item.type}</b>`}</p>
                 </div></span>
               `;
             })
