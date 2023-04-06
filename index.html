@@ -401,7 +401,7 @@
                     ${(item.hasQuotedMsg) ? `
                     <div class="quoted">
                       <p><b>${item.quotedName}</b></p>
-                      <p style="margin-top: -15px;">${(`${item._data.quotedMsg.body}`.length > 49) ? `${item._data.quotedMsg.body.substring(0, 50)}....` : item._data.quotedMsg.body}</p>
+                      <p style="margin-top: -15px;">${(`${item.quotedBody}`.length > 49) ? `${item.quotedBody.substring(0, 50)}....` : item.quotedBody}</p>
                     </div>
                     ` : ""}
                     <p>${(item.type === "chat") ? item.body : `<b style="color: orange;">${item.type}</b>`}</p>
