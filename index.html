@@ -57,7 +57,6 @@
       margin-right: 10px;
     }
     .chatListChat {
-      background-color: rgb(44, 44, 44);
       border-radius: 2px;
       padding-top: 5px;
       margin-bottom: 10px;
@@ -74,7 +73,6 @@
       height: 0;
       border-top: 0px solid transparent;
       border-bottom: 16px solid transparent;
-      border-right: 18px solid rgb(44, 44, 44);
     }
   </style>
   <div id="root"></div>
@@ -348,6 +346,7 @@
         }
         const chatLogRoom = document.getElementById("chatlog");
         let chatColor = {};
+        let currentChatList = ``, isChatLogFirst = true;
         const getDB = async ()=>{
           const start = Date.now();
           const rawRes = await fetch(`${globalData.api}/data/${globalData.password}`).catch((err)=>{
@@ -385,15 +384,27 @@
                   chatColor[item.author] = `${getColor()}`;
                 };
               };
+              const currentBackground =  `${(item.fromMe) ? "rgb(80, 80, 80)" : "rgb(44, 44, 44)"}`;
               chatLog += `
-                <span><div class="arrow-right"></div><div class="chatListChat">
-                  <h6><img src="https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg" alt="user icon" /><span>${item._data.notifyName}<b style="color: ${(item.author) ? chatColor[item.author] : chatColor[item.from]};">(~${(item.author) ? item.author : item.from})</b> <span style="color: yellowgreen;">from</span> ${item.chatName}<b style="color: ${chatColor[item.from]};">(${item.from})</b></span></h4>
+                <span><div style="border-right: 18px solid ${currentBackground};" class="arrow-right"></div><div style="background-color: ${currentBackground};" class="chatListChat">
+                  <h6><img src="https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg" alt="user icon" /><span>${(item.fromMe) ? `<b style="color: lime;">BOT</b>` : item._data.notifyName}<b style="color: ${(item.author) ? chatColor[item.author] : chatColor[item.from]};">(~${(item.author) ? item.author : item.from})</b> <span style="color: yellowgreen;">from</span> ${item.chatName}<b style="color: ${chatColor[item.from]};">(${item.from})</b></span></h4>
                   <p>${item.body}</p>
                 </div></span>
               `;
             })
-            chatLogRoom.innerHTML = chatLog;
-            chatLogRoom.scrollTop = chatLogRoom.scrollHeight;
+            if(currentChatList !== chatLog){
+              currentChatList = chatLog;
+              if (chatLogRoom.scrollTop + chatLogRoom.clientHeight >= chatLogRoom.scrollHeight){
+                chatLogRoom.innerHTML = chatLog;
+                chatLogRoom.scrollTop = chatLogRoom.scrollHeight;
+              }else {
+                chatLogRoom.innerHTML = chatLog;
+                if(isChatLogFirst){
+                  isChatLogFirst = false;
+                  chatLogRoom.scrollTop = chatLogRoom.scrollHeight;
+                };
+              }
+            };
           }else {
             globalData.db = false;
           }
