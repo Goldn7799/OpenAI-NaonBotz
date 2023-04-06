@@ -84,6 +84,9 @@
       background-color: rgba(0, 0, 0, 0.199);
       border-radius: 5px;
     }
+    .animated {
+      transition: all ease-in-out 0.25s;
+    }
   </style>
   <div id="root"></div>
   <script src="https://cdn.statically.io/gh/devanka761/notipin/v1.26.00/all.js"></script>
@@ -408,6 +411,19 @@
                 </div></span>
               `;
             })
+            if(!chatLog.length > 0){
+              if(res.os.state.includes("Loading")){
+                const state = res.os.state.split(" ")[1].replace("%", "");
+                chatLog = `
+                  <center style="margin-top: 25px"><h3>${res.os.state}</h3>
+                  <div style="width: 250px; height: 10px;" class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="${state}" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar animated" style="width: ${state}%"></div>
+                  </div></center>
+                `;
+              }else {
+                chatLog = `<center style="margin-top: 25px"><h3>${res.os.state}</h3></center>`;
+              }
+            };
             if(currentChatList !== chatLog){
               currentChatList = chatLog;
               if (chatLogRoom.scrollTop + chatLogRoom.clientHeight >= chatLogRoom.scrollHeight){
