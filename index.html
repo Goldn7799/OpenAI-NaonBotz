@@ -405,7 +405,7 @@
                     ${(item.hasQuotedMsg) ? `
                     <div class="quoted">
                       <p><b>${item.quotedName}</b></p>
-                      <p style="margin-top: -15px;">${(item.quotedBody.length > 0) ? `${(item._data.quotedMsg.type === "chat") ? "" : `<span style="color: orange;">${item._data.quotedMsg.type}</span> : `}${(`${item.quotedBody}`.length > 49) ? `${item.quotedBody.substring(0, 50)}....` : item.quotedBody}` : `<span style="color: orange;">${item._data.quotedMsg.type}</span>`}</p>
+                      <p style="margin-top: -15px;">${(`${item.quotedBody}`.length > 0) ? `${(item._data.quotedMsg.type === "chat") ? "" : `<span style="color: orange;">${item._data.quotedMsg.type}</span> : `}${(`${item.quotedBody}`.length > 49) ? `${item.quotedBody.substring(0, 50)}....` : item.quotedBody}` : `<span style="color: orange;">${item._data.quotedMsg.type}</span>`}</p>
                     </div>
                     ` : ""}
                     <p style="margin-left: 15px;">${(item.type === "chat") ? item.body : `<b style="color: orange;">${item.type}</b>${(item.body.length > 0) ? ` : ${item.body}` : ""}`}</p>
