@@ -55,24 +55,34 @@
       height: 50px;
       border-radius: 50%;
       margin-right: 10px;
+      margin-left: 5px;
     }
     .chatListChat {
       border-radius: 2px;
-      padding-top: 5px;
+      padding-top: 8px;
       margin-bottom: 10px;
       padding-left: 2.5px;
       padding-bottom: 2.5px;
       margin-top: -16px;
       margin-left: 18px;
     }
-    .chatListChat p {
-      margin-left: 5px;
-    }
     .arrow-right {
       width: 0;
       height: 0;
       border-top: 0px solid transparent;
       border-bottom: 16px solid transparent;
+    }
+    .quoted b p {
+      color: lawngreen;
+    }
+    .quoted {
+      padding-top: 5px;
+      padding-left: 15px;
+      border-left: 5px solid green;
+      margin-left: 5px;
+      margin-right: 5px;
+      background-color: rgba(0, 0, 0, 0.199);
+      border-radius: 5px;
     }
   </style>
   <div id="root"></div>
@@ -388,7 +398,13 @@
               chatLog += `
                 <span><div style="border-right: 18px solid ${currentBackground};" class="arrow-right"></div><div style="background-color: ${currentBackground};" class="chatListChat">
                   <h6><img src="https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg" alt="user icon" /><span>${(item.fromMe) ? `<b style="color: lime;">BOT</b>` : item._data.notifyName}<b style="color: ${(item.author) ? chatColor[item.author] : chatColor[item.from]};">(~${(item.author) ? item.author : item.from})</b> <span style="color: yellowgreen;">from</span> ${item.chatName}<b style="color: ${chatColor[item.from]};">(${item.from})</b></span></h4>
-                  <p>${(item.type === "chat") ? item.body : `<b style="color: orange;">${item.type}</b>`}</p>
+                    ${(item.hasQuotedMsg) ? `
+                    <div class="quoted">
+                      <p><b>${item.quotedName}</b></p>
+                      <p style="margin-top: -15px;">${(`${item._data.quotedMsg.body}`.length > 49) ? `${item._data.quotedMsg.body.substring(0, 50)}....` : item._data.quotedMsg.body}</p>
+                    </div>
+                    ` : ""}
+                    <p>${(item.type === "chat") ? item.body : `<b style="color: orange;">${item.type}</b>`}</p>
                 </div></span>
               `;
             })
