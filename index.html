@@ -26,6 +26,12 @@
       background-color: rgba(0, 132, 255, 0.568);
       border-radius: 5%;
     }
+    .chatTime {
+      text-align: right;
+      margin-right: 5px;
+      margin-bottom: -4px;
+      color: gray;
+    }
     .login h2 {
       margin-top: 5px;
       margin-bottom: 80px;
@@ -219,7 +225,7 @@
                       </ul>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link disabled">Disabled</a>
+                      <a class="nav-link disabled" id="waInfo">Disabled</a>
                     </li>
                   </ul>
                 </div>
@@ -388,6 +394,7 @@
             document.getElementById('queue').innerText = `${res.queue.length}`;
             document.getElementById("uptime").innerText = `${upHours}H-${upMinutes}M-${upSeconds}S`;
             document.getElementById("chatlogslength").innerText = `${res.chatLog.length}`;
+            const waInfo = document.getElementById("waInfo");
             let chatLog = ``;
             res.chatLog.map(item =>{
               if(!Object.keys(chatColor).includes(item.from)){
@@ -399,6 +406,7 @@
                 };
               };
               const currentBackground =  `${(item.fromMe) ? "rgb(80, 80, 80)" : "rgb(44, 44, 44)"}`;
+              const dateMsg = new Date(item.timestamp * 1000);
               chatLog += `
                 <span><div style="border-right: 18px solid ${currentBackground};" class="arrow-right"></div><div style="background-color: ${currentBackground};" class="chatListChat">
                   <h6><img src="https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg" alt="user icon" /><span>${(item.fromMe) ? `<b style="color: lime;">BOT</b>` : item._data.notifyName}<b style="color: ${(item.author) ? chatColor[item.author] : chatColor[item.from]};">(~${(item.author) ? item.author : item.from})</b> <span style="color: yellowgreen;">from</span> ${item.chatName}<b style="color: ${chatColor[item.from]};">(${item.from})</b></span></h4>
@@ -409,9 +417,17 @@
                     </div>
                     ` : ""}
                     <p style="margin-left: 15px;">${(item.type === "chat") ? item.body : `<b style="color: orange;">${item.type}</b>${(item.body.length > 0) ? ` : ${item.body}` : ""}`}</p>
+                    <p class="chatTime">${dateMsg.getHours()}.${dateMsg.getMinutes()}</p>
                 </div></span>
               `;
             })
+            if(res.os.state !== "Disconnect"){
+              waInfo.style.color = "lime";
+              waInfo.innerText = "Connected";
+            }else {
+              waInfo.style.color = "red";
+              waInfo.innerText = "Disconnected";
+            }
             if(!chatLog.length > 0){
               if(res.os.state.includes("Loading")){
                 const state = res.os.state.split(" ")[1].replace("%", "");
