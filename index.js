@@ -215,14 +215,22 @@ try {
             }else { await m.reply("Who image?") }
           }else {
             if(m.hasQuotedMsg){
-              const qMsg = await m.getQuotedMessage();
-              next(((qMsg.fromMe) ? qMsg.body : false));
+              try {
+                const qMsg = await m.getQuotedMessage();
+                next(((qMsg.fromMe) ? qMsg.body : false));
+              }catch(e){
+                next(false);
+              }
             }else { next(false); }
           };
         }else if(m.type === "chat"){ 
           if(m.hasQuotedMsg){
-            const qMsg = await m.getQuotedMessage();
-            next(((qMsg.fromMe) ? qMsg.body : false));
+            try {
+              const qMsg = await m.getQuotedMessage();
+              next(((qMsg.fromMe) ? qMsg.body : false));
+            }catch(e){
+              next(false);
+            }
           }else { next(false); }
         }
         else if(m.type === "sticker"||m.type === "image"){
