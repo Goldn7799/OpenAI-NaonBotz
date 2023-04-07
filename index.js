@@ -5,7 +5,6 @@ const { makeid, matchItem, drawProgressBar, convertWebPtoPNG } = require("./lib/
 const { bot, user, systemConf } = require("./globalConfig.js");
 const { interface } = require("./lib/whatsapp/Interface.js");
 const host = primaryHost;
-
 try {
   //Check if ApiKey is avabile or not
   if (bot.openAI_APIKEY.length > 10||bot.openAI_APIKEY) {
@@ -36,8 +35,9 @@ try {
             id: makeid(8),
             chat: chat,
             message: m.body,
-            senderContact: await host.getContactById(senderID)
-          }, m, assistant);
+            senderContact: await host.getContactById(senderID),
+            assistant: assistant
+          }, m, "text");
         };
       }
       const readText = async (qMsg)=>{
@@ -69,8 +69,9 @@ try {
                       id: makeid(8),
                       chat: chat,
                       message: text,
-                      senderContact: await host.getContactById(senderID)
-                    }, m, qMsg);
+                      senderContact: await host.getContactById(senderID),
+                      assistant: qMsg
+                    }, m, "text");
                   }else {
                     await m.reply("cant detect text on this image")
                   };
@@ -204,6 +205,7 @@ try {
                   const { data: { text } } = await worker.recognize(base64Image);
                   console.log(`\nResult : ${text}`);
                   if(text){
+                    await m.react("🖨");
                     await m.reply(text);
                   }else {
                     await m.reply("cant detect text on this image")
@@ -219,9 +221,21 @@ try {
             if(quoted&&quoted.hasMedia){
               const audio = await quoted.downloadMedia();
               if(audio&&(audio.mimetype.split(";")[0] === "audio/mpeg"||audio.mimetype.split(";")[0] === "audio/ogg")){
+                await m.react("🔃");
                 await m.reply(audio, null, { sendAudioAsVoice: true });
               }else { await m.reply(`Is not audio, is ${audio.mimetype}`); }
             }else { await m.reply("Where Audio?") }
+          }else if(matchItem(m.body.toLowerCase().split(" ")[0], ".aiimg", systemConf.sim.high)){
+            const mBody = m.body.replace(".aiimg", "").replace(" ", "");
+            if (mBody.length > 0){
+              queueAdd({
+                id: makeid(8),
+                chat: chat,
+                message: mBody,
+                senderContact: await host.getContactById(senderID),
+                assistant: false
+              }, m, "image");
+            }else { await m.reply("Use .aiimg <query>") }
           }else if(matchItem(m.body.toLowerCase(), ".menu", systemConf.sim.high)){
             await m.react("✅");
             await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN`)
@@ -289,15 +303,17 @@ try {
                   id: makeid(8),
                   chat: chat,
                   message: quoted.body,
-                  senderContact: await host.getContactById(senderID)
-                }, m, false);
+                  senderContact: await host.getContactById(senderID),
+                  assistant: false
+                }, m, "text");
               }else if (quoted.body.length > 0&&quoted.fromMe){
                 queueAdd({
                   id: makeid(8),
                   chat: chat,
                   message: m.body,
-                  senderContact: await host.getContactById(senderID)
-                }, m, quoted.body);
+                  senderContact: await host.getContactById(senderID),
+                  assistant: quoted.body
+                }, m, "text");
             }else { commonCommand(); }
             }catch(e){ console.log("Terjadi Error : B") }
           }else { commonCommand(); };
