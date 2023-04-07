@@ -30,17 +30,17 @@ try {
       };
       const senderID = (m.author) ? m.author : m.from;
       //return generate AI chat
-      const next = async ()=>{
+      const next = async (assistant)=>{
         if(((!chat.isGroup)||isWhiteList)&&m.type === "chat"){
           queueAdd({
             id: makeid(8),
             chat: chat,
             message: m.body,
             senderContact: await host.getContactById(senderID)
-          }, m);
+          }, m, assistant);
         };
       }
-      const readText = async ()=>{
+      const readText = async (qMsg)=>{
         if(m.hasMedia){
           const media = await m.downloadMedia();
           if(media){
@@ -70,7 +70,7 @@ try {
                       chat: chat,
                       message: text,
                       senderContact: await host.getContactById(senderID)
-                    }, m);
+                    }, m, qMsg);
                   }else {
                     await m.reply("cant detect text on this image")
                   };
@@ -213,20 +213,30 @@ try {
                 }
               }else { await m.reply("Is Not Image") }
             }else { await m.reply("Who image?") }
-          }else { next(); };
-        }else if(m.type === "chat"){ next() }
+          }else {
+            if(m.hasQuotedMsg){
+              const qMsg = await m.getQuotedMessage();
+              next(((qMsg.fromMe) ? qMsg.body : false));
+            }else { next(false); }
+          };
+        }else if(m.type === "chat"){ 
+          if(m.hasQuotedMsg){
+            const qMsg = await m.getQuotedMessage();
+            next(((qMsg.fromMe) ? qMsg.body : false));
+          }else { next(false); }
+        }
         else if(m.type === "sticker"||m.type === "image"){
           if(m.hasQuotedMsg&&m.hasMedia){
             try{
               const quoted = await m.getQuotedMessage();
               if(quoted.fromMe){
-                readText();
+                readText(quoted.body);
               };
             }catch(e){
               console.log("terjad error : A")
             }
           }else if(!chat.isGroup&&m.hasMedia){
-            readText();
+            readText(false);
           }
         };
       }
@@ -260,14 +270,14 @@ try {
                   chat: chat,
                   message: quoted.body,
                   senderContact: await host.getContactById(senderID)
-                }, m);
+                }, m, false);
               }else if (quoted.body.length > 0&&quoted.fromMe){
                 queueAdd({
                   id: makeid(8),
                   chat: chat,
                   message: m.body,
                   senderContact: await host.getContactById(senderID)
-                }, m);
+                }, m, quoted.body);
             }else { commonCommand(); }
             }catch(e){ console.log("Terjadi Error : B") }
           }else { commonCommand(); };
