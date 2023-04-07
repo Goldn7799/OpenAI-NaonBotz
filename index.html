@@ -221,7 +221,7 @@
                         <li><a class="dropdown-item" id="clearlog" href="#">Clear Logs</a></li>
                         <li><a class="dropdown-item" id="clearchatlog" href="#">Clear Chat Logs</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        <li><a class="dropdown-item" id="setlimit" href="#">Set Limit</a></li>
                       </ul>
                     </li>
                     <li class="nav-item">
@@ -231,7 +231,7 @@
                 </div>
               </div>
             </nav>
-            <p>Ping : <b id="ping"></b> | Ram : <b id="ram"></b> | Node : <b id="node"></b> | Queue : <b id="queue"></b> | Chat Logs : <b id="chatlogslength"></b> | Uptime : <b id="uptime"></b></p>
+            <p>Ping : <b id="ping"></b> | Ram : <b id="ram"></b> | Node : <b id="node"></b> | Queue : <b id="queue"></b> | Limit : <b id="limit"></b> | Chat Logs : <b id="chatlogslength"></b> | Uptime : <b id="uptime"></b></p>
             <center><div id="chatlog"></div></center>
           </div>
         `;
@@ -317,6 +317,68 @@
             mode: "DARK",
           })
         })
+        document.getElementById("setlimit").addEventListener("click", ()=>{
+          Notipin.Prompt({
+            msg: "Set limit in $", // Pesan kamu
+            placeholder: "1",
+            max: 0, // Maksimal karakter (integer)
+            textarea: false, // tag element (boolean)
+            yes: "Ok", // Tulisan di tombol 'Yes'
+            no: "Cancel", // Tulisan di tombol 'No'
+            onYes: (res) => {
+              if(res.length > 0&&parseInt(res)){
+                Notipin.Confirm({
+                  msg: `Really to set limit <b>${res}$</b> ?`, // Pesan kamu
+                  yes: "YES", // Tulisan di tombol 'Yes'
+                  no: "NO", // Tulisan di tombol 'No'
+                  onYes: async () => {
+                    const ress = await fetch(`${globalData.api}/request/setlimit/${res}/${globalData.password}`, { method: "POST" })
+                    .catch(err => {
+                      Notipin.Alert({
+                        msg: `${err}`, // Pesan kamu
+                        yes: "Ok", // Tulisan di tombol 'Yes'
+                        onYes: () => {  },
+                        type: "DANGER",
+                        mode: "DARK",
+                      })
+                    });
+                    if(ress.status === 200){
+                      Notipin.Alert({
+                        msg: `Succes Changed`, // Pesan kamu
+                        yes: "Ok", // Tulisan di tombol 'Yes'
+                        onYes: () => {  },
+                        type: "INFO",
+                        mode: "DARK"
+                      })
+                    }else {
+                      Notipin.Alert({
+                        msg: `Failed to change`, // Pesan kamu
+                        yes: "Ok", // Tulisan di tombol 'Yes'
+                        onYes: () => {  },
+                        type: "DANGER",
+                        mode: "DARK",
+                      })
+                    }
+                  },
+                  onNo: () => { /* Kode di sini */ },
+                  type: "BLUE",
+                  mode: "DARK",
+                })
+              }else {
+                Notipin.Alert({
+                  msg: `Please fill input or use number only`, // Pesan kamu
+                  yes: "Ok", // Tulisan di tombol 'Yes'
+                  onYes: () => {  },
+                  type: "DANGER",
+                  mode: "DARK",
+                })
+              }
+            },
+            onNo: (res) => { /* Kode di sini */ },
+            type: "BLUE",
+            mode: "DARK",
+          })
+        })
         const colors = [
           "AliceBlue",
           "Beige",
@@ -394,6 +456,7 @@
             document.getElementById('queue').innerText = `${res.queue.length}`;
             document.getElementById("uptime").innerText = `${upHours}H-${upMinutes}M-${upSeconds}S`;
             document.getElementById("chatlogslength").innerText = `${res.chatLog.length}`;
+            document.getElementById("limit").innerText = `${res.os.limit}$`;
             const waInfo = document.getElementById("waInfo");
             let chatLog = ``;
             res.chatLog.map(item =>{

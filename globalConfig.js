@@ -11,6 +11,11 @@ const bot = {
   "openAI_organization": "You"
 }
 
+let pricing = {
+  "limit_avabile": 0,
+  "image_cost": 0.018
+}
+
 const systemConf = {
   "sim": {
     "high": 0.9,
@@ -24,8 +29,29 @@ const systemConf = {
   }
 }
 
+const buyItem = (cost)=>{
+  if (pricing.limit_avabile > cost){
+    pricing.limit_avabile -= cost;
+    return true;
+  }else {
+    return false;
+  }
+}
+
+const restoreItem = (cost)=>{
+  pricing.limit_avabile += cost;
+}
+
+const setLimit = (limit)=>{
+  pricing.limit_avabile = limit;
+}
+
 module.exports = {
   user,
   bot,
-  systemConf
+  systemConf,
+  pricing,
+  buyItem,
+  restoreItem,
+  setLimit
 }
