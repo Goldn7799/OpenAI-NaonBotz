@@ -326,7 +326,7 @@
             yes: "Ok", // Tulisan di tombol 'Yes'
             no: "Cancel", // Tulisan di tombol 'No'
             onYes: (res) => {
-              if(res.length > 0&&parseInt(res)){
+              if(res.length > 0&&parseFloat(res)){
                 Notipin.Confirm({
                   msg: `Really to set limit <b>${res}$</b> ?`, // Pesan kamu
                   yes: "YES", // Tulisan di tombol 'Yes'
