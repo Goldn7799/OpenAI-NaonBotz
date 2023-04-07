@@ -4,7 +4,9 @@ const { queueAdd } = require("./lib/OpenAI/Queue.js");
 const { makeid, matchItem, drawProgressBar, convertWebPtoPNG } = require("./lib/utility/Utility.js");
 const { bot, user, systemConf } = require("./globalConfig.js");
 const { interface } = require("./lib/whatsapp/Interface.js");
+const fs = require("fs");
 const host = primaryHost;
+
 try {
   //Check if ApiKey is avabile or not
   if (bot.openAI_APIKEY.length > 10||bot.openAI_APIKEY) {
@@ -236,9 +238,31 @@ try {
                 assistant: false
               }, m, "image");
             }else { await m.reply("Use .aiimg <query>") }
+          }else if(matchItem(m.body.toLowerCase(), ".aiimgvar", systemConf.sim.high)){
+            const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false;
+            const image = (m.hasMedia) ? await m.downloadMedia() : ((quoted&&quoted.hasMedia) ? await quoted.downloadMedia() : false);
+            if(image){
+              const buffer = await Buffer.from(image.data, "base64");
+              await fs.writeFile("./temp.png", buffer, async (err)=>{
+                if(err){
+                  m.reply("Failed Save State");
+                }else{
+                  queueAdd({
+                    id: makeid(8),
+                    chat: chat,
+                    message: m.body,
+                    senderContact: await host.getContactById(senderID),
+                    assistant: false
+                  }, m, "imageVariation");
+                }
+              })
+            }else {
+              await m.react("🤣");
+              await m.reply("I think i loss the image");
+            }
           }else if(matchItem(m.body.toLowerCase(), ".menu", systemConf.sim.high)){
             await m.react("✅");
-            await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN`)
+            await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .aiimg${"```"} : AI Create Image\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN`)
           }else {
             if(m.hasQuotedMsg){
               try {

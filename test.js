@@ -1,6 +1,6 @@
-const { generateImage } = require("./lib/OpenAI/OpenAI");
+const { generateVariationImage } = require("./lib/OpenAI/OpenAI");
 
 const a = async ()=>{
-  console.log(await generateImage("Rich Home"));
+  console.log(await generateVariationImage());
 };
 a()
