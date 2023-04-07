@@ -92,8 +92,8 @@ try {
               await chat.sendMessage("Waitt a sec..");
               const media = await m.downloadMedia();
               if(media.mimetype === "image/png"||media.mimetype === "image/jpeg"||media.mimetype === "image/gif"||media.mimetype === "image/webp"){
-                await chat.sendMessage(media, { mentions: [await host.getContactById(senderID)], sendMediaAsSticker: true, stickerAuthor: "SGStudio", stickerName: "Ai Botz|NaonBotz" })
-                await m.reply("Done!!");
+                await m.react("✅");
+                await m.reply(media, null, { sendMediaAsSticker: true, stickerAuthor: "SGStudio", stickerName: "Ai Botz|NaonBotz" });
               }else {
                 await m.reply("Unknown Format");
                 console.log(media.mimetype);
@@ -105,8 +105,8 @@ try {
                 await chat.sendMessage("Waitt a sec..");
                 const media = await quoted.downloadMedia();
                 if(media.mimetype === "image/png"||media.mimetype === "image/jpeg"||media.mimetype === "image/gif"||media.mimetype === "image/webp"){
-                  await chat.sendMessage(media, { mentions: [await host.getContactById(senderID)], sendMediaAsSticker: true, stickerAuthor: "SGStudio", stickerName: "Ai Botz|NaonBotz" })
-                  await m.reply("Done!!");
+                  await m.react("✅");
+                  await m.reply(media, null, { sendMediaAsSticker: true, stickerAuthor: "SGStudio", stickerName: "Ai Botz|NaonBotz" });
                 }else {
                   await m.reply("Unknown Format");
                   console.log(media.mimetype);
@@ -124,8 +124,9 @@ try {
               await chat.sendMessage("Waitt a sec..");
               const media = await quoted.downloadMedia();
               if(media.mimetype === "image/png"||media.mimetype === "image/gif"||media.mimetype === "image/jpeg"||media.mimetype === "image/webp"){
-                await chat.sendMessage(media, { mentions: [ await host.getContactById(senderID) ] });
-                await m.reply("Done!!");
+                // await chat.sendMessage(media, { mentions: [ await host.getContactById(senderID) ] });
+                await m.react("⌛");
+                await m.reply("Done!!", null, { media: media });
               }else {
                 await m.reply("unknown Format");
                 console.log(media.mimetype);
@@ -213,6 +214,17 @@ try {
                 }
               }else { await m.reply("Is Not Image") }
             }else { await m.reply("Who image?") }
+          }else if(matchItem(m.body.toLowerCase(), ".tovn", systemConf.sim.high)){
+            const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false;
+            if(quoted&&quoted.hasMedia){
+              const audio = await quoted.downloadMedia();
+              if(audio&&(audio.mimetype.split(";")[0] === "audio/mpeg"||audio.mimetype.split(";")[0] === "audio/ogg")){
+                await m.reply(audio, null, { sendAudioAsVoice: true });
+              }else { await m.reply(`Is not audio, is ${audio.mimetype}`); }
+            }else { await m.reply("Where Audio?") }
+          }else if(matchItem(m.body.toLowerCase(), ".menu", systemConf.sim.high)){
+            await m.react("✅");
+            await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN`)
           }else {
             if(m.hasQuotedMsg){
               try {
