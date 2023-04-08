@@ -496,7 +496,7 @@
             document.getElementById('queue').innerText = `${res.queue.length}`;
             document.getElementById("uptime").innerText = `${upHours}H-${upMinutes}M-${upSeconds}S`;
             document.getElementById("chatlogslength").innerText = `${res.chatLog.length}`;
-            document.getElementById("limit").innerText = `${res.os.limit}$`;
+            document.getElementById("limit").innerText = `${res.os.limit.toFixed(4)}$`;
             const waInfo = document.getElementById("waInfo");
             let chatLog = ``;
             res.chatLog.map(item =>{
