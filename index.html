@@ -12,6 +12,9 @@
     body {
       background-color: rgb(39, 39, 39);
     }
+    .queueLogList {
+      background-color: rgb(44, 44, 44);
+    }
     .centerPlus {
       display: flex;
       justify-content: center; /* mengatur posisi horizontal */
@@ -45,6 +48,40 @@
       margin-top: -50px;
     }
     #chatlog {
+      background-color: rgb(24, 24, 24);
+      border-radius: 8px;
+      width: 95%;
+      height: 500px;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      text-align: left;
+      padding-left: 10px;
+      padding-top: 10px;
+      padding-right: 5px;
+    }
+    #queuelog {
+      margin-top: 5px;
+      background-color: rgb(24, 24, 24);
+      border-radius: 8px;
+      width: 95%;
+      height: 500px;
+      overflow-y: scroll;
+      scroll-behavior: smooth;
+      text-align: left;
+      padding-left: 10px;
+      padding-top: 10px;
+      padding-right: 5px;
+    }
+    .queueLogList {
+      padding-top: 10px;
+      padding-left: 10px;
+      margin-bottom: 10px;
+    }
+    .queueLogList h5 {
+      color: rgb(100, 100, 100);
+    }
+    #buylog {
+      margin-top: 5px;
       background-color: rgb(24, 24, 24);
       border-radius: 8px;
       width: 95%;
@@ -233,6 +270,8 @@
             </nav>
             <p>Ping : <b id="ping"></b> | Ram : <b id="ram"></b> | Node : <b id="node"></b> | Queue : <b id="queue"></b> | Limit : <b id="limit"></b> | Chat Logs : <b id="chatlogslength"></b> | Uptime : <b id="uptime"></b></p>
             <center><div id="chatlog"></div></center>
+            <center><h4 style="margin-top: 15px;">Queue</h4><div id="queuelog"></div></center>
+            <center><h4 style="margin-top: 15px;">Buy Transaction</h4><div id="buylog"></div></center>
           </div>
         `;
         document.getElementById("clearlog").addEventListener("click", ()=>{
@@ -428,6 +467,7 @@
         const chatLogRoom = document.getElementById("chatlog");
         let chatColor = {};
         let currentChatList = ``;
+        let currentQueueLog = `none`;
         // let isChatLogFirst = true;
         const getDB = async ()=>{
           const start = Date.now();
@@ -511,12 +551,27 @@
                 chatLogRoom.scrollTop = chatLogRoom.scrollHeight;
               }else {
                 chatLogRoom.innerHTML = chatLog;
-                // if(isChatLogFirst){
-                //   isChatLogFirst = false;
-                //   chatLogRoom.scrollTop = chatLogRoom.scrollHeight;
-                // };
               }
             };
+            let queueLog = ``;
+            res.queue.map(item => {
+              const dateMsg = new Date(item.m.timestamp * 1000);
+              queueLog += `<div class="queueLogList">
+                <h5>${item.id}(${item.queueType})</h5>
+                <p><span style="color: lime;">On </span>${item.senderContact.pushname}<b>(${item.senderContact.id._serialized})</b><span>From</span>${item.chat.name}<b>(${item.chat.id._serialized})</b></p>
+                <p><span style="color: lime;">Request </span>${(item.m.type === "chat") ? item.m.body : `<b style="color: orange;">${item.m.type}</b>${(item.m.body.length > 0) ? ` : ${item.m.body}` : ""}`}</p>
+                <p class="chatTime">${dateMsg.getHours()}.${dateMsg.getMinutes()}</p>
+              </div>`
+            })
+            if(queueLog !== currentQueueLog){
+              currentQueueLog = queueLog;
+              if(queueLog.length > 0){
+                document.getElementById("queuelog").innerHTML = queueLog;
+              }else {
+                document.getElementById("queuelog").innerHTML = `<center style="margin-top: 10px; color: rgb(100, 100, 100);"><h5>No Queues</h5></center>`;
+              }
+            };
+            document.getElementById("buylog").innerHTML = `<center style="margin-top: 10px; color: rgb(100, 100, 100);"><h5>Comming Soon</h5></center>`;
           }else {
             globalData.db = false;
           }
