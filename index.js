@@ -265,7 +265,7 @@ try {
             await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .aiimg${"```"} : AI Create Image\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN\n ${"```"}- .limit${"```"} : Check Global limit`)
           }else if(matchItem(m.body.toLowerCase(), ".limit", systemConf.sim.high)){
             await m.react("✅");
-            await m.reply(`Global Limit : *${pricing.limit_avabile}$*`);
+            await m.reply(`Global Limit : *${pricing.limit_avabile.toFixed(4)}$*`);
             await chat.sendMessage(`*-->List Price of Premium Command<--*\n Create Image(.aiimg) : *${pricing.image_cost}$/image*`);
           }else {
             if(m.hasQuotedMsg){
