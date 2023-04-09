@@ -80,7 +80,7 @@
     .queueLogList h5 {
       color: rgb(100, 100, 100);
     }
-    #buylog {
+    #translog {
       margin-top: 5px;
       background-color: rgb(24, 24, 24);
       border-radius: 8px;
@@ -271,7 +271,7 @@
             <p>Ping : <b id="ping"></b> | Ram : <b id="ram"></b> | Node : <b id="node"></b> | Queue : <b id="queue"></b> | Limit : <b id="limit"></b> | Chat Logs : <b id="chatlogslength"></b> | Uptime : <b id="uptime"></b></p>
             <center><div id="chatlog"></div></center>
             <center><h4 style="margin-top: 15px;">Queue</h4><div id="queuelog"></div></center>
-            <center><h4 style="margin-top: 15px;">Buy Transaction</h4><div id="buylog"></div></center>
+            <center><h4 style="margin-top: 15px;">Transaction Log</h4><div id="translog"></div></center>
           </div>
         `;
         document.getElementById("clearlog").addEventListener("click", ()=>{
@@ -512,7 +512,7 @@
               const dateMsg = new Date(item.timestamp * 1000);
               const quotedName = (item.hasQuotedMsg) ? (item.quotedName).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
               const quotedBody = (item.hasQuotedMsg) ? (item.quotedBody).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
-              const mBody = (item.body).replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+              const mBody = (item.body) ? (item.body).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
               chatLog += `
                 <span><div style="border-right: 18px solid ${currentBackground};" class="arrow-right"></div><div style="background-color: ${currentBackground};" class="chatListChat">
                   <h6><img src="https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg" alt="user icon" /><span>${(item.fromMe) ? `<b style="color: lime;">BOT</b>` : item._data.notifyName}<b style="color: ${(item.author) ? chatColor[item.author] : chatColor[item.from]};">(~${(item.author) ? item.author : item.from})</b> <span style="color: yellowgreen;">from</span> ${item.chatName}<b style="color: ${chatColor[item.from]};">(${item.from})</b></span></h4>
@@ -559,7 +559,7 @@
             let queueLog = ``;
             res.queue.map(item => {
               const dateMsg = new Date(item.m.timestamp * 1000);
-              const mBody = (item.m.body).replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+              const mBody = (item.m.body) ? (item.m.body).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
               queueLog += `<div class="queueLogList">
                 <h5>${item.id}(${item.queueType})</h5>
                 <p><span style="color: lime;">On </span>${item.senderContact.pushname}<b>(${item.senderContact.id._serialized})</b><span>From</span>${item.chat.name}<b>(${item.chat.id._serialized})</b></p>
@@ -575,7 +575,7 @@
                 document.getElementById("queuelog").innerHTML = `<center style="margin-top: 10px; color: rgb(100, 100, 100);"><h5>No Queues</h5></center>`;
               }
             };
-            document.getElementById("buylog").innerHTML = `<center style="margin-top: 10px; color: rgb(100, 100, 100);"><h5>Comming Soon</h5></center>`;
+            document.getElementById("translog").innerHTML = `<center style="margin-top: 10px; color: rgb(100, 100, 100);"><h5>Comming Soon</h5></center>`;
           }else {
             globalData.db = false;
           }
