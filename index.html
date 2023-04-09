@@ -510,8 +510,8 @@
               };
               const currentBackground =  `${(item.fromMe) ? "rgb(80, 80, 80)" : "rgb(44, 44, 44)"}`;
               const dateMsg = new Date(item.timestamp * 1000);
-              const quotedName = (item.hasQuotedMsg) ? (item.quotedName).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
-              const quotedBody = (item.hasQuotedMsg) ? (item.quotedBody).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
+              const quotedName = (item.hasQuotedMsg&&item.quotedName) ? (item.quotedName).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
+              const quotedBody = (item.hasQuotedMsg&&item.quotedBody) ? (item.quotedBody).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
               const mBody = (item.body) ? (item.body).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
               chatLog += `
                 <span><div style="border-right: 18px solid ${currentBackground};" class="arrow-right"></div><div style="background-color: ${currentBackground};" class="chatListChat">
