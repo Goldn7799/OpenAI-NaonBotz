@@ -510,16 +510,19 @@
               };
               const currentBackground =  `${(item.fromMe) ? "rgb(80, 80, 80)" : "rgb(44, 44, 44)"}`;
               const dateMsg = new Date(item.timestamp * 1000);
+              const quotedName = (item.hasQuotedMsg) ? (item.quotedName).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
+              const quotedBody = (item.hasQuotedMsg) ? (item.quotedBody).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
+              const mBody = (item.body).replaceAll("<", "&lt;").replaceAll(">", "&gt;");
               chatLog += `
                 <span><div style="border-right: 18px solid ${currentBackground};" class="arrow-right"></div><div style="background-color: ${currentBackground};" class="chatListChat">
                   <h6><img src="https://static.vecteezy.com/system/resources/previews/008/442/086/original/illustration-of-human-icon-user-symbol-icon-modern-design-on-blank-background-free-vector.jpg" alt="user icon" /><span>${(item.fromMe) ? `<b style="color: lime;">BOT</b>` : item._data.notifyName}<b style="color: ${(item.author) ? chatColor[item.author] : chatColor[item.from]};">(~${(item.author) ? item.author : item.from})</b> <span style="color: yellowgreen;">from</span> ${item.chatName}<b style="color: ${chatColor[item.from]};">(${item.from})</b></span></h4>
                     ${(item.hasQuotedMsg) ? `
                     <div class="quoted">
-                      <p><b>${item.quotedName}</b></p>
-                      <p style="margin-top: -15px;">${(`${item.quotedBody}`.length > 0) ? `${(item._data.quotedMsg.type === "chat") ? "" : `<span style="color: orange;">${item._data.quotedMsg.type}</span> : `}${(`${item.quotedBody}`.length > 49) ? `${item.quotedBody.substring(0, 50)}....` : item.quotedBody}` : `<span style="color: orange;">${item._data.quotedMsg.type}</span>`}</p>
+                      <p><b>${quotedName}</b></p>
+                      <p style="margin-top: -15px;">${(`${item.quotedBody}`.length > 0) ? `${(item._data.quotedMsg.type === "chat") ? "" : `<span style="color: orange;">${item._data.quotedMsg.type}</span> : `}${(`${item.quotedBody}`.length > 49) ? `${quotedBody.substring(0, 50)}....` : quotedBody}` : `<span style="color: orange;">${item._data.quotedMsg.type}</span>`}</p>
                     </div>
                     ` : ""}
-                    <p style="margin-left: 15px;">${(item.type === "chat") ? item.body : `<b style="color: orange;">${item.type}</b>${(item.body.length > 0) ? ` : ${item.body}` : ""}`}</p>
+                    <p style="margin-left: 15px;">${(item.type === "chat") ? mBody : `<b style="color: orange;">${item.type}</b>${(item.body.length > 0) ? ` : ${mBody}` : ""}`}</p>
                     <p class="chatTime">${dateMsg.getHours()}.${dateMsg.getMinutes()}</p>
                 </div></span>
               `;
@@ -556,10 +559,11 @@
             let queueLog = ``;
             res.queue.map(item => {
               const dateMsg = new Date(item.m.timestamp * 1000);
+              const mBody = (item.m.body).replaceAll("<", "&lt;").replaceAll(">", "&gt;");
               queueLog += `<div class="queueLogList">
                 <h5>${item.id}(${item.queueType})</h5>
                 <p><span style="color: lime;">On </span>${item.senderContact.pushname}<b>(${item.senderContact.id._serialized})</b><span>From</span>${item.chat.name}<b>(${item.chat.id._serialized})</b></p>
-                <p><span style="color: lime;">Request </span>${(item.m.type === "chat") ? item.m.body : `<b style="color: orange;">${item.m.type}</b>${(item.m.body.length > 0) ? ` : ${item.m.body}` : ""}`}</p>
+                <p><span style="color: lime;">Request </span>${(item.m.type === "chat") ? mBody : `<b style="color: orange;">${item.m.type}</b>${(item.m.body.length > 0) ? ` : ${mBody}` : ""}`}</p>
                 <p class="chatTime">${dateMsg.getHours()}.${dateMsg.getMinutes()}</p>
               </div>`
             })
