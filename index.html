@@ -35,6 +35,13 @@
       margin-bottom: -4px;
       color: gray;
     }
+    .deleteQueue {
+      margin-left: 10px;
+    }
+    .deleteQueue img {
+      width: 20px;
+      height: 20px;
+    }
     .login h2 {
       margin-top: 5px;
       margin-bottom: 80px;
@@ -560,8 +567,9 @@
             res.queue.map(item => {
               const dateMsg = new Date(item.m.timestamp * 1000);
               const mBody = (item.m.body) ? (item.m.body).replaceAll("<", "&lt;").replaceAll(">", "&gt;") : false;
+              const indexQueue = (res.queue.map(items => items.id)).indexOf(item.id);
               queueLog += `<div class="queueLogList">
-                <h5>${item.id}(${item.queueType})</h5>
+                <h5><span style="color: yellowgreen;">${indexQueue + 1}.</span> ${item.id}(${item.queueType})${(indexQueue > 0) ? `<button onClick="deleteQueue('${item.id}')" class="btn btn-danger deleteQueue"><img src="https://cdn-icons-png.flaticon.com/512/1843/1843344.png" alt="Trash Can" /></button>` : ""}</h5>
                 <p><span style="color: lime;">On </span>${item.senderContact.pushname}<b>(${item.senderContact.id._serialized})</b><span>From</span>${item.chat.name}<b>(${item.chat.id._serialized})</b></p>
                 <p><span style="color: lime;">Request </span>${(item.m.type === "chat") ? mBody : `<b style="color: orange;">${item.m.type}</b>${(item.m.body.length > 0) ? ` : ${mBody}` : ""}`}</p>
                 <p class="chatTime">${dateMsg.getHours()}.${dateMsg.getMinutes()}</p>
@@ -588,6 +596,37 @@
         getDB();
       }
     }
+    const deleteQueue = async (id)=>{
+      Notipin.Confirm({
+            msg: `Do you want to Delete Queue <b>${id}</b>?`, // Pesan kamu
+            yes: "Yes", // Tulisan di tombol 'Yes'
+            no: "No", // Tulisan di tombol 'No'
+            onYes: async () => {
+              const res = await fetch(`${globalData.api}/request/removequeue/${id}/${globalData.password}`, { method: "POST" }).catch(e => { return false; });
+              if(await res?.status === 200){
+                Notipin.Alert({
+                  msg: "Succes Delete Queue", // Pesan kamu
+                  yes: "Ok", // Tulisan di tombol 'Yes'
+                  onYes: () => { /* Kode di sini */ },
+                  type: "INFO",
+                  mode: "DARK",
+                });
+              }else{
+                Notipin.Alert({
+                  msg: "Failed delete Queue", // Pesan kamu
+                  yes: "Ok", // Tulisan di tombol 'Yes'
+                  onYes: () => { /* Kode di sini */ },
+                  type: "NORMAL",
+                  mode: "DARK",
+                });
+              }
+            },
+            onNo: () => { /* Kode di sini */ },
+            type: "BLUE",
+            mode: "DARK",
+          })
+    }
+    window.deleteQueue = deleteQueue;
     page.login()
   </script>
 </body>
