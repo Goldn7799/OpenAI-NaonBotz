@@ -36,6 +36,6 @@
     "sharp": "^0.32.0",
     "similarity": "^1.2.1",
     "tesseract.js": "^4.0.3",
-    "whatsapp-web.js": "^1.19.5"
+    "whatsapp-web.js": "github:pedroslopez/whatsapp-web.js"
   }
 }
