@@ -160,9 +160,9 @@
                 <div class="mb-3">
                   <div class="input-group">
                     <span class="input-group-text" id="basic-addon3">http://</span>
-                    <input id="host" type="text" class="form-control" placeholder="Host" aria-label="Server" value="localhost">
+                    <input id="host" type="text" class="form-control" placeholder="Host" aria-label="Server" value="${window.location.href.replaceAll("/", "").split(":")[1]}">
                     <span class="input-group-text" id="basic-addon3">:</span>
-                    <input id="port" type="text" class="form-control" placeholder="Port" aria-label="Server" value="2023">
+                    <input id="port" type="text" class="form-control" placeholder="Port" aria-label="Server" value="${window.location.href.split(":")[2].split("/")[0]}">
                   </div>
                   </div>
                   <div class="input-group mb-3">
