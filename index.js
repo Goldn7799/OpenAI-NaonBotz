@@ -137,6 +137,12 @@ try {
             "warn": 0
           };
         };
+        database.users[senderID].exp += 15;
+        const minLevelUp = bot.levelup * (database.users[senderID].level+1 / 2) * (database.users[senderID].level+1);
+        if(database.users[senderID].exp > minLevelUp){
+          database.users[senderID].level += 1;
+          await (await host.getChatById(senderID)).sendMessage(`-- *Congratulation!!* --\nLevel Before : ${"```"}${database.users[senderID].level-1}${"```"}\nLevel After : ${"```"}${database.users[senderID].level}${"```"}\nExp : ${"```"}${database.users[senderID].exp}${"```"} */* ${"```"}${bot.levelup * (database.users[senderID].level+1 / 2) * (database.users[senderID].level+1)}${"```"}`);
+        };
         const readText = async (qMsg)=>{
           if(m.hasMedia){
             const media = await m.downloadMedia();
@@ -401,9 +407,13 @@ try {
               let messages = `*Top 5 User's Active*\n`, listNumber = 0, mentions = [];
               userList.map(async (dt)=>{
                 listNumber++;
-                if(!(listNumber > 5||listNumber > userList)){
+                if(!(listNumber > 5||listNumber > (userList-1))){
                   messages += `${listNumber}. @${dt.number.replace("@c.us", "")} : *${dt.chat}* Chats\n`;
-                  mentions.push(await host.getContactById(dt.number));
+                  try {
+                    mentions.push(await host.getContactById(dt.number));
+                  }catch(error){
+                    console.log(error);
+                  }
                 };
               });
               await m.reply(messages, null, { mentions });
@@ -423,8 +433,8 @@ try {
               const more = String.fromCharCode(8206);
               const readMore = more.repeat(4001)
               console.log(senderID)
-              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🔼 Level : *${database.users[senderID]?.level}*\n│ 💫 Total XP : ${database.users[senderID]?.exp} ✨\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${"```"}${Object.keys(database.users).length}${"```"} *Users* | ${"```"}${Object.keys(database.chats).length}${"```"} *Group*\n╰────\n${readMore}`;
-              messages += `--- MENU ---\n`;
+              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🔼 Level : *${database.users[senderID]?.level}* ( ${"```"}${(minLevelUp - database.users[senderID].exp)}${"```"} )\n│ 💫 Total XP : ${database.users[senderID]?.exp} / ${minLevelUp} ✨\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${"```"}${Object.keys(database.users).length}${"```"} *Users* | ${"```"}${Object.keys(database.chats).length}${"```"} *Group*\n╰────\n${readMore}`;
+              messages += `  --- MENU ---\n`;
               await listOfMenu.map(async (menu)=>{
                 messages += `╭─「 *${capitalLetter(menu)}* 」\n`;
                 listOfSubMenu[menu].map((subMenu)=>{

@@ -6,6 +6,7 @@ const user = [
 const bot = {
   "restricedFeature": false,
   "consoleImage": false,
+  "levelup": 250,
   "sessionName": "NaonBotz",
   "openAI_APIKEY": "You",
   "openAI_organization": "You"
