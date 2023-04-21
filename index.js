@@ -214,7 +214,7 @@ try {
                     await m.reply(media, null, { sendMediaAsSticker: true, stickerAuthor: "SGStudio", stickerName: "Ai Botz|NaonBotz" });
                   }else {
                     await m.reply("Unknown Format");
-                    console.log(media.mimetype);
+                    // console.log(media.mimetype);
                   }
                 }else {
                   await m.reply(`Is not a photo, is a ${m.type}`);
@@ -404,7 +404,7 @@ try {
                 return {"number": number, "chat": database.chats[m.from].usersChat[number]};
               });
               const userList = rawUserlist.sort((a,b) => a.chat - b.chat).reverse();
-              let messages = `*Top 5 User's Active*\n`, listNumber = 0, mentions = [];
+              let messages = `「 *Top 5 User's Active* 」\n`, listNumber = 0, mentions = [];
               userList.map(async (dt)=>{
                 listNumber++;
                 if(!(listNumber > 5||listNumber > (userList-1))){
@@ -536,10 +536,34 @@ try {
         console.log("Failed load message");
         console.log(error)
       }
+    });
+    host.on("group_leave", async (m)=>{
+      if(database.chats[m.chatId].welcome){
+        if(m.type === "remove"){
+          await m.reply(`:/ Kasian Di Kick. @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) });
+        }else {
+          await m.reply(`:( Selamat Tinggal @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) });
+        }
+      };
+    })
+    host.on("group_join", async (m)=>{
+      if(database.chats[m.chatId].welcome){
+        if(m.type === "add"){
+          let mentions = [await host.getContactById(m.author)], userList = `╭─「 List Culik 」\n`;
+          for (users of m.recipientIds){
+            mentions.push(await host.getContactById(users));
+            userList += `│ • @${users.replace("@c.us", "")} \n`;
+          };
+          userList += `╰────`;
+          await m.reply(`:v Kamu telah di culik oleh @${m.author.replace("@c.us")} \n ${userList}`.replace("undefined", ""), { mentions, media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.author)) })
+        }else {
+          await m.reply(`:) Selamat datang di *${(await m.getChat()).name}* @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) })
+        }
+      };
     })
   }else {
     console.log("Please fill your OpenAI ApiKey on globalConfig.json")
-  }
+  };
 }catch (e){
   // user.map(async item =>{
   //   if(item.isDeveloper&&item.isOwner){
