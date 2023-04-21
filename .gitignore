@@ -112,3 +112,4 @@ package-lock.json
 lib/ffmpeg/
 temp.png
 tmp/
+database.json

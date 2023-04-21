@@ -1,11 +1,12 @@
 const { primaryHost } = require("./lib/whatsapp/Connection.js");
 const Tesseract = require("tesseract.js")
 const { queueAdd } = require("./lib/OpenAI/Queue.js");
-const { makeid, matchItem, drawProgressBar, convertWebPtoPNG, capitalLetter } = require("./lib/utility/Utility.js");
+const { makeid, matchItem, drawProgressBar, convertWebPtoPNG, capitalLetter, pickRandomObject } = require("./lib/utility/Utility.js");
 const { bot, user, systemConf, pricing } = require("./globalConfig.js");
 const { interface } = require("./lib/whatsapp/Interface.js");
 const { MessageMedia, Buttons } = require("whatsapp-web.js")
 const fs = require("fs");
+const db = require("./lib/utility/database.js")
 const host = primaryHost;
 
 try {
@@ -23,7 +24,7 @@ try {
     };
   
     //setup Global Variable
-    let groupWhitelist = [], groupReply = [];
+    let groupWhitelist = [], groupReply = [], database = {};
     let menuList = {
       "genral": {
         "joingpt": [".joingpt", 0, "Make gpt joined and response all chat on group", true],
@@ -31,12 +32,16 @@ try {
         "startgpt": [".startgpt", 0, "Make bot make first chat to reply", true],
         "menu": [".menu", 0, "Show all actions", true]
       },
+      "group": {
+        "tagall": [".tagall", 0, "Tag all members on group", true],
+        "hidetag": [".hidetag <text>", 0, "Hide tag message", true],
+        "active": [".active", 0, "Top 5 Active users", true],
+        "pickrandom": [".pickrandom", 0, "Pick random users", true]
+      },
       "common": {
         "sticker": [".s / .sticker", 0, "Make image to sticker", true],
         "toimg": [".toimg", 0, "Make image to Sticker", true],
         "totext": [".totext", 0, "Detect text on Image", true],
-        "tagall": [".tagall", 0, "Tag all members on group", true],
-        "hidetag": [".hidetag <text>", 0, "Hide tag message", true],
         "tovn":  [".tovn", 0, "Make audio to Voice Note", true],
         "limit": [".limit", 0, "Check global limit and price", true]
       },
@@ -49,6 +54,35 @@ try {
         "owner": [".owner", 0, "Owner Contact", true]
       }
     };
+    //SYNC DB
+    const SyncDB = async ()=>{
+      setTimeout( async() => {
+        if(await db.write(database)){
+          SyncDB();
+        }else {
+          console.log("\x1b[31m\x1b[1m%s\x1b[0m", "Error Write Database");
+          SyncDB();
+        }
+      }, 1000);
+    }
+    //read db
+    const StartDB = async ()=>{
+      const res = await db.read();
+      if(res){
+        database = res;
+        console.log("\x1b[32m\x1b[1m%s\x1b[0m", "-- Database Loaded --");
+        SyncDB();
+        console.log("\x1b[32m\x1b[1m%s\x1b[0m", "-- Start Sync Database --");
+      }else {
+        if(await db.reset(true)){
+          console.log("\x1b[32m\x1b[1m%s\x1b[0m", "-- Resetting Database --");
+          StartDB();
+        }else {
+          console.log("\x1b[31m\x1b[1m%s\x1b[0m", "Error Reading Database or Reset Database");
+        }
+      }
+    }
+    StartDB();
     //Run command if match at condition
     host.on("message", async (m)=>{
       try {
@@ -73,6 +107,37 @@ try {
             }, m, "text");
           };
         }
+        //DB State
+        if(chat.isGroup){
+          if(!Object.keys(database.chats).includes(m.from)){
+            database.chats[m.from] = {
+              "name": chat.name,
+              "state": {
+                "antilink": false,
+                "welcome": false,
+                "isBanned": false,
+                "isVerify": false
+              },
+              "usersChat": {}
+            }
+          }else {
+            database.chats[m.from].name = chat.name;
+          };
+          if(!Object.keys(database.chats[m.from].usersChat).includes(m.author)){
+            database.chats[m.from].usersChat[m.author] = 1;
+          }else {
+            database.chats[m.from].usersChat[m.author] += 1;
+          }
+        }else {
+          if(!Object.keys(database.users).includes(senderID)){
+            database.users[senderID] = {
+              "isBanned": false,
+              "exp": 0,
+              "level": 0,
+              "warn": 0
+            };
+          };
+        };
         const readText = async (qMsg)=>{
           if(m.hasMedia){
             const media = await m.downloadMedia();
@@ -171,7 +236,7 @@ try {
                 await m.reply(`Is not a sticker, is a ${m.type}`);
               }
             }else if(matchItem(m.body, ".tagall", systemConf.sim.high)&&chat.isGroup){
-              menuList["common"]["tagall"][1]++;
+              menuList["group"]["tagall"][1]++;
               let isSenderAdmin = false;
               for(let participant of chat.participants){
                 if(participant.id._serialized === senderID&&participant.isAdmin){
@@ -191,7 +256,7 @@ try {
                 await m.reply("You not *Admin*");
               }
             }else if(matchItem(m.body.split(" ")[0], ".hidetag", systemConf.sim.high)&&chat.isGroup){
-              menuList["common"]["hidetag"][1]++;
+              menuList["group"]["hidetag"][1]++;
               let isSenderAdmin = false;
               for(let participant of chat.participants){
                 if(participant.id._serialized === senderID&&participant.isAdmin){
@@ -265,6 +330,7 @@ try {
                 }else { await m.reply(`Is not audio, is ${audio.mimetype}`); }
               }else { await m.reply("Where Audio?") }
             }else if(matchItem(m.body.toLowerCase().split(" ")[0], ".aiimg", systemConf.sim.high)){
+              menuList["premium"]["aiimg"][1]++;
               const mBody = m.body.replace(".aiimg", "").replace(" ", "");
               if (mBody.length > 0){
                 queueAdd({
@@ -322,6 +388,26 @@ try {
               }catch(err){
                 await m.reply("An Error to fetch");
               }
+            }else if(matchItem(m.body.toLowerCase(), ".pickrandom", systemConf.sim.high)&&chat.isGroup){
+              menuList["group"]["pickrandom"][1]++;
+              const user = pickRandomObject(chat.participants);
+              await m.reply(`Picked @${user.id.user}`, null, { mentions: [await host.getContactById(user.id._serialized)] })
+            }else if(matchItem(m.body.toLowerCase(), ".active", systemConf.sim.high)&&chat.isGroup){
+              menuList["group"]["active"][1]++;
+              const numberList = Object.keys(database.chats[m.from].usersChat);
+              const rawUserlist = numberList.map((number)=>{
+                return {"number": number, "chat": database.chats[m.from].usersChat[number]};
+              });
+              const userList = rawUserlist.sort((a,b) => a.chat - b.chat).reverse();
+              let messages = `*Top 5 User's Active*\n`, listNumber = 0, mentions = [];
+              userList.map(async (dt)=>{
+                listNumber++;
+                if(!(listNumber > 5||listNumber > userList)){
+                  messages += `${listNumber}. @${dt.number.replace("@c.us", "")} : *${dt.chat}* Chats\n`;
+                  mentions.push(await host.getContactById(dt.number));
+                };
+              });
+              await m.reply(messages, null, { mentions });
             }else if(matchItem(m.body.toLowerCase(), ".menu", systemConf.sim.high)){
               menuList["genral"]["menu"][1]++;
               await m.react("✅");
@@ -337,7 +423,7 @@ try {
               const upSeconds = Math.floor(uptimeInSeconds % 60);
               const more = String.fromCharCode(8206);
               const readMore = more.repeat(4001)
-              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 📅 Day: *${date.getUTCDay()} ${date.getUTCMonth()} ${date.getUTCFullYear()}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n╰────\n${readMore}`;
+              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 📅 Day: *${date.getUTCDay()} - ${date.getUTCMonth()} ${date.getUTCFullYear()}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n╰────\n${readMore}`;
               messages += `--- MENU ---\n`;
               await listOfMenu.map(async (menu)=>{
                 messages += `╭─「 *${capitalLetter(menu)}* 」\n`;
@@ -437,7 +523,8 @@ try {
           }else { commonCommand(); }
         }else { commonCommand(); };
       }catch(error){
-        console.log("Failed load message")
+        console.log("Failed load message");
+        console.log(error)
       }
     })
   }else {
