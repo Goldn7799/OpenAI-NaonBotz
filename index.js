@@ -128,14 +128,13 @@ try {
           }else {
             database.chats[m.from].usersChat[m.author] += 1;
           }
-        }else {
-          if(!Object.keys(database.users).includes(senderID)){
-            database.users[senderID] = {
-              "isBanned": false,
-              "exp": 0,
-              "level": 0,
-              "warn": 0
-            };
+        };
+        if(!Object.keys(database.users).includes(senderID)){
+          database.users[senderID] = {
+            "isBanned": false,
+            "exp": 0,
+            "level": 0,
+            "warn": 0
           };
         };
         const readText = async (qMsg)=>{
@@ -423,7 +422,8 @@ try {
               const upSeconds = Math.floor(uptimeInSeconds % 60);
               const more = String.fromCharCode(8206);
               const readMore = more.repeat(4001)
-              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 📅 Day: *${date.getUTCDay()} - ${date.getUTCMonth()} ${date.getUTCFullYear()}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n╰────\n${readMore}`;
+              console.log(senderID)
+              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🔼 Level : *${database.users[senderID]?.level}*\n│ 💫 Total XP : ${database.users[senderID]?.exp} ✨\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${"```"}${Object.keys(database.users).length}${"```"} *Users* | ${"```"}${Object.keys(database.chats).length}${"```"} *Group*\n╰────\n${readMore}`;
               messages += `--- MENU ---\n`;
               await listOfMenu.map(async (menu)=>{
                 messages += `╭─「 *${capitalLetter(menu)}* 」\n`;
