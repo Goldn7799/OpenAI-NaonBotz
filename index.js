@@ -36,7 +36,14 @@ try {
         "tagall": [".tagall", 0, "Tag all members on group", true],
         "hidetag": [".hidetag <text>", 0, "Hide tag message", true],
         "active": [".active", 0, "Top 5 Active users", true],
-        "pickrandom": [".pickrandom", 0, "Pick random users", true]
+        "pickrandom": [".pickrandom", 0, "Pick random users", true],
+        "promote": [".promote @user", 0, "Promote User", true],
+        "demote": [".demote @user", 0, "Demote User", true]
+      },
+      "notify": {
+        "welcome": [".welcome [on|off]", 0, "Send Notify when new people join/leave/add/kick", true],
+        "antilink": [".antilink [on|off]", 0, "Send warn and tag admin if msg included link", false],
+        "antidelete": [".antidelete [on|off]", 0, "Anti Delete chats", false]
       },
       "common": {
         "sticker": [".s / .sticker", 0, "Make image to sticker", true],
@@ -52,6 +59,14 @@ try {
       "info": {
         "speed": [".speed", 0, "Test Ping", true],
         "owner": [".owner", 0, "Owner Contact", true]
+      },
+      "owner": {
+        "backups": [".backup", 0, "Backup databases", true],
+        "join": [".join <link>", 0, "Join Group via link", true],
+        "console": ["=> <cmd>", 0, "Shell Command", true],
+        "stop": [".stop", 0, "Stop the bot", true],
+        "ban": [".ban", 0, "Banned Chat/User", true],
+        "unban": [".unban", 0, "Unban User"]
       }
     };
     //SYNC DB
@@ -114,7 +129,7 @@ try {
               "name": chat.name,
               "state": {
                 "antilink": false,
-                "welcome": false,
+                "welcome": true,
                 "isBanned": false,
                 "isVerify": false
               },
@@ -417,6 +432,130 @@ try {
                 };
               });
               await m.reply(messages, null, { mentions });
+            }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".welcome", systemConf.sim.high)&&chat.isGroup){
+              let isSenderAdmin = false;
+              for(let participant of chat.participants){
+                if(participant.id._serialized === senderID&&participant.isAdmin){
+                  isSenderAdmin = true;
+                }
+              };
+              if(isSenderAdmin){
+                if(m.body.split(" ")[1] === "on"){
+                  if(database.chats[m.from].state.welcome){
+                    await m.reply("Welcome already *Actived* on this chat");
+                  }else {
+                    database.chats[m.from].state.welcome = true;
+                    await m.reply("Succes *Actived* Welcome on this chat");
+                  }
+                }else if(m.body.split(" ")[1] === "off"){
+                  if(!database.chats[m.from].state.welcome){
+                    await m.reply("Welcome already *Deactived* on this chat");
+                  }else {
+                    database.chats[m.from].state.welcome = false;
+                    await m.reply("Succes *Deactived* Welcome on this chat");
+                  }
+                }else {
+                  await m.reply("Example : .welcome on");
+                }
+              }else {
+                await m.reply("You not *Admin*");
+              }
+            }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".promote", systemConf.sim.high)&&chat.isGroup){
+              try {
+                let isSenderAdmin = false, isMeAdmin = false, isMentionAdmin = false, isSenderOwner = false;
+                const mention = (await m.getMentions())[0];
+                if(mention&&await chat.owner?.user === mention.id.user){
+                  isSenderOwner = true;
+                };
+                for(let participant of chat.participants){
+                  if(participant.id._serialized === senderID&&participant.isAdmin){
+                    isSenderAdmin = true;
+                  };
+                  if(participant.id._serialized === host.info.wid._serialized&&participant.isAdmin){
+                    isMeAdmin = true;
+                  };
+                  if(mention&&participant.id._serialized === mention.id._serialized&&participant.isAdmin){
+                    isMentionAdmin = true;
+                  };
+                };
+                if(isMeAdmin){
+                  if(isSenderAdmin){
+                    if(mention){
+                      if(!mention.isMe){
+                        if(!isSenderOwner){
+                          if(!isMentionAdmin){
+                            await chat.promoteParticipants([mention.id._serialized]);
+                            await m.reply(`Now @${mention.id.user}\n Is *Admin* On *${chat.name}*`, null, { mentions: [await host.getContactById(mention.id._serialized)] });
+                          }else {
+                            await m.reply("He is already *Admin*");
+                          };
+                        }else{
+                          await m.reply("Can't Edit *Owner* Group");
+                        };
+                      }else{
+                        await m.reply("Can't edit my self");
+                      }
+                    }else{
+                      await m.reply("Please Mentions another people");
+                    };
+                  }else{
+                    await m.reply("You not *Admin*");
+                  };
+                }else{
+                  await m.reply("Iam Not *Admin*");
+                };
+              }catch(error){
+                await m.reply("Failed save Changes");
+                console.log(error);
+              }
+            }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".demote", systemConf.sim.high)&&chat.isGroup){
+              try {
+                let isSenderAdmin = false, isMeAdmin = false, isMentionAdmin = false, isSenderOwner = false;
+                const mention = (await m.getMentions())[0];
+                if(mention&&await chat.owner?.user === mention.id.user){
+                  isSenderOwner = true;
+                };
+                for(let participant of chat.participants){
+                  if(participant.id._serialized === senderID&&participant.isAdmin){
+                    isSenderAdmin = true;
+                  };
+                  if(participant.id._serialized === host.info.wid._serialized&&participant.isAdmin){
+                    isMeAdmin = true;
+                  };
+                  if(mention&&participant.id._serialized === mention.id._serialized&&participant.isAdmin){
+                    isMentionAdmin = true;
+                  };
+                };
+                if(isMeAdmin){
+                  if(isSenderAdmin){
+                    if(mention){
+                      if(!mention.isMe){
+                        if(!isSenderOwner){
+                          if(isMentionAdmin){
+                            await chat.demoteParticipants([mention.id._serialized]);
+                            await m.reply(`Now @${mention.id.user}\n Is Not *Admin* Again On *${chat.name}*`, null, { mentions: [await host.getContactById(mention.id._serialized)] });
+                          }else {
+                            await m.reply("He is not already *Admin*");
+                          };
+                        }else{
+                          await m.reply("Can't Edit *Owner* Group");
+                        };
+                      }else{
+                        await m.reply("Can't edit my self");
+                      }
+                    }else{
+                      await m.reply("Please Mentions another people");
+                    };
+                  }else{
+                    await m.reply("You not *Admin*");
+                  };
+                }else{
+                  await m.reply("Iam Not *Admin*");
+                };
+              }catch(error){
+                await m.reply("Failed save Changes");
+                console.log(error);
+              }
             }else if(matchItem(m.body.toLowerCase(), ".menu", systemConf.sim.high)){
               menuList["genral"]["menu"][1]++;
               await m.react("✅");
@@ -538,26 +677,34 @@ try {
       }
     });
     host.on("group_leave", async (m)=>{
-      if(!database.chats[m.chatId].welcome){
-        if(m.type === "remove"){
-          await m.reply(`:/ Kasian Di Kick. @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) });
-        }else {
-          await m.reply(`:( Selamat Tinggal @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) });
+      if(database.chats[m.chatId]?.state.welcome){
+        try {
+          if(m.type === "remove"){
+            await m.reply(`:/ Kasian Di Kick. @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) });
+          }else {
+            await m.reply(`:( Selamat Tinggal @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) });
+          }
+        }catch(error){
+          console.log(error);
         }
       };
     })
     host.on("group_join", async (m)=>{
-      if(!database.chats[m.chatId].welcome){
-        if(m.type === "add"){
-          let mentions = [await host.getContactById(m.author)], userList = `\n╭─「 List Culik 」\n`;
-          for (users of m.recipientIds){
-            mentions.push(await host.getContactById(users));
-            userList += `│ • @${users.replace("@c.us", "")} \n`;
-          };
-          userList += `╰────`;
-          await m.reply(`:v Kamu telah di culik oleh @${m.author.replace("@c.us")} ${userList}`.replace("undefined", ""), { mentions, media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.author)) })
-        }else {
-          await m.reply(`:) Selamat datang di *${(await m.getChat()).name}* @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) })
+      if(database.chats[m.chatId]?.state.welcome){
+        try {
+          if(m.type === "add"){
+            let mentions = [await host.getContactById(m.author)], userList = `\n╭─「 List Culik 」\n`;
+            for(let users of m.recipientIds){
+              mentions.push(await host.getContactById(users));
+              userList += `│ • @${users.replace("@c.us", "")} \n`;
+            };
+            userList += `╰────`;
+            await m.reply(`:v Kamu telah di culik oleh @${m.author.replace("@c.us")} ${userList}`.replace("undefined", ""), { mentions, media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.author)) })
+          }else {
+            await m.reply(`:) Selamat datang di *${(await m.getChat()).name}* @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) })
+          }
+        }catch(error){
+          console.log(error);
         }
       };
     })
