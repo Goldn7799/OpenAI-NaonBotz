@@ -538,7 +538,7 @@ try {
       }
     });
     host.on("group_leave", async (m)=>{
-      if(database.chats[m.chatId].welcome){
+      if(!database.chats[m.chatId].welcome){
         if(m.type === "remove"){
           await m.reply(`:/ Kasian Di Kick. @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) });
         }else {
@@ -547,15 +547,15 @@ try {
       };
     })
     host.on("group_join", async (m)=>{
-      if(database.chats[m.chatId].welcome){
+      if(!database.chats[m.chatId].welcome){
         if(m.type === "add"){
-          let mentions = [await host.getContactById(m.author)], userList = `╭─「 List Culik 」\n`;
+          let mentions = [await host.getContactById(m.author)], userList = `\n╭─「 List Culik 」\n`;
           for (users of m.recipientIds){
             mentions.push(await host.getContactById(users));
             userList += `│ • @${users.replace("@c.us", "")} \n`;
           };
           userList += `╰────`;
-          await m.reply(`:v Kamu telah di culik oleh @${m.author.replace("@c.us")} \n ${userList}`.replace("undefined", ""), { mentions, media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.author)) })
+          await m.reply(`:v Kamu telah di culik oleh @${m.author.replace("@c.us")} ${userList}`.replace("undefined", ""), { mentions, media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.author)) })
         }else {
           await m.reply(`:) Selamat datang di *${(await m.getChat()).name}* @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) })
         }
