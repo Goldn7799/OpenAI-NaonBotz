@@ -111,3 +111,4 @@ package-lock.json
 .wwebjs_auth/
 lib/ffmpeg/
 temp.png
+tmp/

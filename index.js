@@ -13,6 +13,11 @@ try {
   if (bot.openAI_APIKEY.length > 10||bot.openAI_APIKEY) {
     //connect To Whatsapp
     host.initialize();
+    fs.mkdir("./tmp", { recursive: true }, (err)=>{
+      if(err){
+        console.log(err);
+      };
+    })
     if(systemConf.interface.enabled){
       interface.start();
     };
@@ -44,13 +49,6 @@ try {
         "owner": [".owner", 0, "Owner Contact", true]
       }
     };
-    //get profile
-    const getBotProfile = async ()=>{
-      const urlProfilePhoto = await host.getProfilePicUrl(`${host.info.wid._serialized}`);
-      const rawResProfilePhoto = await fetch(urlProfilePhoto);
-      const rawProfilePhoto = await (await rawResProfilePhoto.arrayBuffer()).toString('base64');
-      return await new MessageMedia("image/png", rawProfilePhoto);
-    }
     //Run command if match at condition
     host.on("message", async (m)=>{
       try {
@@ -337,7 +335,10 @@ try {
               const upHours = Math.floor(uptimeInSeconds / 3600);
               const upMinutes = Math.floor((uptimeInSeconds % 3600) / 60);
               const upSeconds = Math.floor(uptimeInSeconds % 60);
-              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 📅 Day: *${date.getUTCDay()} ${date.getUTCMonth()} ${date.getUTCFullYear()}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n╰────\n`;
+              const more = String.fromCharCode(8206);
+              const readMore = more.repeat(4001)
+              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 📅 Day: *${date.getUTCDay()} ${date.getUTCMonth()} ${date.getUTCFullYear()}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n╰────\n${readMore}`;
+              messages += `--- MENU ---\n`;
               await listOfMenu.map(async (menu)=>{
                 messages += `╭─「 *${capitalLetter(menu)}* 」\n`;
                 listOfSubMenu[menu].map((subMenu)=>{
@@ -345,7 +346,7 @@ try {
                 });
                 messages += `╰────\n`;
               });
-              await m.reply(messages);
+              await m.reply(messages, null, { media: await MessageMedia.fromUrl(await host.getProfilePicUrl(await host.info.wid._serialized)) });
               // await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .aiimg${"```"} : AI Create Image\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN\n ${"```"}- .limit${"```"} : Check Global limit`)
             }else if(matchItem(m.body.toLowerCase(), ".limit", systemConf.sim.high)){
               menuList["common"]["limit"][1]++;
@@ -443,13 +444,14 @@ try {
     console.log("Please fill your OpenAI ApiKey on globalConfig.json")
   }
 }catch (e){
-  user.map(async item =>{
-    if(item.isDeveloper&&item.isOwner){
-      await host.sendMessage(`${item.number}@c.us`, `Error : ${e}`);
-      console.log(`Sended Message to \x1b[1m${e}\x1b[0m`);
-    };
-  })
-  console.log(`Error : ${e}`);
+  // user.map(async item =>{
+  //   if(item.isDeveloper&&item.isOwner){
+  //     await host.sendMessage(`${item.number}@c.us`, `Error : ${e}`);
+  //     console.log(`Sended Message to \x1b[1m${e}\x1b[0m`);
+  //   };
+  // })
+  // console.log(`Error : ${e}`);
+  console.log(e)
 }
 
 module.exports = { host }
