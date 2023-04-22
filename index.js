@@ -571,7 +571,6 @@ try {
               const upSeconds = Math.floor(uptimeInSeconds % 60);
               const more = String.fromCharCode(8206);
               const readMore = more.repeat(4001)
-              console.log(senderID)
               var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🔼 Level : *${database.users[senderID]?.level}* ( ${"```"}${(minLevelUp - database.users[senderID].exp)}${"```"} )\n│ 💫 Total XP : ${database.users[senderID]?.exp} / ${minLevelUp} ✨\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${"```"}${Object.keys(database.users).length}${"```"} *Users* | ${"```"}${Object.keys(database.chats).length}${"```"} *Group*\n╰────\n${readMore}`;
               messages += `  --- MENU ---\n`;
               await listOfMenu.map(async (menu)=>{
@@ -581,7 +580,9 @@ try {
                 });
                 messages += `╰────\n`;
               });
-              await m.reply(messages, null, { media: await MessageMedia.fromUrl(await host.getProfilePicUrl(await host.info.wid._serialized)) });
+              const rawProfilePic = await host.getProfilePicUrl(await host.info.wid._serialized);
+              const profilePic = (rawProfilePic) ? rawProfilePic : bot.defaultProfilePicUrl;
+              await m.reply(messages, null, { media: await MessageMedia.fromUrl(profilePic) });
               // await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .aiimg${"```"} : AI Create Image\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN\n ${"```"}- .limit${"```"} : Check Global limit`)
             }else if(matchItem(m.body.toLowerCase(), ".limit", systemConf.sim.high)){
               menuList["common"]["limit"][1]++;
@@ -679,10 +680,12 @@ try {
     host.on("group_leave", async (m)=>{
       if(database.chats[m.chatId]?.state.welcome){
         try {
+          const rawProfilePic = await host.getProfilePicUrl(m.recipientIds[0]);
+          const profilePic = (rawProfilePic) ? rawProfilePic : bot.defaultProfilePicUrl;
           if(m.type === "remove"){
-            await m.reply(`:/ Kasian Di Kick. @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) });
+            await m.reply(`:/ Kasian Di Kick. @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(profilePic) });
           }else {
-            await m.reply(`:( Selamat Tinggal @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) });
+            await m.reply(`:( Selamat Tinggal @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(profilePic) });
           }
         }catch(error){
           console.log(error);
@@ -699,9 +702,13 @@ try {
               userList += `│ • @${users.replace("@c.us", "")} \n`;
             };
             userList += `╰────`;
-            await m.reply(`:v Kamu telah di culik oleh @${m.author.replace("@c.us")} ${userList}`.replace("undefined", ""), { mentions, media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.author)) })
+            const rawProfilePic = await host.getProfilePicUrl(m.author);
+            const profilePic = (rawProfilePic) ? rawProfilePic : bot.defaultProfilePicUrl;
+            await m.reply(`:v Kamu telah di culik oleh @${m.author.replace("@c.us")} ${userList}`.replace("undefined", ""), { mentions, media: await MessageMedia.fromUrl(profilePic) })
           }else {
-            await m.reply(`:) Selamat datang di *${(await m.getChat()).name}* @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(await host.getProfilePicUrl(m.recipientIds[0])) })
+            const rawProfilePic = await host.getProfilePicUrl(m.recipientIds[0]);
+            const profilePic = (rawProfilePic) ? rawProfilePic : bot.defaultProfilePicUrl;
+            await m.reply(`:) Selamat datang di *${(await m.getChat()).name}* @${m.recipientIds[0].replace("@c.us", "")}`, { mentions: [await host.getContactById(m.recipientIds[0])], media: await MessageMedia.fromUrl(profilePic) })
           }
         }catch(error){
           console.log(error);
