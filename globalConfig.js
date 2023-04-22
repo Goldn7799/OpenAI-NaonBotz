@@ -7,6 +7,8 @@ const bot = {
   "restricedFeature": false,
   "consoleImage": false,
   "levelup": 250,
+  "queueTimeOut": 1000,
+  "backupTime": [12, 00],
   "sessionName": "NaonBotz",
   "openAI_APIKEY": "You",
   "openAI_organization": "You"
@@ -27,6 +29,24 @@ const systemConf = {
     "enabled": true,
     "port": 2023,
     "password": "admin"
+  }
+}
+
+const rolePicker = (level)=>{
+  if(level > 60){
+    return "Advanced";
+  }else if(level > 50){
+    return "Advanced";
+  }else if(level > 40){
+    return "Upper Intermediate";
+  }else if(level > 30){
+    return "Intermediate";
+  }else if(level > 20){
+    return "Elementary";
+  }else if(level > 10){
+    return "Beginner";
+  }else {
+    return "Beginner";
   }
 }
 
@@ -54,5 +74,6 @@ module.exports = {
   pricing,
   buyItem,
   restoreItem,
-  setLimit
+  setLimit,
+  rolePicker
 }

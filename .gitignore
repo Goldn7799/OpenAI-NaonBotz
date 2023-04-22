@@ -113,3 +113,4 @@ lib/ffmpeg/
 temp.png
 tmp/
 database.json
+backups/

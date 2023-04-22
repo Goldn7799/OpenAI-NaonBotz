@@ -2,7 +2,7 @@ const { primaryHost } = require("./lib/whatsapp/Connection.js");
 const Tesseract = require("tesseract.js")
 const { queueAdd } = require("./lib/OpenAI/Queue.js");
 const { makeid, matchItem, drawProgressBar, convertWebPtoPNG, capitalLetter, pickRandomObject } = require("./lib/utility/Utility.js");
-const { bot, user, systemConf, pricing } = require("./globalConfig.js");
+const { bot, user, systemConf, pricing, rolePicker } = require("./globalConfig.js");
 const { interface } = require("./lib/whatsapp/Interface.js");
 const { MessageMedia, Buttons } = require("whatsapp-web.js")
 const fs = require("fs");
@@ -42,7 +42,7 @@ try {
       },
       "notify": {
         "welcome": [".welcome [on|off]", 0, "Send Notify when new people join/leave/add/kick", true],
-        "antilink": [".antilink [on|off]", 0, "Send warn and tag admin if msg included link", false],
+        "antilink": [".antilink [on|off]", 0, "Send warn and tag admin if msg included link", true],
         "antidelete": [".antidelete [on|off]", 0, "Anti Delete chats", false]
       },
       "common": {
@@ -433,6 +433,7 @@ try {
               });
               await m.reply(messages, null, { mentions });
             }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".welcome", systemConf.sim.high)&&chat.isGroup){
+              menuList["notify"]["welcome"][1]++;
               let isSenderAdmin = false;
               for(let participant of chat.participants){
                 if(participant.id._serialized === senderID&&participant.isAdmin){
@@ -460,7 +461,37 @@ try {
               }else {
                 await m.reply("You not *Admin*");
               }
+            }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".antilink", systemConf.sim.high)&&chat.isGroup){
+              menuList["notify"]["antilink"][1]++;
+              let isSenderAdmin = false;
+              for(let participant of chat.participants){
+                if(participant.id._serialized === senderID&&participant.isAdmin){
+                  isSenderAdmin = true;
+                }
+              };
+              if(isSenderAdmin){
+                if(m.body.split(" ")[1] === "on"){
+                  if(database.chats[m.from].state.antilink){
+                    await m.reply("Antilink already *Actived* on this chat");
+                  }else {
+                    database.chats[m.from].state.antilink = true;
+                    await m.reply("Succes *Actived* Antilink on this chat");
+                  }
+                }else if(m.body.split(" ")[1] === "off"){
+                  if(!database.chats[m.from].state.antilink){
+                    await m.reply("Antilink already *Deactived* on this chat");
+                  }else {
+                    database.chats[m.from].state.antilink = false;
+                    await m.reply("Succes *Deactived* Antilink on this chat");
+                  }
+                }else {
+                  await m.reply("Example : .antilink on");
+                }
+              }else {
+                await m.reply("You not *Admin*");
+              }
             }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".promote", systemConf.sim.high)&&chat.isGroup){
+              menuList["group"]["promote"][1]++;
               try {
                 let isSenderAdmin = false, isMeAdmin = false, isMentionAdmin = false, isSenderOwner = false;
                 const mention = (await m.getMentions())[0];
@@ -509,6 +540,7 @@ try {
                 console.log(error);
               }
             }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".demote", systemConf.sim.high)&&chat.isGroup){
+              menuList["group"]["demote"][1]++;
               try {
                 let isSenderAdmin = false, isMeAdmin = false, isMentionAdmin = false, isSenderOwner = false;
                 const mention = (await m.getMentions())[0];
@@ -556,6 +588,23 @@ try {
                 await m.reply("Failed save Changes");
                 console.log(error);
               }
+            }else if(matchItem(m.body.toLowerCase(), ".backup", systemConf.sim.high)){
+              menuList["owner"]["backups"][1]++;
+              const rawOwnerList = user.filter(usr => usr.isOwner);
+              const ownerList = (rawOwnerList.length > 0) ? rawOwnerList.map(dt => { return dt.number }) : "none";
+              if(ownerList.includes(senderID.replace("@c.us", ""))){
+                fs.writeFile(`${process.cwd()}/backups/${Date().substring(0, 24).replaceAll(" ", "-")}.json`, JSON.stringify(await db.read()), async (err)=>{
+                  if(err){
+                    console.log(err);
+                    await m.reply("Error creating backups");
+                  }else {
+                    console.log("----- Backups Created -----");
+                    await m.reply(`Success Create backup ${Date().substring(0, 24).replaceAll(" ", "-")}.json`);
+                  }
+                });
+              }else {
+                await m.reply("Owner Only!!");
+              }
             }else if(matchItem(m.body.toLowerCase(), ".menu", systemConf.sim.high)){
               menuList["genral"]["menu"][1]++;
               await m.react("✅");
@@ -571,7 +620,7 @@ try {
               const upSeconds = Math.floor(uptimeInSeconds % 60);
               const more = String.fromCharCode(8206);
               const readMore = more.repeat(4001)
-              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🔼 Level : *${database.users[senderID]?.level}* ( ${"```"}${(minLevelUp - database.users[senderID].exp)}${"```"} )\n│ 💫 Total XP : ${database.users[senderID]?.exp} / ${minLevelUp} ✨\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${"```"}${Object.keys(database.users).length}${"```"} *Users* | ${"```"}${Object.keys(database.chats).length}${"```"} *Group*\n╰────\n${readMore}`;
+              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(database.users[senderID]?.level)}*\n│ 🔼 Level : *${database.users[senderID]?.level}* ( ${"```"}${(minLevelUp - database.users[senderID].exp)}${"```"} )\n│ 💫 Total XP : ${database.users[senderID]?.exp} / ${minLevelUp} ✨\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${"```"}${Object.keys(database.users).length}${"```"} *Users* | ${"```"}${Object.keys(database.chats).length}${"```"} *Group*\n╰────\n${readMore}`;
               messages += `  --- MENU ---\n`;
               await listOfMenu.map(async (menu)=>{
                 messages += `╭─「 *${capitalLetter(menu)}* 」\n`;
@@ -691,7 +740,7 @@ try {
           console.log(error);
         }
       };
-    })
+    });
     host.on("group_join", async (m)=>{
       if(database.chats[m.chatId]?.state.welcome){
         try {
@@ -713,6 +762,30 @@ try {
         }catch(error){
           console.log(error);
         }
+      };
+    });
+    host.on("message", async (m)=>{
+      const chat = await m.getChat();
+      if(chat.isGroup&&database.chats[m.from].state.antilink){
+        const senderID = (m.author) ? m.author : m.from;
+        let isSenderAdmin = false;
+        for(let participant of chat.participants){
+          if(participant.id._serialized === senderID&&participant.isAdmin){
+            isSenderAdmin = true;
+          }
+        };
+        if(!isSenderAdmin){
+          const isLink = (m.body) ? (((m.body.toLowerCase()).includes("https://")||(m.body.toLowerCase()).includes("http://")) ? true : false) : false;
+          if(isLink){
+            const adminList = chat.participants.filter(users => users.isAdmin);
+            let mentions = [], lists = ``;
+            for(let admins of adminList){
+              mentions.push(await host.getContactById(admins.id._serialized));
+              lists += `@${admins.id.user} \n`;
+            }
+            await m.reply(`「 *Link Detected* 」\n ${lists}`, null, { mentions });
+          };
+        };
       };
     })
   }else {
