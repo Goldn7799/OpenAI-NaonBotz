@@ -7,7 +7,6 @@ const bot = {
   "restricedFeature": false,
   "consoleImage": false,
   "levelup": 250,
-  "defaultProfilePicUrl": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkrIN_phrkQozJkBJi9v7jqOEazcPIad5SYA&usqp=CAU",
   "sessionName": "NaonBotz",
   "openAI_APIKEY": "You",
   "openAI_organization": "You"
