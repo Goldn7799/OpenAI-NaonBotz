@@ -7,7 +7,7 @@ const bot = {
   restricedFeature: false,
   consoleImage: false,
   levelup: 250,
-  queueTimeOut: 1000,
+  queueTimeOut: 2500,
   backupTime: [12, 15],
   sessionName: 'NaonBotz',
   openAI_APIKEY: 'You',
