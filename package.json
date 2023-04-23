@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "node test.js",
-    "linter": "yarn run eslint ./index.js"
+    "linter": "yarn run eslint ./"
   },
   "repository": {
     "type": "git",
