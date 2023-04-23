@@ -1,3 +1,6 @@
 const { rolePicker } = require('./globalConfig')
 
-console.log(rolePicker(70))
+async function a () {
+  console.log(await rolePicker(70))
+}
+a()

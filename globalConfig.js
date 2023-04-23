@@ -10,7 +10,7 @@ const bot = {
   queueTimeOut: 1000,
   backupTime: [12, 15],
   sessionName: 'NaonBotz',
-  openAI_APIKEY: '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',
+  openAI_APIKEY: 'You',
   openAI_organization: 'You'
 }
 

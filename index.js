@@ -666,7 +666,7 @@ try {
               messages += '───「 Menu List 」───\n'
               await listOfMenu.map(async (menu) => {
                 messages += `╭─「 *${capitalLetter(menu)}* 」\n`
-                for (const subMenu of listOfMenu[menu]) {
+                for (const subMenu of listOfSubMenu[menu]) {
                   messages += (menuList[menu][subMenu][3]) ? `│ • *${menuList[menu][subMenu][0]}* (${menuList[menu][subMenu][1]}) : ${menuList[menu][subMenu][2]}\n` : ''
                 }
                 messages += '╰────\n'
