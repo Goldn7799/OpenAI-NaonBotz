@@ -444,14 +444,14 @@ try {
                 }
               };
               if(isSenderAdmin){
-                if(m.body.split(" ")[1].toLowerCase() === "on"){
+                if(m.body.split(" ")[1]?.toLowerCase() === "on"){
                   if(database.chats[m.from].state.welcome){
                     await m.reply("Welcome already *Actived* on this chat");
                   }else {
                     database.chats[m.from].state.welcome = true;
                     await m.reply("Succes *Actived* Welcome on this chat");
                   }
-                }else if(m.body.split(" ")[1].toLowerCase() === "off"){
+                }else if(m.body.split(" ")[1]?.toLowerCase() === "off"){
                   if(!database.chats[m.from].state.welcome){
                     await m.reply("Welcome already *Deactived* on this chat");
                   }else {
@@ -473,14 +473,14 @@ try {
                 }
               };
               if(isSenderAdmin){
-                if(m.body.split(" ")[1].toLowerCase() === "on"){
+                if(m.body.split(" ")[1]?.toLowerCase() === "on"){
                   if(database.chats[m.from].state.antilink){
                     await m.reply("Antilink already *Actived* on this chat");
                   }else {
                     database.chats[m.from].state.antilink = true;
                     await m.reply("Succes *Actived* Antilink on this chat");
                   }
-                }else if(m.body.split(" ")[1].toLowerCase() === "off"){
+                }else if(m.body.split(" ")[1]?.toLowerCase() === "off"){
                   if(!database.chats[m.from].state.antilink){
                     await m.reply("Antilink already *Deactived* on this chat");
                   }else {
@@ -635,10 +635,10 @@ try {
               }
               if(isSenderAdmin){
                 if(isMeAdmin){
-                  if(m.body.split(" ")[1].toLowerCase() === "open"){
+                  if(m.body.split(" ")[1]?.toLowerCase() === "open"){
                     await chat.setMessagesAdminsOnly(false);
                     await m.reply("Group Openned");
-                  }else if(m.body.split(" ")[1].toLowerCase() === "close"){
+                  }else if(m.body.split(" ")[1]?.toLowerCase() === "close"){
                     await chat.setMessagesAdminsOnly(true);
                     await m.reply("Group Closed");
                   }else {
