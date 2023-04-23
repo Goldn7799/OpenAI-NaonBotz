@@ -758,7 +758,7 @@ try {
                     assistant: quoted.body
                   }, m, 'text')
                 } else { commonCommand() }
-              } catch (e) { console.log('Terjadi Error : B') }
+              } catch (e) { console.log(e) }
             } else { commonCommand() };
           } else { commonCommand() }
         } else { commonCommand() };
@@ -809,29 +809,33 @@ try {
     })
     // antilink
     host.on('message', async (m) => {
-      const chat = await m.getChat()
-      if (chat.isGroup && database.chats[m.from].state.antilink) {
-        const senderID = (m.author) ? m.author : m.from
-        let isSenderAdmin = false
-        for (const participant of chat.participants) {
-          if (participant.id._serialized === senderID && participant.isAdmin) {
-            isSenderAdmin = true
-          }
-        };
-        if (!isSenderAdmin) {
-          const isLink = (m.body) ? (!!(((m.body.toLowerCase()).includes('https://') || (m.body.toLowerCase()).includes('http://')))) : false
-          if (isLink) {
-            const adminList = chat.participants.filter(users => users.isAdmin)
-            const mentions = []; let lists = '「 *Link Detected* 」 \n╭─「 Tag Admin\'s 」 \n'
-            for (const admins of adminList) {
-              mentions.push(await host.getContactById(admins.id._serialized))
-              lists += `│ • @${admins.id.user} \n`
+      try {
+        const chat = await m.getChat()
+        if (chat.isGroup && database.chats[m.from].state.antilink) {
+          const senderID = (m.author) ? m.author : m.from
+          let isSenderAdmin = false
+          for (const participant of chat.participants) {
+            if (participant.id._serialized === senderID && participant.isAdmin) {
+              isSenderAdmin = true
+            }
+          };
+          if (!isSenderAdmin) {
+            const isLink = (m.body) ? (!!(((m.body.toLowerCase()).includes('https://') || (m.body.toLowerCase()).includes('http://')))) : false
+            if (isLink) {
+              const adminList = chat.participants.filter(users => users.isAdmin)
+              const mentions = []; let lists = '「 *Link Detected* 」 \n╭─「 Tag Admin\'s 」 \n'
+              for (const admins of adminList) {
+                mentions.push(await host.getContactById(admins.id._serialized))
+                lists += `│ • @${admins.id.user} \n`
+              };
+              lists += '╰────'
+              await m.reply(lists, null, { mentions })
             };
-            lists += '╰────'
-            await m.reply(lists, null, { mentions })
           };
         };
-      };
+      } catch (error) {
+        console.log(error)
+      }
     })
   } else {
     console.log('Please fill your OpenAI ApiKey on globalConfig.json')
