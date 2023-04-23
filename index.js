@@ -38,7 +38,9 @@ try {
         "active": [".active", 0, "Top 5 Active users", true],
         "pickrandom": [".pickrandom", 0, "Pick random users", true],
         "promote": [".promote @user", 0, "Promote User", true],
-        "demote": [".demote @user", 0, "Demote User", true]
+        "demote": [".demote @user", 0, "Demote User", true],
+        "getlink": [".getlink", 0, "Get Invite Link Group", true],
+        "gc": [".gc [open|close]", 0, "set Group open or close", true]
       },
       "notify": {
         "welcome": [".welcome [on|off]", 0, "Send Notify when new people join/leave/add/kick", true],
@@ -102,6 +104,7 @@ try {
     host.on("message", async (m)=>{
       try {
         const chat = await m.getChat();
+        const command = (m.body.toLowerCase()).split(" ")[0];
         let isWhiteList = false, isGroupReply = false;
         if(groupWhitelist.includes(m.from)){
           isWhiteList = true;
@@ -205,7 +208,7 @@ try {
         //common command
         const commonCommand = async ()=>{
           if(m.body.length > 0){
-            if(matchItem(m.body.toLowerCase(), ".sticker", systemConf.sim.high)||m.body.toLocaleLowerCase() === ".s"){
+            if(matchItem(command, ".sticker", systemConf.sim.high)||command === ".s"){
               menuList["common"]["sticker"][1]++;
               if(m.hasMedia){
                 const chat = await m.getChat();
@@ -237,7 +240,7 @@ try {
               }else {
                 await m.reply("Where Photo?")
               }
-            }if(m.hasQuotedMsg&&matchItem(m.body.toLowerCase(), ".toimg", systemConf.sim.high)){
+            }if(m.hasQuotedMsg&&matchItem(command, ".toimg", systemConf.sim.high)){
               menuList["common"]["toimg"][1]++;
               const quoted = await m.getQuotedMessage();
               if(quoted.type === "sticker"){
@@ -255,7 +258,7 @@ try {
               }else {
                 await m.reply(`Is not a sticker, is a ${m.type}`);
               }
-            }else if(matchItem(m.body, ".tagall", systemConf.sim.high)&&chat.isGroup){
+            }else if(matchItem(command, ".tagall", systemConf.sim.high)&&chat.isGroup){
               menuList["group"]["tagall"][1]++;
               let isSenderAdmin = false;
               for(let participant of chat.participants){
@@ -275,7 +278,7 @@ try {
               }else {
                 await m.reply("You not *Admin*");
               }
-            }else if(matchItem(m.body.split(" ")[0], ".hidetag", systemConf.sim.high)&&chat.isGroup){
+            }else if(matchItem(command, ".hidetag", systemConf.sim.high)&&chat.isGroup){
               menuList["group"]["hidetag"][1]++;
               let isSenderAdmin = false;
               for(let participant of chat.participants){
@@ -304,7 +307,7 @@ try {
               }else {
                 await m.reply("You not *Admin*");
               }
-            }else if(matchItem(m.body, ".totext", systemConf.sim.high)){
+            }else if(matchItem(command, ".totext", systemConf.sim.high)){
               menuList["common"]["totext"][1]++;
               const rawMedia = (m.hasQuotedMsg) ? (((await m.getQuotedMessage()).hasMedia) ? ((await m.getQuotedMessage()).downloadMedia()) : ((m.hasMedia) ? (await m.downloadMedia()) : false)) : ((m.hasMedia) ? (await m.downloadMedia()) : false);
               const media = await rawMedia;
@@ -339,7 +342,7 @@ try {
                   }
                 }else { await m.reply("Is Not Image") }
               }else { await m.reply("Who image?") }
-            }else if(matchItem(m.body.toLowerCase(), ".tovn", systemConf.sim.high)){
+            }else if(matchItem(command, ".tovn", systemConf.sim.high)){
               menuList["common"]["tovn"][1]++;
               const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false;
               if(quoted&&quoted.hasMedia){
@@ -349,7 +352,7 @@ try {
                   await m.reply(audio, null, { sendAudioAsVoice: true });
                 }else { await m.reply(`Is not audio, is ${audio.mimetype}`); }
               }else { await m.reply("Where Audio?") }
-            }else if(matchItem(m.body.toLowerCase().split(" ")[0], ".aiimg", systemConf.sim.high)){
+            }else if(matchItem(command, ".aiimg", systemConf.sim.high)){
               menuList["premium"]["aiimg"][1]++;
               const mBody = m.body.replace(".aiimg", "").replace(" ", "");
               if (mBody.length > 0){
@@ -361,7 +364,7 @@ try {
                   assistant: false
                 }, m, "image");
               }else { await m.reply("Use .aiimg <query>") }
-            }else if(matchItem(m.body.toLowerCase(), ".aiimgvar", systemConf.sim.high)){
+            }else if(matchItem(command, ".aiimgvar", systemConf.sim.high)){
               menuList["premium"]["aiimgvar"][1]++;
               const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false;
               const image = (m.hasMedia) ? await m.downloadMedia() : ((quoted&&quoted.hasMedia) ? await quoted.downloadMedia() : false);
@@ -384,7 +387,7 @@ try {
                 await m.react("🤣");
                 await m.reply("I think i loss the image");
               }
-            }else if(matchItem(m.body.toLowerCase(), ".owner", systemConf.sim.high)){
+            }else if(matchItem(command, ".owner", systemConf.sim.high)){
               menuList["info"]["owner"][1]++;
               const ownerLists = user.map((userlist)=>{
                 if (userlist.isOwner){
@@ -393,7 +396,7 @@ try {
                 return "none";
               }).filter(list => list !== "none");
               await m.reply(await host.getContactById(ownerLists[0]));
-            }else if(matchItem(m.body.toLowerCase(), ".speed", systemConf.sim.high)){
+            }else if(matchItem(command, ".speed", systemConf.sim.high)){
               menuList["info"]["speed"][1]++;
               try {
                 const start = Date.now();
@@ -408,11 +411,11 @@ try {
               }catch(err){
                 await m.reply("An Error to fetch");
               }
-            }else if(matchItem(m.body.toLowerCase(), ".pickrandom", systemConf.sim.high)&&chat.isGroup){
+            }else if(matchItem(command, ".pickrandom", systemConf.sim.high)&&chat.isGroup){
               menuList["group"]["pickrandom"][1]++;
               const user = pickRandomObject(chat.participants);
               await m.reply(`Picked @${user.id.user}`, null, { mentions: [await host.getContactById(user.id._serialized)] })
-            }else if(matchItem(m.body.toLowerCase(), ".active", systemConf.sim.high)&&chat.isGroup){
+            }else if(matchItem(command, ".active", systemConf.sim.high)&&chat.isGroup){
               menuList["group"]["active"][1]++;
               const numberList = Object.keys(database.chats[m.from].usersChat);
               const rawUserlist = numberList.map((number)=>{
@@ -432,7 +435,7 @@ try {
                 };
               });
               await m.reply(messages, null, { mentions });
-            }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".welcome", systemConf.sim.high)&&chat.isGroup){
+            }else if(matchItem(command, ".welcome", systemConf.sim.high)&&chat.isGroup){
               menuList["notify"]["welcome"][1]++;
               let isSenderAdmin = false;
               for(let participant of chat.participants){
@@ -441,14 +444,14 @@ try {
                 }
               };
               if(isSenderAdmin){
-                if(m.body.split(" ")[1] === "on"){
+                if(m.body.split(" ")[1].toLowerCase() === "on"){
                   if(database.chats[m.from].state.welcome){
                     await m.reply("Welcome already *Actived* on this chat");
                   }else {
                     database.chats[m.from].state.welcome = true;
                     await m.reply("Succes *Actived* Welcome on this chat");
                   }
-                }else if(m.body.split(" ")[1] === "off"){
+                }else if(m.body.split(" ")[1].toLowerCase() === "off"){
                   if(!database.chats[m.from].state.welcome){
                     await m.reply("Welcome already *Deactived* on this chat");
                   }else {
@@ -461,7 +464,7 @@ try {
               }else {
                 await m.reply("You not *Admin*");
               }
-            }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".antilink", systemConf.sim.high)&&chat.isGroup){
+            }else if(matchItem(command, ".antilink", systemConf.sim.high)&&chat.isGroup){
               menuList["notify"]["antilink"][1]++;
               let isSenderAdmin = false;
               for(let participant of chat.participants){
@@ -470,14 +473,14 @@ try {
                 }
               };
               if(isSenderAdmin){
-                if(m.body.split(" ")[1] === "on"){
+                if(m.body.split(" ")[1].toLowerCase() === "on"){
                   if(database.chats[m.from].state.antilink){
                     await m.reply("Antilink already *Actived* on this chat");
                   }else {
                     database.chats[m.from].state.antilink = true;
                     await m.reply("Succes *Actived* Antilink on this chat");
                   }
-                }else if(m.body.split(" ")[1] === "off"){
+                }else if(m.body.split(" ")[1].toLowerCase() === "off"){
                   if(!database.chats[m.from].state.antilink){
                     await m.reply("Antilink already *Deactived* on this chat");
                   }else {
@@ -490,7 +493,7 @@ try {
               }else {
                 await m.reply("You not *Admin*");
               }
-            }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".promote", systemConf.sim.high)&&chat.isGroup){
+            }else if(matchItem(command, ".promote", systemConf.sim.high)&&chat.isGroup){
               menuList["group"]["promote"][1]++;
               try {
                 let isSenderAdmin = false, isMeAdmin = false, isMentionAdmin = false, isSenderOwner = false;
@@ -539,7 +542,7 @@ try {
                 await m.reply("Failed save Changes");
                 console.log(error);
               }
-            }else if(matchItem(m.body.split(" ")[0].toLowerCase(), ".demote", systemConf.sim.high)&&chat.isGroup){
+            }else if(matchItem(command, ".demote", systemConf.sim.high)&&chat.isGroup){
               menuList["group"]["demote"][1]++;
               try {
                 let isSenderAdmin = false, isMeAdmin = false, isMentionAdmin = false, isSenderOwner = false;
@@ -588,7 +591,7 @@ try {
                 await m.reply("Failed save Changes");
                 console.log(error);
               }
-            }else if(matchItem(m.body.toLowerCase(), ".backup", systemConf.sim.high)){
+            }else if(matchItem(command, ".backup", systemConf.sim.high)){
               menuList["owner"]["backups"][1]++;
               const rawOwnerList = user.filter(usr => usr.isOwner);
               const ownerList = (rawOwnerList.length > 0) ? rawOwnerList.map(dt => { return dt.number }) : "none";
@@ -605,7 +608,49 @@ try {
               }else {
                 await m.reply("Owner Only!!");
               }
-            }else if(matchItem(m.body.toLowerCase(), ".menu", systemConf.sim.high)){
+            }else if(matchItem(command, ".getlink", systemConf.sim.high)&&chat.isGroup){
+              menuList["group"]["getlink"][1]++;
+              let isMeAdmin = false;
+              for(let participant of chat.participants){
+                if(participant.id._serialized === host.info.wid._serialized&&participant.isAdmin){
+                  isMeAdmin = true;
+                };
+              };
+              if(isMeAdmin){
+                const inviteCode = await chat.getInviteCode();
+                await m.reply(`「 *${chat.name}* 」\n • https://chat.whatsapp.com/${inviteCode}`);
+              }else {
+                await m.reply("Iam Not *Admin*");
+              }
+            }else if(matchItem(command, ".gc", systemConf.sim.high)&&chat.isGroup){
+              menuList["group"]["gc"][1]++;
+              let isMeAdmin = false, isSenderAdmin = false;
+              for(let participant of chat.participants){
+                if(participant.id._serialized === host.info.wid._serialized&&participant.isAdmin){
+                  isMeAdmin = true;
+                };
+                if(participant.id._serialized === senderID&&participant.isAdmin){
+                  isSenderAdmin = true;
+                };
+              }
+              if(isSenderAdmin){
+                if(isMeAdmin){
+                  if(m.body.split(" ")[1].toLowerCase() === "open"){
+                    await chat.setMessagesAdminsOnly(false);
+                    await m.reply("Group Openned");
+                  }else if(m.body.split(" ")[1].toLowerCase() === "close"){
+                    await chat.setMessagesAdminsOnly(true);
+                    await m.reply("Group Closed");
+                  }else {
+                    await m.reply("Example : .gc open");
+                  }
+                }else {
+                  await m.reply("Iam not *Admin*");
+                }
+              }else {
+                await m.reply("You not *Admin*");
+              }
+            }else if(matchItem(command, ".menu", systemConf.sim.high)){
               menuList["genral"]["menu"][1]++;
               await m.react("✅");
               const listOfMenu = Object.keys(menuList);
@@ -633,7 +678,7 @@ try {
               const media = (profilePic) ? await MessageMedia.fromUrl(profilePic) : await MessageMedia.fromFilePath("./profile.jpg");
               await m.reply(messages, null, { media });
               // await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .aiimg${"```"} : AI Create Image\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN\n ${"```"}- .limit${"```"} : Check Global limit`)
-            }else if(matchItem(m.body.toLowerCase(), ".limit", systemConf.sim.high)){
+            }else if(matchItem(command, ".limit", systemConf.sim.high)){
               menuList["common"]["limit"][1]++;
               await m.react("✅");
               await m.reply(`Global Limit : *${pricing.limit_avabile.toFixed(4)}$*`);
@@ -699,7 +744,7 @@ try {
             }else if(m.hasQuotedMsg){
               try {
                 const quoted = await m.getQuotedMessage();
-                if((!quoted.fromMe)&&quoted.type === "chat"&&quoted.body.length > 0&&m.type === "chat"&&(matchItem(m.body.toLowerCase(), "realy", systemConf.sim.high)||matchItem(m.body.toLowerCase(), ".aires", systemConf.sim.high)||matchItem(m.body.toLowerCase(), "benarkah", systemConf.sim.high))){
+                if((!quoted.fromMe)&&quoted.type === "chat"&&quoted.body.length > 0&&m.type === "chat"&&(matchItem(command, "realy", systemConf.sim.high)||matchItem(command, ".aires", systemConf.sim.high)||matchItem(command, "benarkah", systemConf.sim.high))){
                   const senderID = (m.author) ? m.author : m.from;
                   queueAdd({
                     id: makeid(8),
