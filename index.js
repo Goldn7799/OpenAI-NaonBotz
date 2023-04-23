@@ -620,12 +620,12 @@ try {
               const upSeconds = Math.floor(uptimeInSeconds % 60);
               const more = String.fromCharCode(8206);
               const readMore = more.repeat(4001)
-              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(database.users[senderID]?.level)}*\n│ 🔼 Level : *${database.users[senderID]?.level}* ( ${"```"}${(minLevelUp - database.users[senderID].exp)}${"```"} )\n│ 💫 Total XP : ${database.users[senderID]?.exp} / ${minLevelUp} ✨\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${"```"}${Object.keys(database.users).length}${"```"} *Users* | ${"```"}${Object.keys(database.chats).length}${"```"} *Group*\n╰────\n${readMore}`;
-              messages += `  --- MENU ---\n`;
+              var messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(database.users[senderID]?.level)}*\n│ 🔼 Level : *${database.users[senderID]?.level}* ( ${"```"}${(minLevelUp - database.users[senderID].exp)}${"```"} )\n│ 💫 Total XP : ${database.users[senderID]?.exp} / ${minLevelUp} ✨\n│\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${"```"}${Object.keys(database.users).length}${"```"} *Users* | ${"```"}${Object.keys(database.chats).length}${"```"} *Group*\n╰────\n${readMore}`;
+              messages += `───「 Menu List 」───\n`;
               await listOfMenu.map(async (menu)=>{
                 messages += `╭─「 *${capitalLetter(menu)}* 」\n`;
                 listOfSubMenu[menu].map((subMenu)=>{
-                  messages += (menuList[menu][subMenu][3]) ? `│ • ${menuList[menu][subMenu][0]} (${menuList[menu][subMenu][1]}) : ${menuList[menu][subMenu][2]}\n`:"";
+                  messages += (menuList[menu][subMenu][3]) ? `│ • *${menuList[menu][subMenu][0]}* (${menuList[menu][subMenu][1]}) : ${menuList[menu][subMenu][2]}\n`:"";
                 });
                 messages += `╰────\n`;
               });
@@ -778,12 +778,13 @@ try {
           const isLink = (m.body) ? (((m.body.toLowerCase()).includes("https://")||(m.body.toLowerCase()).includes("http://")) ? true : false) : false;
           if(isLink){
             const adminList = chat.participants.filter(users => users.isAdmin);
-            let mentions = [], lists = ``;
+            let mentions = [], lists = `「 *Link Detected* 」 \n╭─「 Tag Admin's 」 \n`;
             for(let admins of adminList){
               mentions.push(await host.getContactById(admins.id._serialized));
-              lists += `@${admins.id.user} \n`;
-            }
-            await m.reply(`「 *Link Detected* 」\n ${lists}`, null, { mentions });
+              lists += `│ • @${admins.id.user} \n`;
+            };
+            lists += `╰────`;
+            await m.reply(lists, null, { mentions });
           };
         };
       };
