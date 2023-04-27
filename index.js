@@ -714,11 +714,9 @@ try {
               }
             } else if (matchItem(command, '.gcinfo', systemConf.sim.high) && chat.isGroup) {
               try {
-                // console.log(chat)
                 menuList.group.gcinfo[1]++
                 const groupIconUrl = await host.getProfilePicUrl(chat.id._serialized)
-                console.log(groupIconUrl)
-                const media = (groupIconUrl) ? MessageMedia.fromUrl(groupIconUrl) : MessageMedia.fromFilePath('./profile.jpg')
+                const media = (groupIconUrl) ? await MessageMedia.fromUrl(groupIconUrl) : await MessageMedia.fromFilePath('./profile.jpg')
                 let adminList = '╭─「 Admin\'s 」\n'
                 const mentions = []
                 if (chat.owner) {
