@@ -40,7 +40,8 @@ try {
         promote: ['.promote @user', 0, 'Promote User', true],
         demote: ['.demote @user', 0, 'Demote User', true],
         getlink: ['.getlink', 0, 'Get Invite Link Group', true],
-        gc: ['.gc [open|close]', 0, 'set Group open or close', true]
+        gc: ['.gc [open|close]', 0, 'set Group open or close', true],
+        gcinfo: ['.gcinfo', 0, 'get group information', true]
       },
       notify: {
         welcome: ['.welcome [on|off]', 0, 'Send Notify when new people join/leave/add/kick', true],
@@ -710,6 +711,30 @@ try {
                 }
               } catch (e) {
                 await m.reply('Failed to load Group')
+              }
+            } else if (matchItem(command, '.gcinfo', systemConf.sim.high) && chat.isGroup) {
+              try {
+                // console.log(chat)
+                menuList.group.gcinfo[1]++
+                const groupIconUrl = await host.getProfilePicUrl(chat.id._serialized)
+                console.log(groupIconUrl)
+                const media = (groupIconUrl) ? MessageMedia.fromUrl(groupIconUrl) : MessageMedia.fromFilePath('./profile.jpg')
+                let adminList = '╭─「 Admin\'s 」\n'
+                const mentions = []
+                if (chat.owner) {
+                  mentions.push(await host.getContactById(chat.owner._serialized))
+                };
+                for (const participant of chat.participants) {
+                  if (participant.isAdmin) {
+                    adminList += `│ • @${participant.id.user} \n`
+                    mentions.push(await host.getContactById(participant.id._serialized))
+                  };
+                }
+                adminList += '╰────\n'
+                await m.reply(`Name : *${chat.name}*\nUID : *${chat.id._serialized}*\nCreated at : *${(chat.createdAt) ? `${chat.createdAt}`.substring(0, 24) : 'Unknown Time'}*\nAntilink : *${(database.chats[chat.id._serialized]?.state?.antilink) ? 'On' : 'Off'}*\nWelcome : *${(database.chats[chat.id._serialized]?.state?.welcome) ? 'On' : 'Off'}*\nis Archived : *${(chat.archived) ? 'Yes' : 'No'}*\nis Muted : *${(chat.isMuted) ? 'Yes' : 'No'}*\nis Read Only : *${(chat.isReadOnly) ? 'Yes' : 'No'}*\nis Pinned : *${(chat.pinned) ? 'Yes' : 'No'}*\nOwner : ${(chat.owner?.user) ? `@${chat.owner?.user}` : 'No Have Owner'} \n${adminList}Total Member : *${chat.participants.length} User's*\nUnread Count : *${(chat.unreadCount) ? chat.unreadCount : 0} Chat's*`, null, { media, mentions })
+              } catch (e) {
+                console.log(e)
+                await m.reply('Failed to load info')
               }
             } else if (matchItem(command, '.menu', systemConf.sim.high)) {
               try {
