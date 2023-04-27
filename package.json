@@ -1,6 +1,6 @@
 {
   "name": "open_ai-naonbotz",
-  "version": "1.5.81",
+  "version": "1.5.92",
   "description": "Whatsapp Bot AI with OpenAI GPT-4 API",
   "main": "index.js",
   "scripts": {

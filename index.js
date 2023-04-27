@@ -156,7 +156,7 @@ try {
         const minLevelUp = bot.levelup * (database.users[senderID].level + 1 / 2) * (database.users[senderID].level + 1)
         if (database.users[senderID].exp > minLevelUp) {
           database.users[senderID].level += 1
-          await (await host.getChatById(senderID)).sendMessage(`-- *Congratulation!!* --\nLevel Before : ${'```'}${database.users[senderID].level - 1}${'```'}\nLevel After : ${'```'}${database.users[senderID].level}${'```'}\nExp : ${'```'}${database.users[senderID].exp}${'```'} */* ${'```'}${bot.levelup * (database.users[senderID].level + 1 / 2) * (database.users[senderID].level + 1)}${'```'}`)
+          // await (await host.getChatById(senderID)).sendMessage(`-- *Congratulation!!* --\nLevel Before : ${'```'}${database.users[senderID].level - 1}${'```'}\nLevel After : ${'```'}${database.users[senderID].level}${'```'}\nExp : ${'```'}${database.users[senderID].exp}${'```'} */* ${'```'}${bot.levelup * (database.users[senderID].level + 1 / 2) * (database.users[senderID].level + 1)}${'```'}`)
         };
         const readText = async (qMsg) => {
           if (m.hasMedia) {
@@ -206,196 +206,232 @@ try {
         const commonCommand = async () => {
           if (m.body.length > 0) {
             if (matchItem(command, '.sticker', systemConf.sim.high) || command === '.s') {
-              menuList.common.sticker[1]++
-              if (m.hasMedia) {
-                const chat = await m.getChat()
-                await chat.sendMessage('Waitt a sec..')
-                const media = await m.downloadMedia()
-                if (media?.mimetype === 'image/png' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/gif' || media?.mimetype === 'image/webp') {
-                  await m.react('✅')
-                  await m.reply(media, null, { sendMediaAsSticker: true, stickerAuthor: 'SGStudio', stickerName: 'Ai Botz|NaonBotz' })
-                } else {
-                  await m.reply('Unknown Format')
-                  console.log(media.mimetype)
-                }
-              } else if (m.hasQuotedMsg) {
-                const quoted = await m.getQuotedMessage()
-                if (quoted.hasMedia) {
+              try {
+                menuList.common.sticker[1]++
+                if (m.hasMedia) {
                   const chat = await m.getChat()
                   await chat.sendMessage('Waitt a sec..')
-                  const media = await quoted.downloadMedia()
+                  const media = await m.downloadMedia()
                   if (media?.mimetype === 'image/png' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/gif' || media?.mimetype === 'image/webp') {
                     await m.react('✅')
                     await m.reply(media, null, { sendMediaAsSticker: true, stickerAuthor: 'SGStudio', stickerName: 'Ai Botz|NaonBotz' })
                   } else {
                     await m.reply('Unknown Format')
-                    // console.log(media.mimetype);
+                    console.log(media?.mimetype)
+                  }
+                } else if (m.hasQuotedMsg) {
+                  const quoted = await m.getQuotedMessage()
+                  if (quoted.hasMedia) {
+                    const chat = await m.getChat()
+                    await chat.sendMessage('Waitt a sec..')
+                    const media = await quoted.downloadMedia()
+                    if (media?.mimetype === 'image/png' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/gif' || media?.mimetype === 'image/webp') {
+                      await m.react('✅')
+                      await m.reply(media, null, { sendMediaAsSticker: true, stickerAuthor: 'SGStudio', stickerName: 'Ai Botz|NaonBotz' })
+                    } else {
+                      await m.reply('Unknown Format')
+                      // console.log(media.mimetype);
+                    }
+                  } else {
+                    await m.reply(`Is not a photo, is a ${m.type}`)
                   }
                 } else {
-                  await m.reply(`Is not a photo, is a ${m.type}`)
+                  await m.reply('Where Photo?')
                 }
-              } else {
-                await m.reply('Where Photo?')
+              } catch (e) {
+                await m.reply('Failed load image')
               }
             } if (m.hasQuotedMsg && matchItem(command, '.toimg', systemConf.sim.high)) {
-              menuList.common.toimg[1]++
-              const quoted = await m.getQuotedMessage()
-              if (quoted.type === 'sticker') {
-                const chat = await m.getChat()
-                await chat.sendMessage('Waitt a sec..')
-                const media = await quoted.downloadMedia()
-                if (media?.mimetype === 'image/png' || media?.mimetype === 'image/gif' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/webp') {
-                  // await chat.sendMessage(media, { mentions: [ await host.getContactById(senderID) ] });
-                  await m.react('⌛')
-                  await m.reply('Done!!', null, { media })
+              try {
+                menuList.common.toimg[1]++
+                const quoted = await m.getQuotedMessage()
+                if (quoted.type === 'sticker') {
+                  const chat = await m.getChat()
+                  await chat.sendMessage('Waitt a sec..')
+                  const media = await quoted.downloadMedia()
+                  if (media?.mimetype === 'image/png' || media?.mimetype === 'image/gif' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/webp') {
+                    // await chat.sendMessage(media, { mentions: [ await host.getContactById(senderID) ] });
+                    await m.react('⌛')
+                    await m.reply('Done!!', null, { media })
+                  } else {
+                    await m.reply('unknown Format')
+                    console.log(media.mimetype)
+                  }
                 } else {
-                  await m.reply('unknown Format')
-                  console.log(media.mimetype)
+                  await m.reply(`Is not a sticker, is a ${m.type}`)
                 }
-              } else {
-                await m.reply(`Is not a sticker, is a ${m.type}`)
+              } catch (e) {
+                await m.reply('Failed to load image')
               }
             } else if (matchItem(command, '.tagall', systemConf.sim.high) && chat.isGroup) {
-              menuList.group.tagall[1]++
-              let isSenderAdmin = false
-              for (const participant of chat.participants) {
-                if (participant.id._serialized === senderID && participant.isAdmin) {
-                  isSenderAdmin = true
-                }
-              };
-              if (isSenderAdmin) {
-                let text = '*TagAll*\n'
-                const mentions = []
+              try {
+                menuList.group.tagall[1]++
+                let isSenderAdmin = false
                 for (const participant of chat.participants) {
-                  const contact = await host.getContactById(participant.id._serialized)
-                  mentions.push(contact)
-                  text += `@${participant.id.user} \n`
+                  if (participant.id._serialized === senderID && participant.isAdmin) {
+                    isSenderAdmin = true
+                  }
+                };
+                if (isSenderAdmin) {
+                  let text = '*TagAll*\n'
+                  const mentions = []
+                  for (const participant of chat.participants) {
+                    const contact = await host.getContactById(participant.id._serialized)
+                    mentions.push(contact)
+                    text += `@${participant.id.user} \n`
+                  }
+                  await chat.sendMessage(text, { mentions })
+                } else {
+                  await m.reply('You not *Admin*')
                 }
-                await chat.sendMessage(text, { mentions })
-              } else {
-                await m.reply('You not *Admin*')
+              } catch (e) {
+                await m.reply("Failed to load User's")
               }
             } else if (matchItem(command, '.hidetag', systemConf.sim.high) && chat.isGroup) {
-              menuList.group.hidetag[1]++
-              let isSenderAdmin = false
-              for (const participant of chat.participants) {
-                if (participant.id._serialized === senderID && participant.isAdmin) {
-                  isSenderAdmin = true
-                }
-              };
-              if (isSenderAdmin) {
-                const mentions = []
+              try {
+                menuList.group.hidetag[1]++
+                let isSenderAdmin = false
                 for (const participant of chat.participants) {
-                  const contact = await host.getContactById(participant.id._serialized)
-                  mentions.push(contact)
-                }
-                let text
-                if (m.hasQuotedMsg) {
-                  const quoted = await m.getQuotedMessage()
-                  if (quoted.body.length > 0) {
-                    text = quoted.body
+                  if (participant.id._serialized === senderID && participant.isAdmin) {
+                    isSenderAdmin = true
+                  }
+                };
+                if (isSenderAdmin) {
+                  const mentions = []
+                  for (const participant of chat.participants) {
+                    const contact = await host.getContactById(participant.id._serialized)
+                    mentions.push(contact)
+                  }
+                  let text
+                  if (m.hasQuotedMsg) {
+                    const quoted = await m.getQuotedMessage()
+                    if (quoted.body.length > 0) {
+                      text = quoted.body
+                    } else {
+                      text = m.body.replace('.hidetag', '')
+                    }
                   } else {
                     text = m.body.replace('.hidetag', '')
                   }
+                  chat.sendMessage(await text, { mentions })
                 } else {
-                  text = m.body.replace('.hidetag', '')
+                  await m.reply('You not *Admin*')
                 }
-                chat.sendMessage(await text, { mentions })
-              } else {
-                await m.reply('You not *Admin*')
+              } catch (e) {
+                await m.reply("Failed to load User's")
               }
             } else if (matchItem(command, '.totext', systemConf.sim.high)) {
-              menuList.common.totext[1]++
-              const rawMedia = (m.hasQuotedMsg) ? (((await m.getQuotedMessage()).hasMedia) ? ((await m.getQuotedMessage()).downloadMedia()) : ((m.hasMedia) ? (await m.downloadMedia()) : false)) : ((m.hasMedia) ? (await m.downloadMedia()) : false)
-              const media = await rawMedia
-              if (media) {
-                if (media?.mimetype === 'image/png' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/jpg' || media?.mimetype === 'image/gif') {
-                  const base64Image = `data:${media.mimetype};base64,${media.data}`
-                  try {
-                    console.log('Reading Text')
-                    chat.sendMessage('Waitt a sec')
-                    let progress = 0
-                    const worker = await Tesseract.createWorker({
-                      logger: mc => {
-                        if (mc.progress) {
-                          progress += mc.progress
-                          drawProgressBar(progress)
-                        };
-                      }
-                    })
-                    await worker.loadLanguage('eng')
-                    await worker.initialize('eng')
-                    const { data: { text } } = await worker.recognize(base64Image)
-                    console.log(`\nResult : ${text}`)
-                    if (text) {
-                      await m.react('🖨')
-                      await m.reply(text)
-                    } else {
-                      await m.reply('cant detect text on this image')
-                    };
-                    worker.terminate()
-                  } catch (e) {
-                    console.log('Failed Reading Text')
-                  }
-                } else { await m.reply('Is Not Image') }
-              } else { await m.reply('Who image?') }
+              try {
+                menuList.common.totext[1]++
+                const rawMedia = (m.hasQuotedMsg) ? (((await m.getQuotedMessage()).hasMedia) ? ((await m.getQuotedMessage()).downloadMedia()) : ((m.hasMedia) ? (await m.downloadMedia()) : false)) : ((m.hasMedia) ? (await m.downloadMedia()) : false)
+                const media = await rawMedia
+                if (media) {
+                  if (media?.mimetype === 'image/png' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/jpg' || media?.mimetype === 'image/gif') {
+                    const base64Image = `data:${media.mimetype};base64,${media.data}`
+                    try {
+                      console.log('Reading Text')
+                      chat.sendMessage('Waitt a sec')
+                      let progress = 0
+                      const worker = await Tesseract.createWorker({
+                        logger: mc => {
+                          if (mc.progress) {
+                            progress += mc.progress
+                            drawProgressBar(progress)
+                          };
+                        }
+                      })
+                      await worker.loadLanguage('eng')
+                      await worker.initialize('eng')
+                      const { data: { text } } = await worker.recognize(base64Image)
+                      console.log(`\nResult : ${text}`)
+                      if (text) {
+                        await m.react('🖨')
+                        await m.reply(text)
+                      } else {
+                        await m.reply('cant detect text on this image')
+                      };
+                      worker.terminate()
+                    } catch (e) {
+                      console.log('Failed Reading Text')
+                    }
+                  } else { await m.reply('Is Not Image') }
+                } else { await m.reply('Who image?') }
+              } catch (e) {
+                await m.reply('Failed to load text')
+              }
             } else if (matchItem(command, '.tovn', systemConf.sim.high)) {
-              menuList.common.tovn[1]++
-              const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
-              if (quoted && quoted.hasMedia) {
-                const audio = await quoted.downloadMedia()
-                if (audio && (audio.mimetype.split(';')[0] === 'audio/mpeg' || audio.mimetype.split(';')[0] === 'audio/ogg')) {
-                  await m.react('🔃')
-                  await m.reply(audio, null, { sendAudioAsVoice: true })
-                } else { await m.reply(`Is not audio, is ${audio.mimetype}`) }
-              } else { await m.reply('Where Audio?') }
+              try {
+                menuList.common.tovn[1]++
+                const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
+                if (quoted && quoted.hasMedia) {
+                  const audio = await quoted.downloadMedia()
+                  if (audio && (audio.mimetype.split(';')[0] === 'audio/mpeg' || audio.mimetype.split(';')[0] === 'audio/ogg')) {
+                    await m.react('🔃')
+                    await m.reply(audio, null, { sendAudioAsVoice: true })
+                  } else { await m.reply(`Is not audio, is ${audio.mimetype}`) }
+                } else { await m.reply('Where Audio?') }
+              } catch (e) {
+                await m.reply('Failed to load Voice')
+              }
             } else if (matchItem(command, '.aiimg', systemConf.sim.high)) {
-              menuList.premium.aiimg[1]++
-              const mBody = m.body.replace('.aiimg', '').replace(' ', '')
-              if (mBody.length > 0) {
-                queueAdd({
-                  id: makeid(8),
-                  chat,
-                  message: mBody,
-                  senderContact: await host.getContactById(senderID),
-                  assistant: false
-                }, m, 'image')
-              } else { await m.reply('Use .aiimg <query>') }
+              try {
+                menuList.premium.aiimg[1]++
+                const mBody = m.body.replace('.aiimg', '').replace(' ', '')
+                if (mBody.length > 0) {
+                  queueAdd({
+                    id: makeid(8),
+                    chat,
+                    message: mBody,
+                    senderContact: await host.getContactById(senderID),
+                    assistant: false
+                  }, m, 'image')
+                } else { await m.reply('Use .aiimg <query>') }
+              } catch (e) {
+                await m.reply('Failed to load Image')
+              }
             } else if (matchItem(command, '.aiimgvar', systemConf.sim.high)) {
-              menuList.premium.aiimgvar[1]++
-              const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
-              const image = (m.hasMedia) ? await m.downloadMedia() : ((quoted && quoted.hasMedia) ? await quoted.downloadMedia() : false)
-              if (image) {
-                const buffer = await Buffer.from(image.data, 'base64')
-                await fs.writeFile('./temp.png', buffer, async (err) => {
-                  if (err) {
-                    m.reply('Failed Save State')
-                  } else {
-                    queueAdd({
-                      id: makeid(8),
-                      chat,
-                      message: m.body,
-                      senderContact: await host.getContactById(senderID),
-                      assistant: false
-                    }, m, 'imageVariation')
-                  }
-                })
-              } else {
-                await m.react('🤣')
-                await m.reply('I think i loss the image')
+              try {
+                menuList.premium.aiimgvar[1]++
+                const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
+                const image = (m.hasMedia) ? await m.downloadMedia() : ((quoted && quoted.hasMedia) ? await quoted.downloadMedia() : false)
+                if (image) {
+                  const buffer = await Buffer.from(image.data, 'base64')
+                  await fs.writeFile('./temp.png', buffer, async (err) => {
+                    if (err) {
+                      m.reply('Failed Save State')
+                    } else {
+                      queueAdd({
+                        id: makeid(8),
+                        chat,
+                        message: m.body,
+                        senderContact: await host.getContactById(senderID),
+                        assistant: false
+                      }, m, 'imageVariation')
+                    }
+                  })
+                } else {
+                  await m.react('🤣')
+                  await m.reply('I think i loss the image')
+                }
+              } catch (e) {
+                await m.reply('Failed to load Image')
               }
             } else if (matchItem(command, '.owner', systemConf.sim.high)) {
-              menuList.info.owner[1]++
-              const ownerLists = user.map((userlist) => {
-                if (userlist.isOwner) {
-                  return userlist.number + '@c.us'
-                };
-                return 'none'
-              }).filter(list => list !== 'none')
-              await m.reply(await host.getContactById(ownerLists[0]))
-            } else if (matchItem(command, '.speed', systemConf.sim.high)) {
-              menuList.info.speed[1]++
               try {
+                menuList.info.owner[1]++
+                const ownerLists = user.map((userlist) => {
+                  if (userlist.isOwner) {
+                    return userlist.number + '@c.us'
+                  };
+                  return 'none'
+                }).filter(list => list !== 'none')
+                await m.reply(await host.getContactById(ownerLists[0]))
+              } catch (e) {
+                await m.reply('Failed to load User')
+              }
+            } else if (matchItem(command, '.speed', systemConf.sim.high)) {
+              try {
+                menuList.info.speed[1]++
                 const start = Date.now()
                 const res = await fetch('https://google.com', { method: 'GET' })
                 const end = Date.now()
@@ -409,90 +445,106 @@ try {
                 await m.reply('An Error to fetch')
               }
             } else if (matchItem(command, '.pickrandom', systemConf.sim.high) && chat.isGroup) {
-              menuList.group.pickrandom[1]++
-              const user = pickRandomObject(chat.participants)
-              await m.reply(`Picked @${user.id.user}`, null, { mentions: [await host.getContactById(user.id._serialized)] })
+              try {
+                menuList.group.pickrandom[1]++
+                const user = pickRandomObject(chat.participants)
+                await m.reply(`Picked @${user.id.user}`, null, { mentions: [await host.getContactById(user.id._serialized)] })
+              } catch (e) {
+                await m.reply('Failed to load User')
+              }
             } else if (matchItem(command, '.active', systemConf.sim.high) && chat.isGroup) {
-              menuList.group.active[1]++
-              const numberList = Object.keys(database.chats[m.from].usersChat)
-              const rawUserlist = numberList.map((number) => {
-                return { number, chat: database.chats[m.from].usersChat[number] }
-              })
-              const userList = rawUserlist.sort((a, b) => a.chat - b.chat).reverse()
-              let messages = '「 *Top 5 User\'s Active* 」\n'; let listNumber = 0; const mentions = []
-              userList.map(async (dt) => {
-                listNumber++
-                if (!(listNumber > 5 || listNumber > (userList - 1))) {
-                  messages += `${listNumber}. @${dt.number.replace('@c.us', '')} : *${dt.chat}* Chats\n`
-                  try {
-                    mentions.push(await host.getContactById(dt.number))
-                  } catch (error) {
-                    console.log(error)
+              try {
+                menuList.group.active[1]++
+                const numberList = Object.keys(database.chats[m.from].usersChat)
+                const rawUserlist = numberList.map((number) => {
+                  return { number, chat: database.chats[m.from].usersChat[number] }
+                })
+                const userList = rawUserlist.sort((a, b) => a.chat - b.chat).reverse()
+                let messages = '「 *Top 5 User\'s Active* 」\n'; let listNumber = 0; const mentions = []
+                userList.map(async (dt) => {
+                  listNumber++
+                  if (!(listNumber > 5 || listNumber > (userList - 1))) {
+                    messages += `${listNumber}. @${dt.number.replace('@c.us', '')} : *${dt.chat}* Chats\n`
+                    try {
+                      mentions.push(await host.getContactById(dt.number))
+                    } catch (error) {
+                      console.log(error)
+                    }
+                  };
+                })
+                await m.reply(messages, null, { mentions })
+              } catch (e) {
+                await m.reply("Failed to load User's")
+              }
+            } else if (matchItem(command, '.welcome', systemConf.sim.high) && chat.isGroup) {
+              try {
+                menuList.notify.welcome[1]++
+                let isSenderAdmin = false
+                for (const participant of chat.participants) {
+                  if (participant.id._serialized === senderID && participant.isAdmin) {
+                    isSenderAdmin = true
                   }
                 };
-              })
-              await m.reply(messages, null, { mentions })
-            } else if (matchItem(command, '.welcome', systemConf.sim.high) && chat.isGroup) {
-              menuList.notify.welcome[1]++
-              let isSenderAdmin = false
-              for (const participant of chat.participants) {
-                if (participant.id._serialized === senderID && participant.isAdmin) {
-                  isSenderAdmin = true
-                }
-              };
-              if (isSenderAdmin) {
-                if (m.body.split(' ')[1]?.toLowerCase() === 'on') {
-                  if (database.chats[m.from].state.welcome) {
-                    await m.reply('Welcome already *Actived* on this chat')
+                if (isSenderAdmin) {
+                  if (m.body.split(' ')[1]?.toLowerCase() === 'on') {
+                    if (database.chats[m.from].state.welcome) {
+                      await m.reply('Welcome already *Actived* on this chat')
+                    } else {
+                      database.chats[m.from].state.welcome = true
+                      await m.reply('Succes *Actived* Welcome on this chat')
+                    }
+                  } else if (m.body.split(' ')[1]?.toLowerCase() === 'off') {
+                    if (!database.chats[m.from].state.welcome) {
+                      await m.reply('Welcome already *Deactived* on this chat')
+                    } else {
+                      database.chats[m.from].state.welcome = false
+                      await m.reply('Succes *Deactived* Welcome on this chat')
+                    }
                   } else {
-                    database.chats[m.from].state.welcome = true
-                    await m.reply('Succes *Actived* Welcome on this chat')
-                  }
-                } else if (m.body.split(' ')[1]?.toLowerCase() === 'off') {
-                  if (!database.chats[m.from].state.welcome) {
-                    await m.reply('Welcome already *Deactived* on this chat')
-                  } else {
-                    database.chats[m.from].state.welcome = false
-                    await m.reply('Succes *Deactived* Welcome on this chat')
+                    await m.reply('Example : .welcome on')
                   }
                 } else {
-                  await m.reply('Example : .welcome on')
+                  await m.reply('You not *Admin*')
                 }
-              } else {
-                await m.reply('You not *Admin*')
+              } catch (e) {
+                await m.reply('Failed to load DB')
               }
             } else if (matchItem(command, '.antilink', systemConf.sim.high) && chat.isGroup) {
-              menuList.notify.antilink[1]++
-              let isSenderAdmin = false
-              for (const participant of chat.participants) {
-                if (participant.id._serialized === senderID && participant.isAdmin) {
-                  isSenderAdmin = true
-                }
-              };
-              if (isSenderAdmin) {
-                if (m.body.split(' ')[1]?.toLowerCase() === 'on') {
-                  if (database.chats[m.from].state.antilink) {
-                    await m.reply('Antilink already *Actived* on this chat')
-                  } else {
-                    database.chats[m.from].state.antilink = true
-                    await m.reply('Succes *Actived* Antilink on this chat')
+              try {
+                menuList.notify.antilink[1]++
+                let isSenderAdmin = false
+                for (const participant of chat.participants) {
+                  if (participant.id._serialized === senderID && participant.isAdmin) {
+                    isSenderAdmin = true
                   }
-                } else if (m.body.split(' ')[1]?.toLowerCase() === 'off') {
-                  if (!database.chats[m.from].state.antilink) {
-                    await m.reply('Antilink already *Deactived* on this chat')
+                };
+                if (isSenderAdmin) {
+                  if (m.body.split(' ')[1]?.toLowerCase() === 'on') {
+                    if (database.chats[m.from].state.antilink) {
+                      await m.reply('Antilink already *Actived* on this chat')
+                    } else {
+                      database.chats[m.from].state.antilink = true
+                      await m.reply('Succes *Actived* Antilink on this chat')
+                    }
+                  } else if (m.body.split(' ')[1]?.toLowerCase() === 'off') {
+                    if (!database.chats[m.from].state.antilink) {
+                      await m.reply('Antilink already *Deactived* on this chat')
+                    } else {
+                      database.chats[m.from].state.antilink = false
+                      await m.reply('Succes *Deactived* Antilink on this chat')
+                    }
                   } else {
-                    database.chats[m.from].state.antilink = false
-                    await m.reply('Succes *Deactived* Antilink on this chat')
+                    await m.reply('Example : .antilink on')
                   }
                 } else {
-                  await m.reply('Example : .antilink on')
+                  await m.reply('You not *Admin*')
                 }
-              } else {
-                await m.reply('You not *Admin*')
+              } catch (e) {
+                await m.reply('Failed to load DB')
               }
             } else if (matchItem(command, '.promote', systemConf.sim.high) && chat.isGroup) {
-              menuList.group.promote[1]++
               try {
+                menuList.group.promote[1]++
                 let isSenderAdmin = false; let isMeAdmin = false; let isMentionAdmin = false; let isSenderOwner = false
                 const mention = (await m.getMentions())[0]
                 if (mention && await chat.owner?.user === mention.id.user) {
@@ -540,8 +592,8 @@ try {
                 console.log(error)
               }
             } else if (matchItem(command, '.demote', systemConf.sim.high) && chat.isGroup) {
-              menuList.group.demote[1]++
               try {
+                menuList.group.demote[1]++
                 let isSenderAdmin = false; let isMeAdmin = false; let isMentionAdmin = false; let isSenderOwner = false
                 const mention = (await m.getMentions())[0]
                 if (mention && await chat.owner?.user === mention.id.user) {
@@ -589,97 +641,117 @@ try {
                 console.log(error)
               }
             } else if (matchItem(command, '.backup', systemConf.sim.high)) {
-              menuList.owner.backups[1]++
-              const rawOwnerList = user.filter(usr => usr.isOwner)
-              const ownerList = (rawOwnerList.length > 0) ? rawOwnerList.map(dt => { return dt.number }) : 'none'
-              if (ownerList.includes(senderID.replace('@c.us', ''))) {
-                fs.writeFile(`${process.cwd()}/backups/${Date().substring(0, 24).replaceAll(' ', '-')}.json`, JSON.stringify(await db.read()), async (err) => {
-                  if (err) {
-                    console.log(err)
-                    await m.reply('Error creating backups')
-                  } else {
-                    console.log('----- Backups Created -----')
-                    await m.reply(`Success Create backup ${Date().substring(0, 24).replaceAll(' ', '-')}.json`)
-                  }
-                })
-              } else {
-                await m.reply('Owner Only!!')
+              try {
+                menuList.owner.backups[1]++
+                const rawOwnerList = user.filter(usr => usr.isOwner)
+                const ownerList = (rawOwnerList.length > 0) ? rawOwnerList.map(dt => { return dt.number }) : 'none'
+                if (ownerList.includes(senderID.replace('@c.us', ''))) {
+                  fs.writeFile(`${process.cwd()}/backups/${Date().substring(0, 24).replaceAll(' ', '-')}.json`, JSON.stringify(await db.read()), async (err) => {
+                    if (err) {
+                      console.log(err)
+                      await m.reply('Error creating backups')
+                    } else {
+                      console.log('----- Backups Created -----')
+                      await m.reply(`Success Create backup ${Date().substring(0, 24).replaceAll(' ', '-')}.json`)
+                    }
+                  })
+                } else {
+                  await m.reply('Owner Only!!')
+                }
+              } catch (e) {
+                await m.reply('Failed to load DB')
               }
             } else if (matchItem(command, '.getlink', systemConf.sim.high) && chat.isGroup) {
-              menuList.group.getlink[1]++
-              let isMeAdmin = false
-              for (const participant of chat.participants) {
-                if (participant.id._serialized === host.info.wid._serialized && participant.isAdmin) {
-                  isMeAdmin = true
+              try {
+                menuList.group.getlink[1]++
+                let isMeAdmin = false
+                for (const participant of chat.participants) {
+                  if (participant.id._serialized === host.info.wid._serialized && participant.isAdmin) {
+                    isMeAdmin = true
+                  };
                 };
-              };
-              if (isMeAdmin) {
-                const inviteCode = await chat.getInviteCode()
-                await m.reply(`「 *${chat.name}* 」\n • https://chat.whatsapp.com/${inviteCode}`)
-              } else {
-                await m.reply('Iam Not *Admin*')
+                if (isMeAdmin) {
+                  const inviteCode = await chat.getInviteCode()
+                  await m.reply(`「 *${chat.name}* 」\n • https://chat.whatsapp.com/${inviteCode}`)
+                } else {
+                  await m.reply('Iam Not *Admin*')
+                }
+              } catch (e) {
+                await m.reply('Failed to load Link')
               }
             } else if (matchItem(command, '.gc', systemConf.sim.high) && chat.isGroup) {
-              menuList.group.gc[1]++
-              let isMeAdmin = false; let isSenderAdmin = false
-              for (const participant of chat.participants) {
-                if (participant.id._serialized === host.info.wid._serialized && participant.isAdmin) {
-                  isMeAdmin = true
-                };
-                if (participant.id._serialized === senderID && participant.isAdmin) {
-                  isSenderAdmin = true
-                };
-              }
-              if (isSenderAdmin) {
-                if (isMeAdmin) {
-                  if (m.body.split(' ')[1]?.toLowerCase() === 'open') {
-                    await chat.setMessagesAdminsOnly(false)
-                    await m.reply('Group Openned')
-                  } else if (m.body.split(' ')[1]?.toLowerCase() === 'close') {
-                    await chat.setMessagesAdminsOnly(true)
-                    await m.reply('Group Closed')
+              try {
+                menuList.group.gc[1]++
+                let isMeAdmin = false; let isSenderAdmin = false
+                for (const participant of chat.participants) {
+                  if (participant.id._serialized === host.info.wid._serialized && participant.isAdmin) {
+                    isMeAdmin = true
+                  };
+                  if (participant.id._serialized === senderID && participant.isAdmin) {
+                    isSenderAdmin = true
+                  };
+                }
+                if (isSenderAdmin) {
+                  if (isMeAdmin) {
+                    if (m.body.split(' ')[1]?.toLowerCase() === 'open') {
+                      await chat.setMessagesAdminsOnly(false)
+                      await m.reply('Group Openned')
+                    } else if (m.body.split(' ')[1]?.toLowerCase() === 'close') {
+                      await chat.setMessagesAdminsOnly(true)
+                      await m.reply('Group Closed')
+                    } else {
+                      await m.reply('Example : .gc open')
+                    }
                   } else {
-                    await m.reply('Example : .gc open')
+                    await m.reply('Iam not *Admin*')
                   }
                 } else {
-                  await m.reply('Iam not *Admin*')
+                  await m.reply('You not *Admin*')
                 }
-              } else {
-                await m.reply('You not *Admin*')
+              } catch (e) {
+                await m.reply('Failed to load Group')
               }
             } else if (matchItem(command, '.menu', systemConf.sim.high)) {
-              menuList.genral.menu[1]++
-              await m.react('✅')
-              const listOfMenu = Object.keys(menuList)
-              const listOfSubMenu = {}
-              const date = new Date()
-              for (const list of listOfMenu) {
-                listOfSubMenu[list] = Object.keys(menuList[list])
-              };
-              const uptimeInSeconds = process.uptime()
-              const upHours = Math.floor(uptimeInSeconds / 3600)
-              const upMinutes = Math.floor((uptimeInSeconds % 3600) / 60)
-              const upSeconds = Math.floor(uptimeInSeconds % 60)
-              const more = String.fromCharCode(8206)
-              const readMore = more.repeat(4001)
-              let messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(database.users[senderID]?.level)}*\n│ 🔼 Level : *${database.users[senderID]?.level}* ( ${'```'}${(minLevelUp - database.users[senderID].exp)}${'```'} )\n│ 💫 Total XP : ${database.users[senderID]?.exp} / ${minLevelUp} ✨\n│\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${'```'}${Object.keys(database.users).length}${'```'} *Users* | ${'```'}${Object.keys(database.chats).length}${'```'} *Group*\n╰────\n${readMore}`
-              messages += '───「 Menu List 」───\n'
-              await listOfMenu.map(async (menu) => {
-                messages += `╭─「 *${capitalLetter(menu)}* 」\n`
-                for (const subMenu of listOfSubMenu[menu]) {
-                  messages += (menuList[menu][subMenu][3]) ? `│ • *${menuList[menu][subMenu][0]}* (${menuList[menu][subMenu][1]}) : ${menuList[menu][subMenu][2]}\n` : ''
-                }
-                messages += '╰────\n'
-              })
-              const profilePic = await host.getProfilePicUrl(await host.info.wid._serialized)
-              const media = (profilePic) ? await MessageMedia.fromUrl(profilePic) : await MessageMedia.fromFilePath('./profile.jpg')
-              await m.reply(messages, null, { media })
-              // await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .aiimg${"```"} : AI Create Image\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN\n ${"```"}- .limit${"```"} : Check Global limit`)
+              try {
+                menuList.genral.menu[1]++
+                await m.react('✅')
+                const listOfMenu = Object.keys(menuList)
+                const listOfSubMenu = {}
+                const date = new Date()
+                for (const list of listOfMenu) {
+                  listOfSubMenu[list] = Object.keys(menuList[list])
+                };
+                const uptimeInSeconds = process.uptime()
+                const upHours = Math.floor(uptimeInSeconds / 3600)
+                const upMinutes = Math.floor((uptimeInSeconds % 3600) / 60)
+                const upSeconds = Math.floor(uptimeInSeconds % 60)
+                const more = String.fromCharCode(8206)
+                const readMore = more.repeat(4001)
+                let messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${pricing.limit_avabile.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(database.users[senderID]?.level)}*\n│ 🔼 Level : *${database.users[senderID]?.level}* ( ${'```'}${(minLevelUp - database.users[senderID].exp)}${'```'} )\n│ 💫 Total XP : ${database.users[senderID]?.exp} / ${minLevelUp} ✨\n│\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${'```'}${Object.keys(database.users).length}${'```'} *Users* | ${'```'}${Object.keys(database.chats).length}${'```'} *Group*\n╰────\n${readMore}`
+                messages += '───「 Menu List 」───\n'
+                await listOfMenu.map(async (menu) => {
+                  messages += `╭─「 *${capitalLetter(menu)}* 」\n`
+                  for (const subMenu of listOfSubMenu[menu]) {
+                    messages += (menuList[menu][subMenu][3]) ? `│ • *${menuList[menu][subMenu][0]}* (${menuList[menu][subMenu][1]}) : ${menuList[menu][subMenu][2]}\n` : ''
+                  }
+                  messages += '╰────\n'
+                })
+                const profilePic = await host.getProfilePicUrl(await host.info.wid._serialized)
+                const media = (profilePic) ? await MessageMedia.fromUrl(profilePic) : await MessageMedia.fromFilePath('./profile.jpg')
+                await m.reply(messages, null, { media })
+                // await m.reply(`Hello *${m._data.notifyName}*\n *>General Command<*\n ${"```"}- Reply Bot${"```"} : Trigger AI Chat\n ${"```"}- .joingpt${"```"} : Make gpt joined and response all chat on group\n ${"```"}- .leavegpt${"```"} : Make gpt leave and can't response all chat on group\n ${"```"}- .startgpt${"```"} : Make bot make first chat to reply\n *>Common Command<*\n ${"```"}- .aiimg${"```"} : AI Create Image\n ${"```"}- .sticker / .s${"```"} : Make image to sticker\n ${"```"}- .toimg${"```"} : Make image to Sticker\n ${"```"}- .totext${"```"} : Detect text on Image\n ${"```"}- .tagall${"```"} : Tag all member on group\n ${"```"}- .hidetag${"```"} : Hide tag message\n ${"```"}- .tovn${"```"} : Send Audio as VN\n ${"```"}- .limit${"```"} : Check Global limit`)
+              } catch (e) {
+                await m.reply('Failed to load DB')
+              }
             } else if (matchItem(command, '.limit', systemConf.sim.high)) {
-              menuList.common.limit[1]++
-              await m.react('✅')
-              await m.reply(`Global Limit : *${pricing.limit_avabile.toFixed(4)}$*`)
-              await chat.sendMessage(`*-->List Price of Premium Command<--*\n Create Image(.aiimg) : *${pricing.image_cost}$/image*`)
+              try {
+                menuList.common.limit[1]++
+                await m.react('✅')
+                await m.reply(`Global Limit : *${pricing.limit_avabile.toFixed(4)}$*`)
+                await chat.sendMessage(`*-->List Price of Premium Command<--*\n Create Image(.aiimg) : *${pricing.image_cost}$/image*`)
+              } catch (e) {
+                await m.reply('Failed to load DB')
+              }
             } else {
               if (m.hasQuotedMsg) {
                 try {
