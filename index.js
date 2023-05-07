@@ -751,8 +751,9 @@ try {
               const ownerList = (rawOwnerList.length > 0) ? rawOwnerList.map(dt => { return dt.number }) : 'none'
               if (ownerList.includes(senderID.replace('@c.us', ''))) {
                 const commands = (m.body).replace('.run ', '')
-                if (commands.split(' ')[0] === 'nodes ') {
-                  const child = await spawn('node', ['-e', commands.replace('node', '')])
+                if (`${commands}`.split(' ')[0] === 'nodes'&&(`${commands}`.replace('nodes ', '')).length > 0) {
+                  chat.sendMessage(`Running Node *${`${commands}`.replace('nodes ', '')}*`)
+                  const child = await spawn('node', ['-e', `${commands}`.replace('nodes ', '')])
                   child.stdout.on('data', async (data) => {
                     await chat.sendMessage(`${data}`)
                   })
@@ -763,6 +764,7 @@ try {
                     await m.reply(`child process exited with code *${code}*`)
                   })
                 } else {
+                  chat.sendMessage(`Running *${commands}*`)
                   exec(commands, async (error, stdout, stderr) => {
                     if (error) {
                       await m.reply(error.message)
@@ -804,7 +806,7 @@ try {
                 }
                 await m.reply('Restarting...')
                 setTimeout(() => {
-                  process.kill(process.pid, 'SIGUSR2')
+                  process.kill(process.pid, 'SIGINT')
                 }, 2500)
               } else {
                 await m.reply('Owner Only!!')

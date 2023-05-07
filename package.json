@@ -4,7 +4,7 @@
   "description": "Whatsapp Bot AI with OpenAI GPT-4 API",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon -w . -e js --delay 2500",
+    "start": "node .",
     "test": "node test.js",
     "linter": "yarn run eslint ./",
     "lfix": "yarn run eslint ./ --fix"
