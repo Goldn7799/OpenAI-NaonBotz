@@ -1,12 +1,14 @@
 const { primaryHost } = require('./lib/Whatsapp/Connection.js')
 const Tesseract = require('tesseract.js')
 const { queueAdd } = require('./lib/OpenAI/Queue.js')
-const { makeid, matchItem, drawProgressBar, convertWebPtoPNG, capitalLetter, pickRandomObject } = require('./lib/Utility/Utility.js')
+const { makeid, matchItem, drawProgressBar, capitalLetter, pickRandomObject } = require('./lib/Utility/Utility.js')
 const { bot, user, systemConf, pricing, rolePicker } = require('./globalConfig.js')
 const interfaces = require('./lib/Whatsapp/Interfaces.js')
 const { MessageMedia } = require('whatsapp-web.js')
 const fs = require('fs')
 const db = require('./lib/Utility/Database.js')
+const { exec, spawn } = require('child_process')
+const JavaScriptObfuscator = require('javascript-obfuscator')
 const host = primaryHost
 
 try {
@@ -53,7 +55,8 @@ try {
         toimg: ['.toimg', 0, 'Make image to Sticker', true],
         totext: ['.totext', 0, 'Detect text on Image', true],
         tovn: ['.tovn', 0, 'Make audio to Voice Note', true],
-        limit: ['.limit', 0, 'Check global limit and price', true]
+        limit: ['.limit', 0, 'Check global limit and price', true],
+        obfuscate: ['.obfuscate <js script>', 0, 'Encrypt JS', true]
       },
       premium: {
         aiimgvar: ['.aiimgvar <query>', 0, 'Extend image', false],
@@ -69,7 +72,9 @@ try {
         console: ['=> <cmd>', 0, 'Shell Command', true],
         stop: ['.stop', 0, 'Stop the bot', true],
         ban: ['.ban', 0, 'Banned Chat/User', true],
-        unban: ['.unban', 0, 'Unban User']
+        unban: ['.unban', 0, 'Unban User'],
+        run: ['.run', 0, 'run command'],
+        restart: ['.restart', 0, 'restart process']
       }
     }
     // SYNC DB
@@ -101,8 +106,14 @@ try {
       }
     }
     StartDB()
+    host.on('ready', async () => {
+      if (database.restartState && database.restartState.isRestart) {
+        await host.sendMessage(database.restartState.lastChat, `Succes Restart!!\nTime Restart : *${(((Date.now()) - database.restartState.time) / 60).toFixed(4)} Second*`)
+        database.restartState = false
+      };
+    })
     // Run command if match at condition
-    host.on('message', async (m) => {
+    host.on('message_create', async (m) => {
       try {
         const chat = await m.getChat()
         const command = (m.body.toLowerCase()).split(' ')[0]
@@ -160,48 +171,48 @@ try {
           // await (await host.getChatById(senderID)).sendMessage(`-- *Congratulation!!* --\nLevel Before : ${'```'}${database.users[senderID].level - 1}${'```'}\nLevel After : ${'```'}${database.users[senderID].level}${'```'}\nExp : ${'```'}${database.users[senderID].exp}${'```'} */* ${'```'}${bot.levelup * (database.users[senderID].level + 1 / 2) * (database.users[senderID].level + 1)}${'```'}`)
         };
         const readText = async (qMsg) => {
-          if (m.hasMedia) {
-            const media = await m.downloadMedia()
-            if (media) {
-              if (media?.mimetype === 'image/png' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/jpg' || media?.mimetype === 'image/gif' || media?.mimetype === 'image/webp') {
-                const rawBase64Image = `data:${media.mimetype};base64,${media.data}`
-                const base64Image = (media.mimetype === 'image/webp') ? await convertWebPtoPNG(rawBase64Image) : rawBase64Image
-                if (base64Image) {
-                  try {
-                    console.log('Reading Text')
-                    chat.sendMessage('Detecting Text...')
-                    let progress = 0
-                    const worker = await Tesseract.createWorker({
-                      logger: mc => {
-                        if (mc.progress) {
-                          progress += mc.progress
-                          drawProgressBar(progress)
-                        };
-                      }
-                    })
-                    await worker.loadLanguage('eng')
-                    await worker.initialize('eng')
-                    const { data: { text } } = await worker.recognize(base64Image)
-                    console.log(`\nResult : ${text}`)
-                    if (text) {
-                      queueAdd({
-                        id: makeid(8),
-                        chat,
-                        message: text,
-                        senderContact: await host.getContactById(senderID),
-                        assistant: qMsg
-                      }, m, 'text')
-                    } else {
-                      await m.reply('cant detect text on this image')
-                    };
-                    worker.terminate()
-                  } catch (e) {
-                    console.log('Failed Reading Text')
-                  }
-                } else { console.log('failed Convert webp to png') };
-              };
-            };
-          };
+          // if (m.hasMedia) {
+          //   const media = await m.downloadMedia()
+          //   if (media) {
+          //     if (media?.mimetype === 'image/png' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/jpg' || media?.mimetype === 'image/gif' || media?.mimetype === 'image/webp') {
+          //       const rawBase64Image = `data:${media.mimetype};base64,${media.data}`
+          //       const base64Image = (media.mimetype === 'image/webp') ? await convertWebPtoPNG(rawBase64Image) : rawBase64Image
+          //       if (base64Image) {
+          //         try {
+          //           console.log('Reading Text')
+          //           chat.sendMessage('Detecting Text...')
+          //           let progress = 0
+          //           const worker = await Tesseract.createWorker({
+          //             logger: mc => {
+          //               if (mc.progress) {
+          //                 progress += mc.progress
+          //                 drawProgressBar(progress)
+          //               };
+          //             }
+          //           })
+          //           await worker.loadLanguage('eng')
+          //           await worker.initialize('eng')
+          //           const { data: { text } } = await worker.recognize(base64Image)
+          //           console.log(`\nResult : ${text}`)
+          //           if (text) {
+          //             queueAdd({
+          //               id: makeid(8),
+          //               chat,
+          //               message: text,
+          //               senderContact: await host.getContactById(senderID),
+          //               assistant: qMsg
+          //             }, m, 'text')
+          //           } else {
+          //             await m.reply('cant detect text on this image')
+          //           };
+          //           worker.terminate()
+          //         } catch (e) {
+          //           console.log('Failed Reading Text')
+          //         }
+          //       } else { console.log('failed Convert webp to png') };
+          //     };
+          //   };
+          // };
         }
         // common command
         const commonCommand = async () => {
@@ -733,6 +744,70 @@ try {
               } catch (e) {
                 console.log(e)
                 await m.reply('Failed to load info')
+              }
+            } else if (matchItem(command, '.run', systemConf.sim.high)) {
+              menuList.owner.run[1]++
+              const rawOwnerList = user.filter(usr => usr.isOwner)
+              const ownerList = (rawOwnerList.length > 0) ? rawOwnerList.map(dt => { return dt.number }) : 'none'
+              if (ownerList.includes(senderID.replace('@c.us', ''))) {
+                const commands = (m.body).replace('.run ', '')
+                if (commands.split(' ')[0] === 'nodes ') {
+                  const child = await spawn('node', ['-e', commands.replace('node', '')])
+                  child.stdout.on('data', async (data) => {
+                    await chat.sendMessage(`${data}`)
+                  })
+                  child.stderr.on('data', async (err) => {
+                    await chat.sendMessage(`${err}`)
+                  })
+                  child.on('close', async (code) => {
+                    await m.reply(`child process exited with code *${code}*`)
+                  })
+                } else {
+                  exec(commands, async (error, stdout, stderr) => {
+                    if (error) {
+                      await m.reply(error.message)
+                      return
+                    };
+                    if (stderr) {
+                      await m.reply(stderr)
+                      return
+                    };
+                    await m.reply(stdout)
+                  })
+                }
+              } else {
+                await m.reply('Owner Only')
+              }
+            } else if (matchItem(command, '.obfuscate', systemConf.sim.high)) {
+              menuList.common.obfuscate[1]++
+              try {
+                const sc = ((m.body).replace('.obfuscate', '')).replace(' ', '')
+                if (sc.length > 0) {
+                  await chat.sendMessage('Waitt a sec')
+                  const result = JavaScriptObfuscator.obfuscate(sc)
+                  await m.reply(result.getObfuscatedCode())
+                } else {
+                  await m.reply('sc cant be null')
+                }
+              } catch (e) {
+                await m.reply('Failed encrypting data')
+              }
+            } else if (matchItem(command, '.restart', systemConf.sim.high)) {
+              menuList.owner.restart[1]++
+              const rawOwnerList = user.filter(usr => usr.isOwner)
+              const ownerList = (rawOwnerList.length > 0) ? rawOwnerList.map(dt => { return dt.number }) : 'none'
+              if (ownerList.includes(senderID.replace('@c.us', ''))) {
+                database.restartState = {
+                  isRestart: true,
+                  lastChat: chat.id._serialized,
+                  time: Date.now()
+                }
+                await m.reply('Restarting...')
+                setTimeout(() => {
+                  process.kill(process.pid, 'SIGUSR2')
+                }, 2500)
+              } else {
+                await m.reply('Owner Only!!')
               }
             } else if (matchItem(command, '.menu', systemConf.sim.high)) {
               try {

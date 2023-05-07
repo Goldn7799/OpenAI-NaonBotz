@@ -1,6 +1,6 @@
 const user = [
   { number: '6281228020195', isDeveloper: true, isOwner: true },
-  { number: '6285875536696', isDeveloper: true, isOwner: false }
+  { number: '6285875536696', isDeveloper: true, isOwner: true }
 ]
 
 const bot = {
