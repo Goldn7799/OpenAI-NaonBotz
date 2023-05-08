@@ -15,7 +15,7 @@ const bot = {
 }
 
 const pricing = {
-  limit_avabile: 0,
+  limit_avabile: 2,
   image_cost: 0.018
 }
 

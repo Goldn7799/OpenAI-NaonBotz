@@ -1,7 +1,7 @@
 const { primaryHost } = require('./lib/Whatsapp/Connection.js')
 const Tesseract = require('tesseract.js')
 const { queueAdd } = require('./lib/OpenAI/Queue.js')
-const { makeid, matchItem, drawProgressBar, capitalLetter, pickRandomObject } = require('./lib/Utility/Utility.js')
+const { makeid, matchItem, drawProgressBar, capitalLetter, convertWebPtoPNG, pickRandomObject } = require('./lib/Utility/Utility.js')
 const { bot, user, systemConf, pricing, rolePicker } = require('./globalConfig.js')
 const interfaces = require('./lib/Whatsapp/Interfaces.js')
 const { MessageMedia } = require('whatsapp-web.js')
@@ -113,7 +113,7 @@ try {
       };
     })
     // Run command if match at condition
-    host.on('message_create', async (m) => {
+    host.on('message', async (m) => {
       try {
         const chat = await m.getChat()
         const command = (m.body.toLowerCase()).split(' ')[0]
@@ -171,48 +171,48 @@ try {
           // await (await host.getChatById(senderID)).sendMessage(`-- *Congratulation!!* --\nLevel Before : ${'```'}${database.users[senderID].level - 1}${'```'}\nLevel After : ${'```'}${database.users[senderID].level}${'```'}\nExp : ${'```'}${database.users[senderID].exp}${'```'} */* ${'```'}${bot.levelup * (database.users[senderID].level + 1 / 2) * (database.users[senderID].level + 1)}${'```'}`)
         };
         const readText = async (qMsg) => {
-          // if (m.hasMedia) {
-          //   const media = await m.downloadMedia()
-          //   if (media) {
-          //     if (media?.mimetype === 'image/png' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/jpg' || media?.mimetype === 'image/gif' || media?.mimetype === 'image/webp') {
-          //       const rawBase64Image = `data:${media.mimetype};base64,${media.data}`
-          //       const base64Image = (media.mimetype === 'image/webp') ? await convertWebPtoPNG(rawBase64Image) : rawBase64Image
-          //       if (base64Image) {
-          //         try {
-          //           console.log('Reading Text')
-          //           chat.sendMessage('Detecting Text...')
-          //           let progress = 0
-          //           const worker = await Tesseract.createWorker({
-          //             logger: mc => {
-          //               if (mc.progress) {
-          //                 progress += mc.progress
-          //                 drawProgressBar(progress)
-          //               };
-          //             }
-          //           })
-          //           await worker.loadLanguage('eng')
-          //           await worker.initialize('eng')
-          //           const { data: { text } } = await worker.recognize(base64Image)
-          //           console.log(`\nResult : ${text}`)
-          //           if (text) {
-          //             queueAdd({
-          //               id: makeid(8),
-          //               chat,
-          //               message: text,
-          //               senderContact: await host.getContactById(senderID),
-          //               assistant: qMsg
-          //             }, m, 'text')
-          //           } else {
-          //             await m.reply('cant detect text on this image')
-          //           };
-          //           worker.terminate()
-          //         } catch (e) {
-          //           console.log('Failed Reading Text')
-          //         }
-          //       } else { console.log('failed Convert webp to png') };
-          //     };
-          //   };
-          // };
+          if (m.hasMedia) {
+            const media = await m.downloadMedia()
+            if (media) {
+              if (media?.mimetype === 'image/png' || media?.mimetype === 'image/jpeg' || media?.mimetype === 'image/jpg' || media?.mimetype === 'image/gif' || media?.mimetype === 'image/webp') {
+                const rawBase64Image = `data:${media.mimetype};base64,${media.data}`
+                const base64Image = (media.mimetype === 'image/webp') ? await convertWebPtoPNG(rawBase64Image) : rawBase64Image
+                if (base64Image) {
+                  try {
+                    console.log('Reading Text')
+                    chat.sendMessage('Detecting Text...')
+                    let progress = 0
+                    const worker = await Tesseract.createWorker({
+                      logger: mc => {
+                        if (mc.progress) {
+                          progress += mc.progress
+                          drawProgressBar(progress)
+                        };
+                      }
+                    })
+                    await worker.loadLanguage('eng')
+                    await worker.initialize('eng')
+                    const { data: { text } } = await worker.recognize(base64Image)
+                    console.log(`\nResult : ${text}`)
+                    if (text) {
+                      queueAdd({
+                        id: makeid(8),
+                        chat,
+                        message: text,
+                        senderContact: await host.getContactById(senderID),
+                        assistant: qMsg
+                      }, m, 'text')
+                    } else {
+                      await m.reply('cant detect text on this image')
+                    };
+                    worker.terminate()
+                  } catch (e) {
+                    console.log('Failed Reading Text')
+                  }
+                } else { console.log('failed Convert webp to png') };
+              };
+            };
+          };
         }
         // common command
         const commonCommand = async () => {
@@ -751,7 +751,7 @@ try {
               const ownerList = (rawOwnerList.length > 0) ? rawOwnerList.map(dt => { return dt.number }) : 'none'
               if (ownerList.includes(senderID.replace('@c.us', ''))) {
                 const commands = (m.body).replace('.run ', '')
-                if (`${commands}`.split(' ')[0] === 'nodes'&&(`${commands}`.replace('nodes ', '')).length > 0) {
+                if (`${commands}`.split(' ')[0] === 'nodes' && (`${commands}`.replace('nodes ', '')).length > 0) {
                   chat.sendMessage(`Running Node *${`${commands}`.replace('nodes ', '')}*`)
                   const child = await spawn('node', ['-e', `${commands}`.replace('nodes ', '')])
                   child.stdout.on('data', async (data) => {
