@@ -1,0 +1,6 @@
+{
+  "bot": {
+    "backupTime": [12,30],
+    "openaiApiKey": ""
+  }
+}
