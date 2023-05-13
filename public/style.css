@@ -1,0 +1,73 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  flex-direction: column;
+}
+
+.login {
+  width: 350px;
+  height: 400px;
+  padding: 10px 10px;
+  border-radius: 10px;
+  border-color: rgb(179, 179, 179);
+  border-style: solid;
+  background-color: rgb(39, 39, 39);
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+}
+
+.login .title {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 100px;
+}
+
+.copyright {
+  margin-top: 5px;
+  color: gray;
+  font-size: 12.5px;
+}
+
+.username {
+  z-index: 1000;
+}
+
+#pass {
+  z-index: 500;
+  transition: all ease-in-out 0.25s;
+  -webkit-transition: all ease-in-out 0.25s;
+  -moz-transition: all ease-in-out 0.25s;
+  -ms-transition: all ease-in-out 0.25s;
+  -o-transition: all ease-in-out 0.25s;
+}
+
+#loginBtn {
+  transition: all ease-in-out 0.2s;
+  border-radius: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  background-color: transparent;
+  border-style: solid;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+  -webkit-transition: all ease-in-out 0.2s;
+  -moz-transition: all ease-in-out 0.2s;
+  -ms-transition: all ease-in-out 0.2s;
+  -o-transition: all ease-in-out 0.2s;
+}
+
+#loginBtn:hover {
+  transform: scale(1.05, 1.05);
+  box-shadow: 0 0 10px 2.5px rgb(255, 255, 255);
+  -webkit-transform: scale(1.05, 1.05);
+  -moz-transform: scale(1.05, 1.05);
+  -ms-transform: scale(1.05, 1.05);
+  -o-transform: scale(1.05, 1.05);
+}
