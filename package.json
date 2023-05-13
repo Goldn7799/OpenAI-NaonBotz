@@ -24,7 +24,11 @@
   },
   "homepage": "https://github.com/Goldn7799/OpenAI-NaonBotz#readme",
   "devDependencies": {
-    "eslint": "^8.40.0"
+    "eslint": "^8.0.1",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-n": "^15.0.0",
+    "eslint-plugin-promise": "^6.0.0"
   },
   "dependencies": {
     "cors": "^2.8.5",

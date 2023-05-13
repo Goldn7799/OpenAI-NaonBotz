@@ -1,6 +1,24 @@
 {
   "bot": {
-    "backupTime": [12,30],
-    "openaiApiKey": ""
+    "backupTime": [19,30],
+    "openaiApiKey": "",
+    "clearLogOnStartup": true,
+    "syncInterval": 5000,
+    "origin": "*",
+    "port": 8090
+  },
+  "defaultDB": {
+    "database": {
+      "state": {
+        "openaiLimit": 0,
+        "restart": {
+          "state": false,
+          "time": 0,
+          "lastChatId": ""
+        }
+      },
+      "chats": {},
+      "groups": {}
+    }
   }
 }

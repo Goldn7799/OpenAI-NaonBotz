@@ -109,4 +109,4 @@ package-lock.json
 
 # webjs
 .wwebjs_auth/
-
+data-store/
