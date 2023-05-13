@@ -109,8 +109,4 @@ package-lock.json
 
 # webjs
 .wwebjs_auth/
-lib/ffmpeg/
-temp.png
-tmp/
-database.json
-backups/
+
