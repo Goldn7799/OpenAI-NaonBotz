@@ -6,6 +6,7 @@ const ipUrl = `http://${ip}:${port}`
 let myIp = 'check'
 let cred = {}
 let pings = 0
+let logs = []
 
 // pages
 const pageState = {
@@ -46,6 +47,28 @@ const pingTest = async () => {
     })
 }
 pingTest()
+
+const getResource = async () => {
+  let fuse = true
+  fetch(`${ipUrl}/log/${cred.user.auth}`, { method: 'GET' })
+    .then(ress => { return ress.json() })
+    .then(res => {
+      if (res.success) {
+        logs = res.data
+      } else {
+        logs.push('[.red.]Auth code Experied, please the reload page')
+        fuse = false
+      };
+    })
+    .catch(() => {
+      logs.push('[.red.]Disconnected, Reconneting')
+    })
+  if (fuse) {
+    setTimeout(() => {
+      getResource()
+    }, 500)
+  };
+}
 
 // function
 const logOut = () => {
@@ -211,6 +234,7 @@ const page = {
     const settingsBtn = document.getElementById('settingsBtn')
     const consolesBtn = document.getElementById('consoleBtn')
     const commandInput = document.getElementById('commandInput')
+    const consolesRoom = document.getElementById('consoleRoom')
     homeBtn.addEventListener('click', () => {
       homeBtn.classList.add('active')
       settingsBtn.classList.remove('active')
@@ -259,11 +283,40 @@ const page = {
         settings.style.display = 'none'
       }, 250)
     })
+    let cmd = ''
     commandInput.addEventListener('keydown', (events) => {
       if (events.key === 'Enter') {
-        commandInput.value = 0
+        if (commandInput.value.length > 0) {
+          cmd = commandInput.value
+          commandInput.value = ''
+          fetch(`${ipUrl}/execute/${cred.user.auth}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              commands: cmd
+            })
+          })
+            .then(ress => { return ress.json() })
+            .then(res => {
+              if (!res.success) {
+                consolesRoom.innerHTML += '<p style="color: red;">Failed execute</p>'
+              };
+            })
+            .catch(() => {
+              consolesRoom.innerHTML += '<p style="color: red;">Disconnected</p>'
+            })
+        };
+      };
+      if (commandInput.value === '' && events.key === ' ') {
+        setTimeout(() => {
+          commandInput.value = ''
+        }, 100)
       };
     })
+    let currentLog = []
+    let commandsValue = ''
     const runHome = () => {
       if (pageState.home) {
         if (typeof (pings) === 'number') {
@@ -279,6 +332,20 @@ const page = {
           ping.style.color = 'gray'
           ping.innerText = pings
         };
+        if (`${logs}` !== currentLog) {
+          currentLog = `${logs}`
+          commandsValue = ''
+          for (const rawLog of logs) {
+            const log = rawLog.split(/\n/g)
+            for (const rtxt of log) {
+              const txt = (`${rtxt}`.includes('[.') && `${rtxt}`.includes('.]')) ? rtxt : ('[.white.]' + rtxt)
+              const textMatch = txt.match(/\[\.(.*?)\.\](.*)/)
+              commandsValue += `<p style="height: 5px; color: ${textMatch[1]};">${textMatch[2]}</p>`
+            }
+          }
+          consolesRoom.innerHTML = commandsValue
+          consolesRoom.scrollTop = consolesRoom.scrollHeight
+        }
         document.getElementById('username').innerText = cred.user.username
         setTimeout(() => {
           runHome()
@@ -286,6 +353,7 @@ const page = {
       };
     }
     runHome()
+    getResource()
   }
 }
 

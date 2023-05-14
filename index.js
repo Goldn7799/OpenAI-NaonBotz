@@ -140,20 +140,113 @@ const runMain = async () => {
         success: true,
         message: 'Succes Executing Req'
       })
-      databases.func.putLog(`${pickedUser.username} => ${commands}`)
-      exec(commands, (error, stdout, stderr) => {
-        if (error) {
-          return databases.func.putLog(`[.red.]${error}`)
-        };
-        if (stderr) {
-          return databases.func.putLog(`[.yellow.]${stderr}`)
-        };
-        databases.func.putLog(`${stdout}`)
-      })
+      databases.func.putLog(`[.green.]${pickedUser.username} => ${commands}`)
+      if (pickedUser.isAdministator) {
+        exec(commands, (error, stdout, stderr) => {
+          if (error) {
+            return databases.func.putLog(`[.red.]${error}`)
+          };
+          if (stderr) {
+            return databases.func.putLog(`[.yellow.]${stderr}`)
+          };
+          databases.func.putLog(`[.white.]${stdout}`)
+        })
+      } else {
+        databases.func.putLog('[.red.]You not Administrator')
+      }
     } else {
       res.status(403).json({
         succes: false,
         message: 'Invalid Data'
+      })
+    }
+  })
+
+  app.post('/add/user/:auth', (req, res) => {
+    const { auth } = req.params
+    const { email, username, password } = req.body
+    const users = databases.getUsers()
+    const emailList = Object.keys(users)
+    const authList = databases.getAllAuth()
+    const usernameList = emailList.map((emails) => {
+      return users[emails].username
+    })
+    if (auth && authList.includes(auth) && email && username && password) {
+      let pickedUser = false
+      for (const emails of emailList) {
+        if (users[emails].auth === auth) {
+          pickedUser = users[emails]
+        };
+      };
+      if (pickedUser.isAdministator) {
+        if (emailList.includes(email) && usernameList.includes(username)) {
+          res.status(304).json({
+            success: false,
+            message: 'Username or Email already taken'
+          })
+        } else {
+          databases.func.editUsers(email, {
+            username,
+            password,
+            auth: databases.generateUserAuth(),
+            isAdministator: false,
+            permission: {
+              sendMessage: false,
+              manageConnection: false,
+              manageUsers: false
+            },
+            lastLogin: {
+              time: '',
+              ip: ''
+            }
+          })
+          res.status(200).json({
+            success: true,
+            message: 'Succes Create User'
+          })
+        }
+      } else {
+        res.status(403).json({
+          success: false,
+          message: 'Not Admin'
+        })
+      }
+    } else {
+      res.status(403).json({
+        success: false,
+        message: 'Data Invalid'
+      })
+    }
+  })
+
+  app.post('/delete/user/:email/:auth', (req, res) => {
+    const { email, auth } = req.params
+    const users = databases.getUsers()
+    const emailList = Object.keys(users)
+    const authList = databases.getAllAuth()
+    if (auth && authList.includes(auth) && email) {
+      let pickedUser = false
+      for (const emails of emailList) {
+        if (users[emails].auth === auth) {
+          pickedUser = users[emails]
+        };
+      };
+      if (pickedUser.isAdministator) {
+        databases.func.deleteUsers(email)
+        res.status(200).json({
+          success: true,
+          message: 'succes Delete'
+        })
+      } else {
+        res.status(403).json({
+          success: false,
+          message: 'Not Admin'
+        })
+      }
+    } else {
+      res.status(403).json({
+        success: false,
+        message: 'Data Invalid'
       })
     }
   })
