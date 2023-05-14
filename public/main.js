@@ -4,9 +4,8 @@ const ip = location.hostname
 const port = location.port
 const ipUrl = `http://${ip}:${port}`
 let myIp = 'check'
-console.log(ipUrl)
-let cred = {};
-let pings = 0;
+let cred = {}
+let pings = 0
 
 // pages
 const pageState = {
@@ -15,52 +14,52 @@ const pageState = {
 }
 
 // Ping
-const pingTest = async ()=>{
+const pingTest = async () => {
   await fetch('http://ip-api.com/json/')
-  .then(response => response.json())
-  .then(data => {
-    myIp = data.query
-  })
-  .catch(() => {
-    myIp = "check"
-  });
+    .then(response => response.json())
+    .then(data => {
+      myIp = data.query
+    })
+    .catch(() => {
+      myIp = 'check'
+    })
 
   const start = Date.now()
-  await fetch(`${ipUrl}/ping`, { method: "GET" })
-  .then(res => {
-    if(res.status === 200){
-      const end = Date.now()
-      pings = end - start
-    }else {
-      pings = res.statusText
-    }
-    setTimeout(() => {
-      pingTest()
-    }, 1250);
-  })
-  .catch((err)=>{
-    pings = "Unreacable"
-    console.log(err)
-    setTimeout(() => {
-      pingTest()
-    }, 1250);
-  })
+  await fetch(`${ipUrl}/ping`, { method: 'GET' })
+    .then(res => {
+      if (res.status === 200) {
+        const end = Date.now()
+        pings = end - start
+      } else {
+        pings = res.statusText
+      }
+      setTimeout(() => {
+        pingTest()
+      }, 1250)
+    })
+    .catch((err) => {
+      pings = 'Unreacable'
+      console.log(err)
+      setTimeout(() => {
+        pingTest()
+      }, 1250)
+    })
 }
 pingTest()
 
 // function
 const logOut = () => {
   Notipin.Confirm({
-    msg: "Do you want to LogOut?", // Pesan kamu
-    yes: "Yes", // Tulisan di tombol 'Yes'
-    no: "No", // Tulisan di tombol 'No'
+    msg: 'Do you want to LogOut?', // Pesan kamu
+    yes: 'Yes', // Tulisan di tombol 'Yes'
+    no: 'No', // Tulisan di tombol 'No'
     onYes: () => {
       localStorage.setItem('isLogin', 'false')
       page.login()
     },
     onNo: () => { /* Kode di sini */ },
-    type: "NORMAL",
-    mode: "DARK",
+    type: 'NORMAL',
+    mode: 'DARK'
   })
 }
 
@@ -163,13 +162,13 @@ const page = {
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="#">Home</a>
+                  <a  id="homeBtn" class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Settings</a>
+                  <a id="settingsBtn" class="nav-link" href="#">Settings</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">Console</a>
+                  <a  id="consoleBtn" class="nav-link" href="#">Console</a>
                 </li>
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -191,31 +190,99 @@ const page = {
             </div>
           </div>
         </nav>
+        <center>
+          <div class="animationAll" id="home" style="display: block; opacity: 1; margin-left: 0px;">Home</div>
+          <div class="animationAll" id="settings" style="display: none; opacity: 0; margin-left: -1000px;">Settings</div>
+          <div class="animationAll" id="console" style="display: none; opacity: 0; margin-left: -1000px;">
+            <div id="consoleRoom">p</div>
+            <input id="commandInput" type="text" placeholder="Command Here"></input>
+          </div>
+        </center>
       </div>
     `
-    document.getElementById("logout").addEventListener("click", ()=>{
+    document.getElementById('logout').addEventListener('click', () => {
       logOut()
     })
     const ping = document.getElementById('ping')
-    const runHome = ()=>{
-      if(pageState.home){
-        if (typeof(pings) === 'number'){
+    const home = document.getElementById('home')
+    const settings = document.getElementById('settings')
+    const consoles = document.getElementById('console')
+    const homeBtn = document.getElementById('homeBtn')
+    const settingsBtn = document.getElementById('settingsBtn')
+    const consolesBtn = document.getElementById('consoleBtn')
+    const commandInput = document.getElementById('commandInput')
+    homeBtn.addEventListener('click', () => {
+      homeBtn.classList.add('active')
+      settingsBtn.classList.remove('active')
+      consolesBtn.classList.remove('active')
+      home.style.display = 'block'
+      settings.style.marginLeft = '-1000px'
+      consoles.style.marginLeft = '-1000px'
+      settings.style.opacity = '0'
+      consoles.style.opacity = '0'
+      setTimeout(() => {
+        home.style.marginLeft = ''
+        home.style.opacity = '1'
+        settings.style.display = 'none'
+        consoles.style.display = 'none'
+      }, 250)
+    })
+    settingsBtn.addEventListener('click', () => {
+      homeBtn.classList.remove('active')
+      settingsBtn.classList.add('active')
+      consolesBtn.classList.remove('active')
+      settings.style.display = 'block'
+      consoles.style.marginLeft = '-1000px'
+      home.style.marginLeft = '-1000px'
+      consoles.style.opacity = '0'
+      home.style.opacity = '0'
+      setTimeout(() => {
+        settings.style.opacity = '1'
+        settings.style.marginLeft = ''
+        consoles.style.display = 'none'
+        home.style.display = 'none'
+      }, 250)
+    })
+    consolesBtn.addEventListener('click', () => {
+      homeBtn.classList.remove('active')
+      settingsBtn.classList.remove('active')
+      consolesBtn.classList.add('active')
+      consoles.style.display = 'flex'
+      home.style.marginLeft = '-1000px'
+      settings.style.marginLeft = '-1000px'
+      home.style.opacity = '0'
+      settings.style.opacity = '0'
+      setTimeout(() => {
+        consoles.style.marginLeft = ''
+        consoles.style.opacity = '1'
+        home.style.display = 'none'
+        settings.style.display = 'none'
+      }, 250)
+    })
+    commandInput.addEventListener('keydown', (events) => {
+      if (events.key === 'Enter') {
+        commandInput.value = 0
+      };
+    })
+    const runHome = () => {
+      if (pageState.home) {
+        if (typeof (pings) === 'number') {
           if (`${pings}`.length > 3) {
-            ping.style.color = "red"
+            ping.style.color = 'red'
           } else if (`${pings}`.length > 2) {
-            ping.style.color = "yellow"
+            ping.style.color = 'yellow'
           } else if (`${pings}`.length > 1) {
-            ping.style.color = "lightgreen"
+            ping.style.color = 'lightgreen'
           };
-          ping.innerText = pings + "MS"
-        } else if (typeof(pings) === 'string'){
-          ping.style.color = "gray"
+          ping.innerText = pings + 'MS'
+        } else if (typeof (pings) === 'string') {
+          ping.style.color = 'gray'
           ping.innerText = pings
         };
-        document.getElementById("username").innerText = cred.user.username
+        document.getElementById('username').innerText = cred.user.username
         setTimeout(() => {
           runHome()
-        }, 250);
+        }, 250)
       };
     }
     runHome()

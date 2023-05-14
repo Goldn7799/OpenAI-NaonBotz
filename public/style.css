@@ -82,3 +82,41 @@
   color: rgb(255, 230, 0);
   font-weight: bold;
 }
+
+.animationAll {
+  transition: all ease-in-out 0.25s;
+  -webkit-transition: all ease-in-out 0.25s;
+  -moz-transition: all ease-in-out 0.25s;
+  -ms-transition: all ease-in-out 0.25s;
+  -o-transition: all ease-in-out 0.25s;
+}
+
+#console {
+  flex-direction: column;
+  padding: 5px 5px;
+  margin-top: 10px;
+  height: 80vh;
+  width: 98%;
+  border-radius: 8px;
+  background-color: rgb(19, 19, 19);
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  -ms-border-radius: 8px;
+  -o-border-radius: 8px;
+}
+
+#console #consoleRoom {
+  flex-grow: 1;
+  scroll-behavior: smooth;
+  overflow-y: scroll;
+}
+
+#console input {
+  margin-top: 5px;
+  border-radius: 15px;
+  box-shadow: 0 0 5px 2.5px white;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px;
+}

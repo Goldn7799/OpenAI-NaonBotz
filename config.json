@@ -5,7 +5,8 @@
     "clearLogOnStartup": true,
     "syncInterval": 5000,
     "origin": "*",
-    "port": 8090
+    "port": 8090,
+    "limit": "100mb"
   },
   "defaultDB": {
     "database": {

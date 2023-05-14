@@ -3,6 +3,8 @@ const color = require('./lib/Utility/ccolor.js')
 const express = require('express')
 const cors = require('cors')
 const config = require('./config.json')
+const bodyParser = require('body-parser')
+const { exec } = require('child_process')
 
 // Main Command
 const runMain = async () => {
@@ -16,6 +18,7 @@ const runMain = async () => {
   app.use(cors({
     origin: config.bot.origin
   }))
+  app.use(bodyParser.json({ limit: config.bot.limit }))
   app.use('/', express.static('./public'))
 
   app.get('/user/:type/:username/:password', (req, res) => {
@@ -27,7 +30,7 @@ const runMain = async () => {
         const user = users[username]
         if (user) {
           if (user.password === password) {
-            if (type === "check"){
+            if (type === 'check') {
               databases.func.updateLastLoginUser(username, type, Date())
             };
             users = databases.getUsers()
@@ -62,7 +65,7 @@ const runMain = async () => {
         const user = usernameList[username]
         if (user) {
           if (user.password === password) {
-            if (type !== "check"){
+            if (type !== 'check') {
               databases.func.updateLastLoginUser(user.email, type, Date())
             };
             users = databases.getUsers()
@@ -95,12 +98,64 @@ const runMain = async () => {
     }
   })
 
-  app.get('/ping', (req, res)=>{
+  app.get('/ping', (req, res) => {
     res.status(200).json({
       success: true,
       message: 'Ping test success',
       data: req.url
     })
+  })
+
+  app.get('/log/:auth', (req, res) => {
+    const { auth } = req.params
+    const authList = databases.getAllAuth()
+    if (authList.includes(auth)) {
+      res.status(200).json({
+        success: true,
+        message: 'Succes Getting Log',
+        data: databases.getLog()
+      })
+    } else {
+      res.status(403).json({
+        succes: false,
+        message: 'Invalid auth code'
+      })
+    }
+  })
+
+  app.post('/execute/:auth', (req, res) => {
+    const { auth } = req.params
+    const { commands } = req.body
+    const authList = databases.getAllAuth()
+    if (authList.includes(auth) && commands) {
+      const users = databases.getUsers()
+      const emailList = Object.keys(users)
+      let pickedUser = false
+      for (const email of emailList) {
+        if (users[email].auth === auth) {
+          pickedUser = users[email]
+        };
+      };
+      res.status(200).json({
+        success: true,
+        message: 'Succes Executing Req'
+      })
+      databases.func.putLog(`${pickedUser.username} => ${commands}`)
+      exec(commands, (error, stdout, stderr) => {
+        if (error) {
+          return databases.func.putLog(`[.red.]${error}`)
+        };
+        if (stderr) {
+          return databases.func.putLog(`[.yellow.]${stderr}`)
+        };
+        databases.func.putLog(`${stdout}`)
+      })
+    } else {
+      res.status(403).json({
+        succes: false,
+        message: 'Invalid Data'
+      })
+    }
   })
 
   app.listen(config.bot.port, () => {
