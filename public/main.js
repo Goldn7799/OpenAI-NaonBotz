@@ -70,8 +70,12 @@ const getResource = async () => {
       .then(res => {
         if (res.success) {
           userlist = res.data
+        } else {
+          userlist = {}
         };
       })
+  } else {
+    userlist = {}
   };
   if (fuse) {
     setTimeout(() => {
@@ -193,7 +197,7 @@ const createUser = () => {
                                 msg: `${res.message}`, // Pesan kamu
                                 yes: 'Ok', // Tulisan di tombol 'Yes'
                                 onYes: () => { /* Kode di sini */ },
-                                type: 'INFO',
+                                type: 'NORMAL',
                                 mode: 'DARK'
                               })
                             }
@@ -625,7 +629,7 @@ const page = {
           }
         }
         if (JSON.stringify(userlist) !== currentUserlist) {
-          if (`${userlist}`.length > 5) {
+          if (JSON.stringify(userlist).length > 25) {
             currentUserlist = JSON.stringify(userlist)
             userViewValue = ''
             const usersEmailList = Object.keys(userlist)
