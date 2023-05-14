@@ -7,6 +7,7 @@ let myIp = 'check'
 let cred = {}
 let pings = 0
 let logs = []
+let userlist = {}
 
 // pages
 const pageState = {
@@ -63,6 +64,15 @@ const getResource = async () => {
     .catch(() => {
       logs.push('[.red.]Disconnected, Reconneting')
     })
+  if (cred.user.isAdministator || cred.user.permission.manageUsers) {
+    fetch(`${ipUrl}/userlist/${cred.user.auth}`, { method: 'GET' })
+      .then(ress => { return ress.json() })
+      .then(res => {
+        if (res.success) {
+          userlist = res.data
+        };
+      })
+  };
   if (fuse) {
     setTimeout(() => {
       getResource()
@@ -71,6 +81,181 @@ const getResource = async () => {
 }
 
 // function
+const deleteUser = (email) => {
+  if (email) {
+    Notipin.Confirm({
+      msg: `Really to delete <b>${email}</b>?`, // Pesan kamu
+      yes: 'Yes', // Tulisan di tombol 'Yes'
+      no: 'No', // Tulisan di tombol 'No'
+      onYes: () => {
+        fetch(`${ipUrl}/delete/user/${email}/${cred.user.auth}`, { method: 'POST' })
+          .then(ress => { return ress.json() })
+          .then(res => {
+            if (res.success) {
+              Notipin.Alert({
+                msg: `${res.message}`, // Pesan kamu
+                yes: 'Ok', // Tulisan di tombol 'Yes'
+                onYes: () => { /* Kode di sini */ },
+                type: 'INFO',
+                mode: 'DARK'
+              })
+            } else {
+              Notipin.Alert({
+                msg: `${res.message}`, // Pesan kamu
+                yes: 'Ok', // Tulisan di tombol 'Yes'
+                onYes: () => { /* Kode di sini */ },
+                type: 'NORMAL',
+                mode: 'DARK'
+              })
+            }
+          })
+          .catch(() => {
+            Notipin.Alert({
+              msg: 'Failed to delete', // Pesan kamu
+              yes: 'Ok', // Tulisan di tombol 'Yes'
+              onYes: () => { /* Kode di sini */ },
+              type: 'NORMAL',
+              mode: 'DARK'
+            })
+          })
+      },
+      onNo: () => { /* Kode di sini */ },
+      type: 'DANGER',
+      mode: 'DARK'
+    })
+  } else {
+    Notipin.Alert({
+      msg: 'Email Can\'t be null', // Pesan kamu
+      yes: 'Ok', // Tulisan di tombol 'Yes'
+      onYes: () => { /* Kode di sini */ },
+      type: 'NORMAL',
+      mode: 'DARK'
+    })
+  }
+}
+
+const createUser = () => {
+  Notipin.Prompt({
+    msg: 'Please input E-Mail <p>(min 5 char)</p>', // Pesan kamu
+    placeholder: 'Email..',
+    max: 0, // Maksimal karakter (integer)
+    textarea: false, // tag element (boolean)
+    yes: 'Next', // Tulisan di tombol 'Yes'
+    no: 'Cancel', // Tulisan di tombol 'No'
+    onYes: (email) => {
+      if (email && email.length > 4) {
+        Notipin.Prompt({
+          msg: 'Please input Username <p>(min 5 char)</p>', // Pesan kamu
+          placeholder: 'Username..',
+          max: 0, // Maksimal karakter (integer)
+          textarea: false, // tag element (boolean)
+          yes: 'Next', // Tulisan di tombol 'Yes'
+          no: 'Cancel', // Tulisan di tombol 'No'
+          onYes: (username) => {
+            if (username && username.length > 4) {
+              Notipin.Prompt({
+                msg: 'Please input Password <p>(min 5 char)</p>', // Pesan kamu
+                placeholder: 'Password..',
+                max: 0, // Maksimal karakter (integer)
+                textarea: false, // tag element (boolean)
+                yes: 'Next', // Tulisan di tombol 'Yes'
+                no: 'Cancel', // Tulisan di tombol 'No'
+                onYes: (password) => {
+                  if (password && password.length > 4) {
+                    Notipin.Confirm({
+                      msg: `<div class="confirmCreate"><p>Check the format below</p><p>E-Mail : <b>${email}</b></p><p>Username : <b>${username}</b></p><p>Password : <b>${password}</b></p><p>Continue ?</p></div>`, // Pesan kamu
+                      yes: 'Ok', // Tulisan di tombol 'Yes'
+                      no: 'Cancel', // Tulisan di tombol 'No'
+                      onYes: () => {
+                        fetch(`${ipUrl}/add/user/${cred.user.auth}`, {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json'
+                          },
+                          body: JSON.stringify({
+                            email,
+                            username,
+                            password
+                          })
+                        })
+                          .then(ress => { return ress.json() })
+                          .then(res => {
+                            if (res.success) {
+                              Notipin.Alert({
+                                msg: 'Succes Create User', // Pesan kamu
+                                yes: 'Ok', // Tulisan di tombol 'Yes'
+                                onYes: () => { /* Kode di sini */ },
+                                type: 'INFO',
+                                mode: 'DARK'
+                              })
+                            } else {
+                              Notipin.Alert({
+                                msg: `${res.message}`, // Pesan kamu
+                                yes: 'Ok', // Tulisan di tombol 'Yes'
+                                onYes: () => { /* Kode di sini */ },
+                                type: 'INFO',
+                                mode: 'DARK'
+                              })
+                            }
+                          })
+                          .catch(() => {
+                            Notipin.Alert({
+                              msg: 'Failed to connect to server', // Pesan kamu
+                              yes: 'Ok', // Tulisan di tombol 'Yes'
+                              onYes: () => { /* Kode di sini */ },
+                              type: 'DANGER',
+                              mode: 'DARK'
+                            })
+                          })
+                      },
+                      onNo: () => { /* Kode di sini */ },
+                      type: 'NORMAL',
+                      mode: 'DARK'
+                    })
+                  } else {
+                    Notipin.Alert({
+                      msg: 'Min 5 Char', // Pesan kamu
+                      yes: 'Ok', // Tulisan di tombol 'Yes'
+                      onYes: () => { /* Kode di sini */ },
+                      type: 'NORMAL',
+                      mode: 'DARK'
+                    })
+                  }
+                },
+                onNo: () => { /* Kode di sini */ },
+                type: 'BLUE',
+                mode: 'DARK'
+              })
+            } else {
+              Notipin.Alert({
+                msg: 'Min 5 Char', // Pesan kamu
+                yes: 'Ok', // Tulisan di tombol 'Yes'
+                onYes: () => { /* Kode di sini */ },
+                type: 'NORMAL',
+                mode: 'DARK'
+              })
+            }
+          },
+          onNo: () => { /* Kode di sini */ },
+          type: 'BLUE',
+          mode: 'DARK'
+        })
+      } else {
+        Notipin.Alert({
+          msg: 'Min 5 Char', // Pesan kamu
+          yes: 'Ok', // Tulisan di tombol 'Yes'
+          onYes: () => { /* Kode di sini */ },
+          type: 'NORMAL',
+          mode: 'DARK'
+        })
+      }
+    },
+    onNo: () => { /* Kode di sini */ },
+    type: 'BLUE',
+    mode: 'DARK'
+  })
+}
+
 const logOut = () => {
   Notipin.Confirm({
     msg: 'Do you want to LogOut?', // Pesan kamu
@@ -187,7 +372,7 @@ const page = {
                 <li class="nav-item">
                   <a  id="homeBtn" class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
-                <li class="nav-item" ${(cred.user.isAdministator) ? '':'style="display: none;"'}>
+                <li class="nav-item">
                   <a id="settingsBtn" class="nav-link" href="#">Settings</a>
                 </li>
                 <li class="nav-item">
@@ -215,7 +400,37 @@ const page = {
         </nav>
         <center>
           <div class="animationAll" id="home" style="display: block; opacity: 1; margin-left: 0px;">Home</div>
-          <div class="animationAll" id="settings" style="display: none; opacity: 0; margin-left: -1000px;">Settings</div>
+          <div class="animationAll" id="settings" style="display: none; opacity: 0; margin-left: -1000px;">
+            <div id="settingsSelector">
+              <h5>Genral</h5>
+              <p class="activated" id="accountBtn">Account</p>
+              <p id="usersBtn">Users</p>
+              <p id="whatsappBtn">WhatsApp</p>
+              </div>
+            <div id="settingsView">
+              <div class="animationAll" id="setAccount" style="opacity: 1;">
+                <h4 style="font-weight: bold;">My Account</h4>
+                <div class="optionAB">
+                <div class="divAB">
+                    <div class="input-group mb-3">
+                      <input type="text" class="form-control" placeholder="New Email" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3">
+                      <input type="text" class="form-control" placeholder="New Password" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                  </div>
+                  <div class="divAB">
+                    <div class="input-group mb-3">
+                      <input type="password" class="form-control" placeholder="Current Password" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <button class="btn btn-primary">Save Change</button>
+                  </div>
+                </div>
+              </div>
+              <div class="animationAll" id="setUsers" style="display: none; opacity: 0;"></div>
+              <div class="animationAll" id="setWhatsapp" style="display: none; opacity: 0;">Whatsapp</div>
+            </div>
+          </div>
           <div class="animationAll" id="console" style="display: none; opacity: 0; margin-left: -1000px;">
             <div id="consoleRoom">p</div>
             <input id="commandInput" type="text" placeholder="Command Here"></input>
@@ -235,52 +450,109 @@ const page = {
     const consolesBtn = document.getElementById('consoleBtn')
     const commandInput = document.getElementById('commandInput')
     const consolesRoom = document.getElementById('consoleRoom')
+    const accountBtn = document.getElementById('accountBtn')
+    const usersBtn = document.getElementById('usersBtn')
+    const whatsappBtn = document.getElementById('whatsappBtn')
+    const setAccount = document.getElementById('setAccount')
+    const setUsers = document.getElementById('setUsers')
+    const setWhatsapp = document.getElementById('setWhatsapp')
     homeBtn.addEventListener('click', () => {
       homeBtn.classList.add('active')
       settingsBtn.classList.remove('active')
       consolesBtn.classList.remove('active')
-      home.style.display = 'block'
       settings.style.marginLeft = '-1000px'
       consoles.style.marginLeft = '-1000px'
       settings.style.opacity = '0'
       consoles.style.opacity = '0'
       setTimeout(() => {
-        home.style.marginLeft = ''
-        home.style.opacity = '1'
+        home.style.display = 'block'
         settings.style.display = 'none'
         consoles.style.display = 'none'
+        setTimeout(() => {
+          home.style.marginLeft = ''
+          home.style.opacity = '1'
+        }, 50)
       }, 250)
     })
     settingsBtn.addEventListener('click', () => {
       homeBtn.classList.remove('active')
       settingsBtn.classList.add('active')
       consolesBtn.classList.remove('active')
-      settings.style.display = 'block'
       consoles.style.marginLeft = '-1000px'
       home.style.marginLeft = '-1000px'
       consoles.style.opacity = '0'
       home.style.opacity = '0'
       setTimeout(() => {
-        settings.style.opacity = '1'
-        settings.style.marginLeft = ''
+        settings.style.display = ''
         consoles.style.display = 'none'
         home.style.display = 'none'
+        setTimeout(() => {
+          settings.style.opacity = '1'
+          settings.style.marginLeft = ''
+        }, 50)
       }, 250)
     })
     consolesBtn.addEventListener('click', () => {
       homeBtn.classList.remove('active')
       settingsBtn.classList.remove('active')
       consolesBtn.classList.add('active')
-      consoles.style.display = 'flex'
       home.style.marginLeft = '-1000px'
       settings.style.marginLeft = '-1000px'
       home.style.opacity = '0'
       settings.style.opacity = '0'
       setTimeout(() => {
-        consoles.style.marginLeft = ''
-        consoles.style.opacity = '1'
+        consoles.style.display = 'flex'
         home.style.display = 'none'
         settings.style.display = 'none'
+        setTimeout(() => {
+          consoles.style.marginLeft = ''
+          consoles.style.opacity = '1'
+        }, 50)
+      }, 250)
+    })
+    accountBtn.addEventListener('click', () => {
+      accountBtn.classList.add('activated')
+      usersBtn.classList.remove('activated')
+      whatsappBtn.classList.remove('activated')
+      setUsers.style.opacity = '0'
+      setWhatsapp.style.opacity = '0'
+      setTimeout(() => {
+        setAccount.style.display = ''
+        setUsers.style.display = 'none'
+        setWhatsapp.style.display = 'none'
+        setTimeout(() => {
+          setAccount.style.opacity = '1'
+        }, 50)
+      }, 250)
+    })
+    usersBtn.addEventListener('click', () => {
+      accountBtn.classList.remove('activated')
+      usersBtn.classList.add('activated')
+      whatsappBtn.classList.remove('activated')
+      setAccount.style.opacity = '0'
+      setWhatsapp.style.opacity = '0'
+      setTimeout(() => {
+        setUsers.style.display = ''
+        setAccount.style.display = 'none'
+        setWhatsapp.style.display = 'none'
+        setTimeout(() => {
+          setUsers.style.opacity = '1'
+        }, 50)
+      }, 250)
+    })
+    whatsappBtn.addEventListener('click', () => {
+      accountBtn.classList.remove('activated')
+      usersBtn.classList.remove('activated')
+      whatsappBtn.classList.add('activated')
+      setUsers.style.opacity = '0'
+      setAccount.style.opacity = '0'
+      setTimeout(() => {
+        setWhatsapp.style.display = ''
+        setUsers.style.display = 'none'
+        setAccount.style.display = 'none'
+        setTimeout(() => {
+          setWhatsapp.style.opacity = '1'
+        }, 50)
       }, 250)
     })
     let cmd = ''
@@ -315,7 +587,9 @@ const page = {
         }, 100)
       };
     })
-    let currentLog = []
+    let currentLog = ''
+    let currentUserlist = ''
+    let userViewValue = ''
     let commandsValue = ''
     const runHome = () => {
       if (pageState.home) {
@@ -332,19 +606,47 @@ const page = {
           ping.style.color = 'gray'
           ping.innerText = pings
         };
-        if (`${logs}` !== currentLog) {
-          currentLog = `${logs}`
-          commandsValue = ''
-          for (const rawLog of logs) {
-            const log = rawLog.split(/\n/g)
-            for (const rtxt of log) {
-              const txt = (`${rtxt}`.includes('[.') && `${rtxt}`.includes('.]')) ? rtxt : ('[.white.]' + rtxt)
-              const textMatch = txt.match(/\[\.(.*?)\.\](.*)/)
-              commandsValue += `<p style="height: 5px; color: ${textMatch[1]};">${textMatch[2]}</p>`
+        if (JSON.stringify(logs) !== currentLog) {
+          if (logs.length > 0) {
+            currentLog = JSON.stringify(logs)
+            commandsValue = ''
+            for (const rawLog of logs) {
+              const log = rawLog.split(/\n/g)
+              for (const rtxt of log) {
+                const txt = (`${rtxt}`.includes('[.') && `${rtxt}`.includes('.]')) ? rtxt : ('[.white.]' + rtxt)
+                const textMatch = txt.match(/\[\.(.*?)\.\](.*)/)
+                commandsValue += `<p style="height: 5px; color: ${textMatch[1]};">${textMatch[2]}</p>`
+              }
             }
+            consolesRoom.innerHTML = commandsValue
+            consolesRoom.scrollTop = consolesRoom.scrollHeight
+          } else {
+            consolesRoom.innerHTML = '<center><h4 style="margin-top: 10px; color: gray;">No Logs must be View</h4></center>'
           }
-          consolesRoom.innerHTML = commandsValue
-          consolesRoom.scrollTop = consolesRoom.scrollHeight
+        }
+        if (JSON.stringify(userlist) !== currentUserlist) {
+          if (`${userlist}`.length > 5) {
+            currentUserlist = JSON.stringify(userlist)
+            userViewValue = ''
+            const usersEmailList = Object.keys(userlist)
+            for (const email of usersEmailList) {
+              const selectedUser = userlist[email]
+              userViewValue += `<div class="userList">
+                <div class="title">
+                  <h6><span class="username">${selectedUser.username}</span>${(selectedUser.isAdministator) ? '<span class="admin">[Admin]</span>' : ''}${(email === cred.email) ? '<span>(ME)</span>' : ''}</h6>
+                  <p><span style="color: ${(selectedUser.permission.sendMessage) ? 'lightgreen' : 'crimson'};">Send Message</span>, <span style="color: ${(selectedUser.permission.manageConnection) ? 'lightgreen' : 'crimson'};">Manage Connection</span>, <span style="color: ${(selectedUser.permission.manageUsers) ? 'lightgreen' : 'crimson'};">Manage Users</span></p>
+                  </div>
+                  ${(cred.email === email) ? '<button class="btn btn-warning" onClick="document.getElementById(\'accountBtn\').click() "><i class="fa-solid fa-wrench"></i></button>' : ''}
+                ${(cred.email !== email && (cred.user.isAdministator || (cred.user.permission.manageUsers && !selectedUser.isAdministator))) ? '<button class="btn btn-success"><i class="fa-solid fa-wrench"></i></button>' : ''}
+                ${(cred.email !== email && (cred.user.isAdministator || (cred.user.permission.manageUsers && !selectedUser.isAdministator))) ? `<button class="btn btn-danger" onClick="deleteUser('${email}')"><i class="fa-solid fa-trash"></i></button>` : ''}
+                ${(cred.email !== email && !(cred.user.isAdministator || (cred.user.permission.manageUsers && !selectedUser.isAdministator))) ? '<button class="btn btn-info"><i class="fa-solid fa-question"></i></button>' : ''}
+              </div>`
+            }
+            setUsers.innerHTML = userViewValue
+            setUsers.innerHTML += '<button class="btn btn-primary btnAdd" onClick="createUser()"><i class="fa-solid fa-plus"></i></button>'
+          } else {
+            setUsers.innerHTML = '<center><h4 style="margin-top: 10px; color: gray;">You dont have Permission</h4></center>'
+          }
         }
         document.getElementById('username').innerText = cred.user.username
         setTimeout(() => {
@@ -380,3 +682,7 @@ window.onload = () => {
     }
   }, 1000)
 }
+
+// export
+document.deleteUser = deleteUser
+document.createUser = createUser

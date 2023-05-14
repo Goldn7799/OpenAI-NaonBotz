@@ -5,6 +5,7 @@ const cors = require('cors')
 const config = require('./config.json')
 const bodyParser = require('body-parser')
 const { exec } = require('child_process')
+const utility = require('./lib/Utility/Utility.js')
 
 // Main Command
 const runMain = async () => {
@@ -112,12 +113,12 @@ const runMain = async () => {
     if (authList.includes(auth)) {
       res.status(200).json({
         success: true,
-        message: 'Succes Getting Log',
+        message: 'Success Getting Log',
         data: databases.getLog()
       })
     } else {
       res.status(403).json({
-        succes: false,
+        success: false,
         message: 'Invalid auth code'
       })
     }
@@ -138,7 +139,7 @@ const runMain = async () => {
       };
       res.status(200).json({
         success: true,
-        message: 'Succes Executing Req'
+        message: 'Success Executing Req'
       })
       databases.func.putLog(`[.green.]${pickedUser.username} => ${commands}`)
       if (pickedUser.isAdministator) {
@@ -156,7 +157,7 @@ const runMain = async () => {
       }
     } else {
       res.status(403).json({
-        succes: false,
+        success: false,
         message: 'Invalid Data'
       })
     }
@@ -178,7 +179,7 @@ const runMain = async () => {
           pickedUser = users[emails]
         };
       };
-      if (pickedUser.isAdministator||pickedUser.permission.manageUsers) {
+      if (pickedUser.isAdministator || pickedUser.permission.manageUsers) {
         if ((emailList.includes(email)) || (usernameList.includes(username))) {
           res.status(403).json({
             success: false,
@@ -202,7 +203,7 @@ const runMain = async () => {
           })
           res.status(200).json({
             success: true,
-            message: 'Succes Create User'
+            message: 'Success Create User'
           })
         }
       } else {
@@ -235,12 +236,57 @@ const runMain = async () => {
         databases.func.deleteUsers(email)
         res.status(200).json({
           success: true,
-          message: 'succes Delete'
+          message: 'success Delete'
         })
       } else {
         res.status(403).json({
           success: false,
           message: 'You Not Admin or You tried to delete admin user'
+        })
+      }
+    } else {
+      res.status(403).json({
+        success: false,
+        message: 'Data Invalid'
+      })
+    }
+  })
+
+  app.get('/userlist/:auth', (req, res) => {
+    const { auth } = req.params
+    const users = databases.getUsers()
+    const emailList = Object.keys(users)
+    const authList = databases.getAllAuth()
+    if (auth && authList.includes(auth)) {
+      let pickedUser = false
+      for (const emails of emailList) {
+        if (users[emails].auth === auth) {
+          pickedUser = users[emails]
+        };
+      };
+      if (pickedUser.isAdministator) {
+        res.status(200).json({
+          success: true,
+          message: 'Success get list of users',
+          data: users
+        })
+      } else if (pickedUser.permission.manageUsers) {
+        const filterUsers = utility.copy(users)
+        for (const email of emailList) {
+          if (filterUsers[email].isAdministator) {
+            filterUsers[email].password = 'HIDDEN'
+            filterUsers[email].auth = 'HIDDEN'
+          };
+        }
+        res.status(200).json({
+          success: true,
+          message: 'Success get list of Filtered users',
+          data: filterUsers
+        })
+      } else {
+        res.status(403).json({
+          success: false,
+          message: 'You Not Admin or no have permissions'
         })
       }
     } else {

@@ -1,3 +1,13 @@
+body {
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-y: hidden;
+  overflow-x: hidden;
+}
+
 .container {
   display: flex;
   justify-content: center;
@@ -122,4 +132,124 @@
   -moz-border-radius: 15px;
   -ms-border-radius: 15px;
   -o-border-radius: 15px;
+}
+
+#settings {
+  display: flex;
+  flex-direction: row;
+}
+
+#settings #settingsView {
+  height: 88vh;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  overflow-y: scroll;
+  padding-top: 1.8vh;
+  padding-left: 1vh;
+}
+
+#settings #settingsSelector {
+  direction: rtl;
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 10px 10px;
+  width: 25%;
+  margin-top: 1.5vh;
+  margin-left: 10px;
+  margin-bottom: 1vh;
+  border-radius: 10px;
+  height: 85.5vh;
+  background-color: rgb(24, 24, 24);
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  -ms-border-radius: 10px;
+  -o-border-radius: 10px;
+}
+
+#settings #settingsSelector h5 {
+  font-weight: bold;
+}
+
+#settings #settingsSelector p {
+  margin-left: 12px;
+  cursor: pointer;
+  color: rgb(201, 201, 201);
+  height: 8px;
+}
+
+#settings #settingsSelector p:hover {
+  color: rgb(255, 255, 255);
+}
+
+#settings #settingsSelector .activated {
+  color: rgb(255, 255, 255);
+  text-decoration: underline;
+}
+
+.optionAB {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+.optionAB .divAB {
+  margin-left: 25px;
+}
+#setUsers {
+  display: flex;
+  flex-direction: column;
+  width: 99%;
+}
+
+.userList {
+  padding: 4px 4px;
+  margin-bottom: 10px;
+  display: flex;
+  background-color: rgb(14, 14, 14);
+  flex-direction: row;
+  justify-content: center;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+}
+
+.userList .title {
+  flex-grow: 1;
+}
+
+.btnAdd {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  margin-right: 30px;
+  margin-bottom: 25px;
+}
+
+.userList .title h6 .username {
+  font-weight: bold;
+}
+.userList .title h6 .admin {
+  margin-left: 5px;
+  margin-right: 5px;
+  color: yellowgreen;
+}
+.userlist .title {
+  display: flex;
+  flex-direction: column;
+}
+.userList .btn {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin-right: 4px;
+}
+
+.confirmCreate p {
+  height: 14px;
 }
