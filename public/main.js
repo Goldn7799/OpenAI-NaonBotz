@@ -187,7 +187,7 @@ const page = {
                 <li class="nav-item">
                   <a  id="homeBtn" class="nav-link active" aria-current="page" href="#">Home</a>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item" ${(cred.user.isAdministator) ? '':'style="display: none;"'}>
                   <a id="settingsBtn" class="nav-link" href="#">Settings</a>
                 </li>
                 <li class="nav-item">

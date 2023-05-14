@@ -178,7 +178,7 @@ const runMain = async () => {
           pickedUser = users[emails]
         };
       };
-      if (pickedUser.isAdministator) {
+      if (pickedUser.isAdministator||pickedUser.permission.manageUsers) {
         if ((emailList.includes(email)) || (usernameList.includes(username))) {
           res.status(403).json({
             success: false,
@@ -231,7 +231,7 @@ const runMain = async () => {
           pickedUser = users[emails]
         };
       };
-      if (pickedUser.isAdministator) {
+      if ((pickedUser.isAdministator || pickedUser.permission.manageUsers) && (!users[email].isAdministator || pickedUser.isAdministator)) {
         databases.func.deleteUsers(email)
         res.status(200).json({
           success: true,
@@ -240,7 +240,7 @@ const runMain = async () => {
       } else {
         res.status(403).json({
           success: false,
-          message: 'Not Admin'
+          message: 'You Not Admin or You tried to delete admin user'
         })
       }
     } else {
