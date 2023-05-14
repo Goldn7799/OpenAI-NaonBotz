@@ -179,8 +179,8 @@ const runMain = async () => {
         };
       };
       if (pickedUser.isAdministator) {
-        if (emailList.includes(email) && usernameList.includes(username)) {
-          res.status(304).json({
+        if ((emailList.includes(email)) || (usernameList.includes(username))) {
+          res.status(403).json({
             success: false,
             message: 'Username or Email already taken'
           })
