@@ -24,11 +24,16 @@
       "admin@example.com": {
         "username": "Admin",
         "password": "Admin",
+        "auth": "",
         "isAdministator": true,
         "permission": {
           "sendMessage": true,
           "manageConnection": true,
           "manageUsers": true
+        },
+        "lastLogin": {
+          "time": "",
+          "ip": ""
         }
       }
     }
