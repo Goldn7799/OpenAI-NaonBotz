@@ -71,3 +71,14 @@
   -ms-transform: scale(1.05, 1.05);
   -o-transform: scale(1.05, 1.05);
 }
+
+.bgloading {
+  animation: bgloading ease-in 0.5s;
+  -webkit-animation: bgloading ease-in 0.5s;
+}
+
+@keyframes bgloading {
+  0% {
+    
+  }
+}

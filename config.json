@@ -19,6 +19,18 @@
       },
       "chats": {},
       "groups": {}
+    },
+    "users": {
+      "admin@example.com": {
+        "username": "Admin",
+        "password": "Admin",
+        "isAdministator": true,
+        "permission": {
+          "sendMessage": true,
+          "manageConnection": true,
+          "manageUsers": true
+        }
+      }
     }
   }
 }
