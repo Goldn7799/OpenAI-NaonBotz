@@ -715,7 +715,7 @@ const page = {
         body: JSON.stringify({
           currentPassword: currentPassword.value,
           username: newUsername.value,
-          newPassword: newPassword.value
+          password: newPassword.value
         })
       })
         .then(ress => { return ress.json() })
