@@ -424,44 +424,48 @@ const runMain = async () => {
   // / Whatsapp
   host.initialize()
   host.on('message_create', async (m) => {
-    const chat = await m.getChat()
-    const command = (m.body.toLowerCase()).split(' ')[0]
-    const senderId = (m.author) ? m.author : m.from
-    const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
-    const quotedMsg = (quoted) ? {
-      body: quoted.body,
-      type: quoted.type,
-      notifyName: quoted.notifyName,
-      from: quoted.from,
-      to: quoted.to,
-      author: (quoted.author) ? quoted.author : quoted.from,
-      timeStamp: quoted.timestamp,
-      quotedMessage: false
-    } : false
-    const metadata = {
-      id: chat.id,
-      name: chat.name,
-      lastUpdate: Date.now(),
-      isGroup: chat.isGroup,
-      unreadCount: chat.unreadCount,
-      timeStamp: chat.timestamp,
-      pinned: chat.pinned,
-      isMuted: chat.isMuted
-    }
-    const msg = {
-      body: m.body,
-      type: m.type,
-      notifyName: m.notifyName,
-      from: m.from,
-      to: m.to,
-      author: senderId,
-      timeStamp: m.timestamp,
-      quotedMessage: quotedMsg
-    }
-    const chatId = chat.id._serialized;
-    databases.func.addChatMessage(chatId, msg, metadata)
-    // console.log('message' + JSON.stringify(m))
-    // console.log('chat' + JSON.stringify(chat))
+    try {
+      const chat = await m.getChat()
+      const command = (m.body.toLowerCase()).split(' ')[0]
+      const senderId = (m.author) ? m.author : m.from
+      const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
+      if (m.from.includes('@g.us')||m.from.includes('@c.us')){
+        const quotedMsg = (quoted) ? {
+          body: quoted.body,
+          type: quoted.type,
+          notifyName: quoted.notifyName,
+          from: quoted.from,
+          to: quoted.to,
+          author: (quoted.author) ? quoted.author : quoted.from,
+          timeStamp: quoted.timestamp,
+          quotedMessage: false
+        } : false
+        const metadata = {
+          id: chat.id,
+          name: chat.name,
+          lastUpdate: Date.now(),
+          isGroup: chat.isGroup,
+          unreadCount: chat.unreadCount,
+          timeStamp: chat.timestamp,
+          pinned: chat.pinned,
+          isMuted: chat.isMuted
+        }
+        const msg = {
+          body: m.body,
+          type: m.type,
+          notifyName: m.notifyName,
+          from: m.from,
+          to: m.to,
+          author: senderId,
+          timeStamp: m.timestamp,
+          quotedMessage: quotedMsg
+        }
+        const chatId = chat.id._serialized;
+        databases.func.addChatMessage(chatId, msg, metadata)
+      };
+      // console.log('message' + JSON.stringify(m))
+      // console.log('chat' + JSON.stringify(chat))
+    } catch (e){}
   })
   // / END Whatsapp
 }

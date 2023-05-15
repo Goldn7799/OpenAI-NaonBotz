@@ -322,3 +322,86 @@ html {
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
 }
+
+.chatList {
+  display: flex;
+  flex-direction: row;
+  background-color: rgb(22, 22, 22);
+  padding: 8px 8px 5px 5px;
+  margin-top: 5px;
+  margin-right: 10px;
+  margin-left: 10px;
+  border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+}
+
+.chatList .clTitle {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  padding-left: 10px;
+}
+
+.chatList .clTitle h6 {
+  font-weight: bold;
+}
+
+.chatList .clTitle p span {
+  color: orange;
+}
+
+.chatList .clTitle p {
+  margin-top: 8px;
+  height: 1px;
+}
+
+.chatList img {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+}
+
+.chatList .clSubTitle {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  text-align: center;
+}
+
+.chatList .clSubTitle p:first-child {
+  border-radius: 15px;
+  background-color: #56c44e;
+  padding-left: 2.5px;
+  padding-right: 2.5px;
+  width: fit-content;
+  height: fit-content;
+  font-weight: bold;
+  float: right;
+  color: rgb(22, 22, 22);
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px;
+}
+
+.chatList .clSubTitle :last-child {
+  color: gray;
+  margin-top: 8px;
+  height: 1px;
+  font-weight: bold;
+}
+
+#chatsPlace {
+  height: 90vh;
+  /* display: flex;
+  flex-direction: column; */
+  overflow-y: scroll;
+}

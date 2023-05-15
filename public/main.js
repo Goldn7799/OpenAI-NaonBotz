@@ -8,6 +8,7 @@ let cred = {}
 let pings = 0
 let logs = []
 let userlist = {}
+let message = {}
 
 // pages
 const pageState = {
@@ -16,7 +17,7 @@ const pageState = {
 }
 
 // Ping
-const pingTest = async () => {
+const ipCheck = async () => {
   await fetch('http://ip-api.com/json/')
     .then(response => response.json())
     .then(data => {
@@ -25,34 +26,22 @@ const pingTest = async () => {
     .catch(() => {
       myIp = 'check'
     })
-
-  const start = Date.now()
-  await fetch(`${ipUrl}/ping`, { method: 'GET' })
-    .then(res => {
-      if (res.status === 200) {
-        const end = Date.now()
-        pings = end - start
-      } else {
-        pings = res.statusText
-      }
-      setTimeout(() => {
-        pingTest()
-      }, 1250)
-    })
-    .catch((err) => {
-      pings = 'Unreacable'
-      console.log(err)
-      setTimeout(() => {
-        pingTest()
-      }, 1250)
-    })
 }
-pingTest()
+ipCheck()
 
 const getResource = async () => {
   let fuse = true
+  const start = Date.now()
   fetch(`${ipUrl}/log/${cred.user.auth}`, { method: 'GET' })
-    .then(ress => { return ress.json() })
+    .then(ress => {
+      if (ress.status === 200) {
+        const end = Date.now()
+        pings = end - start
+      } else {
+        pings = ress.statusText
+      }
+      return ress.json()
+    })
     .then(res => {
       if (res.success) {
         logs = res.data
@@ -62,8 +51,16 @@ const getResource = async () => {
       };
     })
     .catch(() => {
+      pings = 'Unreacable'
       logs.push('[.red.]Disconnected, Reconneting')
     })
+    fetch(`${ipUrl}/message/${cred.user.auth}`, { method: 'GET' })
+    .then(ress => { return ress.json() })
+    .then(res => {
+      if (res.success) {
+        message = res.data
+      };
+    });
   if (cred.user.isAdministator || cred.user.permission.manageUsers) {
     fetch(`${ipUrl}/userlist/${cred.user.auth}`, { method: 'GET' })
       .then(ress => { return ress.json() })
@@ -80,7 +77,7 @@ const getResource = async () => {
   if (fuse) {
     setTimeout(() => {
       getResource()
-    }, 500)
+    }, 1250)
   };
 }
 
@@ -362,6 +359,17 @@ const logOut = () => {
   })
 }
 
+const shortMessage = () => {
+  const keys = Object.keys(message)
+  const msgArray = keys.map((key)=>{
+    return {
+      key,
+      value: message[key].metadata.lastUpdate
+    }
+  })
+  return msgArray.sort((ka, kb) => kb.value - ka.value)
+}
+
 // pages
 const page = {
   login: () => {
@@ -502,6 +510,7 @@ const page = {
               </svg>
               <h4><b>Waiting Logs..</b></h4>
             </center>
+            <div id="chatsPlace"></div>
           </div>
           <div class="animationAll" id="settings" style="display: none; opacity: 0; margin-left: -1000px;">
             <div id="settingsSelector">
@@ -565,6 +574,7 @@ const page = {
     const saveAccBtn = document.getElementById('saveAccBtn')
     const qrCode = document.getElementById('qr-code')
     const waitingLogs = document.getElementById('waitingLogs')
+    const chatsRoom = document.getElementById('chatsPlace')
     
     const qrcodes = new QRCode(document.getElementById('QrPlace'), {
       text: 'Example',
@@ -773,6 +783,8 @@ const page = {
     let currentLog = ''
     let currentUserlist = ''
     let userViewValue = ''
+    let currentMessage = ''
+    let messageViewList = ''
     let commandsValue = ''
     const runHome = () => {
       if (pageState.home) {
@@ -851,6 +863,30 @@ const page = {
           saveAccBtn.disabled = false
         } else {
           saveAccBtn.disabled = true
+        }
+        if (currentMessage !== JSON.stringify(message).length) {
+          currentMessage = JSON.stringify(message).length
+          const shortMessageList = shortMessage();
+          messageViewList = ''
+          for (let { key } of shortMessageList) {
+            const metaMsg = message[key].metadata
+            const lastChat = message[key].chat[(message[key].chat).length - 1]
+            const time = new Date(lastChat.timeStamp * 1000)
+            messageViewList += `<div class="chatList">
+              <img src="./assets/user.png" alt="${metaMsg.name} icon">
+              <div class="clTitle">
+                <h6>${metaMsg.name}</h6>
+                <p><span>${lastChat.type}</span> : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...':''}</p>
+              </div>
+              <div class="clSubTitle">
+                <p ${(metaMsg.unreadCount === 0) ? 'style="opacity: 0;"':''}>${metaMsg.unreadCount}</p>
+                <p>${time.getHours()}:${time.getMinutes()}</p>
+              </div>
+            </div>`
+          }
+          if (messageViewList) {
+            chatsRoom.innerHTML = messageViewList
+          };
         }
         document.getElementById('username').innerText = cred.user.username
         setTimeout(() => {
