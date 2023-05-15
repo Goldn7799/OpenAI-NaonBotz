@@ -250,6 +250,12 @@ html {
   margin-right: 4px;
 }
 
+.confirmCreate {
+  display: flex;
+  flex-direction: column;
+  align-items: baseline;
+}
+
 .confirmCreate p {
-  height: 14px;
+  margin-bottom: -4px;
 }

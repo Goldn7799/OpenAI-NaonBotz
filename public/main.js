@@ -260,6 +260,93 @@ const createUser = () => {
   })
 }
 
+const editUser = (email) => {
+  const selectedUser = userlist[email]
+  Notipin.Confirm({
+    msg: `<div>
+      <h6>${selectedUser.username}</h6>
+      <p>${email}</p>
+      <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+        <input type="checkbox" class="btn-check" id="sendMsg" autocomplete="off" ${(selectedUser.permission.sendMessage) ? 'checked' : ''}>
+        <label class="btn btn-outline-primary" for="sendMsg">Send Message</label>
+
+        <input type="checkbox" class="btn-check" id="manageCon" autocomplete="off" ${(selectedUser.permission.manageConnection) ? 'checked' : ''}>
+        <label class="btn btn-outline-primary" for="manageCon">Manage Connection</label>
+
+        <input type="checkbox" class="btn-check" id="manageUsr" autocomplete="off" ${(selectedUser.permission.manageUsers) ? 'checked' : ''}>
+        <label class="btn btn-outline-primary" for="manageUsr">Manage Users</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input type="username" class="form-control" id="conUsername" placeholder="Username..">
+        <label for="conUsername">New Username</label>
+      </div>
+      <div class="form-floating">
+        <input type="password" class="form-control" id="conPassword" placeholder="Password">
+        <label for="conPassword">New Password</label>
+      </div>
+    </div>`, // Pesan kamu
+    yes: 'Save', // Tulisan di tombol 'Yes'
+    no: 'Cancel', // Tulisan di tombol 'No'
+    onYes: async () => {
+      const conUsername = document.getElementById('conUsername')
+      const conPassword = document.getElementById('conPassword')
+      const sendMsg = document.getElementById('sendMsg')
+      const manageCon = document.getElementById('manageCon')
+      const manageUsr = document.getElementById('manageUsr')
+      let editUsrNPass = false
+      let editPermis = false
+      if (conUsername.value || conPassword.value || (conUsername.value && conPassword.value)) {
+        await fetch(`${ipUrl}/edit/user/${selectedUser.auth}/${cred.user.auth}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            currentPassword: conPassword.value,
+            username: conUsername.value,
+            newPassword: conPassword.value
+          })
+        })
+          .then(ress => { return ress.json() })
+          .then(res => {
+            editUsrNPass = res.message
+          })
+          .catch(() => {
+            editUsrNPass = 'Server not avabile'
+          })
+      };
+      await fetch(`${ipUrl}/edit/permission/${selectedUser.auth}/${cred.user.auth}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          manageUsers: manageUsr.checked,
+          manageConnection: manageCon.checked,
+          sendMessage: sendMsg.checked
+        })
+      })
+        .then(ress => { return ress.json() })
+        .then(res => {
+          editPermis = res.message
+        })
+        .catch(() => {
+          editPermis = 'Server not avabile'
+        })
+      Notipin.Alert({
+        msg: `${(editUsrNPass) ? `<p><b>Edit User Status</b> : ${editUsrNPass}</p>` : ''}<p><b>Edit Permission Status</b> : ${editPermis}</p>`, // Pesan kamu
+        yes: 'Ok', // Tulisan di tombol 'Yes'
+        onYes: () => { /* Kode di sini */ },
+        type: 'INFO',
+        mode: 'DARK'
+      })
+    },
+    onNo: () => { /* Kode di sini */ },
+    type: 'NORMAL',
+    mode: 'DARK'
+  })
+}
+
 const logOut = () => {
   Notipin.Confirm({
     msg: 'Do you want to LogOut?', // Pesan kamu
@@ -417,17 +504,17 @@ const page = {
                 <div class="optionAB">
                 <div class="divAB">
                     <div class="input-group mb-3">
-                      <input type="text" class="form-control" placeholder="New Email" aria-label="Username" aria-describedby="basic-addon1">
+                      <input id="newUsername" type="text" class="form-control" placeholder="New Username" aria-label="Username" aria-describedby="basic-addon1">
                     </div>
                     <div class="input-group mb-3">
-                      <input type="text" class="form-control" placeholder="New Password" aria-label="Username" aria-describedby="basic-addon1">
+                      <input id="newPassword" type="text" class="form-control" placeholder="New Password" aria-label="Username" aria-describedby="basic-addon1">
                     </div>
                   </div>
                   <div class="divAB">
                     <div class="input-group mb-3">
-                      <input type="password" class="form-control" placeholder="Current Password" aria-label="Username" aria-describedby="basic-addon1">
+                      <input id="currentPassword" type="password" class="form-control" placeholder="Current Password" aria-label="Username" aria-describedby="basic-addon1">
                     </div>
-                    <button class="btn btn-primary">Save Change</button>
+                    <button id="saveAccBtn" class="btn btn-primary">Save Change</button>
                   </div>
                 </div>
               </div>
@@ -460,6 +547,10 @@ const page = {
     const setAccount = document.getElementById('setAccount')
     const setUsers = document.getElementById('setUsers')
     const setWhatsapp = document.getElementById('setWhatsapp')
+    const newUsername = document.getElementById('newUsername')
+    const newPassword = document.getElementById('newPassword')
+    const currentPassword = document.getElementById('currentPassword')
+    const saveAccBtn = document.getElementById('saveAccBtn')
     homeBtn.addEventListener('click', () => {
       homeBtn.classList.add('active')
       settingsBtn.classList.remove('active')
@@ -559,6 +650,48 @@ const page = {
         }, 50)
       }, 250)
     })
+    saveAccBtn.addEventListener('click', () => {
+      fetch(`${ipUrl}/edit/user/${cred.user.auth}/no`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          currentPassword: currentPassword.value,
+          username: newUsername.value,
+          newPassword: newPassword.value
+        })
+      })
+        .then(ress => { return ress.json() })
+        .then(res => {
+          if (res.success) {
+            Notipin.Alert({
+              msg: `${res.message}`, // Pesan kamu
+              yes: 'Ok', // Tulisan di tombol 'Yes'
+              onYes: () => { /* Kode di sini */ },
+              type: 'INFO',
+              mode: 'DARK'
+            })
+          } else {
+            Notipin.Alert({
+              msg: `${res.message}`, // Pesan kamu
+              yes: 'Ok', // Tulisan di tombol 'Yes'
+              onYes: () => { /* Kode di sini */ },
+              type: 'NORMAL',
+              mode: 'DARK'
+            })
+          }
+        })
+        .catch(() => {
+          Notipin.Alert({
+            msg: 'Server not avabile', // Pesan kamu
+            yes: 'Ok', // Tulisan di tombol 'Yes'
+            onYes: () => { /* Kode di sini */ },
+            type: 'NORMAL',
+            mode: 'DARK'
+          })
+        })
+    })
     let cmd = ''
     commandInput.addEventListener('keydown', (events) => {
       if (events.key === 'Enter') {
@@ -619,7 +752,9 @@ const page = {
               for (const rtxt of log) {
                 const txt = (`${rtxt}`.includes('[.') && `${rtxt}`.includes('.]')) ? rtxt : ('[.white.]' + rtxt)
                 const textMatch = txt.match(/\[\.(.*?)\.\](.*)/)
-                commandsValue += `<p style="height: 5px; color: ${textMatch[1]};">${textMatch[2]}</p>`
+                if (textMatch[2]) {
+                  commandsValue += `<p style="margin-bottom: -5px; color: ${textMatch[1]};">${textMatch[2]}</p>`
+                };
               }
             }
             consolesRoom.innerHTML = commandsValue
@@ -641,7 +776,7 @@ const page = {
                   <p><span style="color: ${(selectedUser.permission.sendMessage) ? 'lightgreen' : 'crimson'};">Send Message</span>, <span style="color: ${(selectedUser.permission.manageConnection) ? 'lightgreen' : 'crimson'};">Manage Connection</span>, <span style="color: ${(selectedUser.permission.manageUsers) ? 'lightgreen' : 'crimson'};">Manage Users</span></p>
                   </div>
                   ${(cred.email === email) ? '<button class="btn btn-warning" onClick="document.getElementById(\'accountBtn\').click() "><i class="fa-solid fa-wrench"></i></button>' : ''}
-                ${(cred.email !== email && (cred.user.isAdministator || (cred.user.permission.manageUsers && !selectedUser.isAdministator))) ? '<button class="btn btn-success"><i class="fa-solid fa-wrench"></i></button>' : ''}
+                ${(cred.email !== email && (cred.user.isAdministator || (cred.user.permission.manageUsers && !selectedUser.isAdministator))) ? `<button class="btn btn-success" onClick="editUser('${email}')"><i class="fa-solid fa-wrench"></i></button>` : ''}
                 ${(cred.email !== email && (cred.user.isAdministator || (cred.user.permission.manageUsers && !selectedUser.isAdministator))) ? `<button class="btn btn-danger" onClick="deleteUser('${email}')"><i class="fa-solid fa-trash"></i></button>` : ''}
                 ${(cred.email !== email && !(cred.user.isAdministator || (cred.user.permission.manageUsers && !selectedUser.isAdministator))) ? '<button class="btn btn-info"><i class="fa-solid fa-question"></i></button>' : ''}
               </div>`
@@ -651,6 +786,11 @@ const page = {
           } else {
             setUsers.innerHTML = '<center><h4 style="margin-top: 10px; color: gray;">You dont have Permission</h4></center>'
           }
+        }
+        if (currentPassword.value && ((newUsername.value && newUsername.value.length > 4) || (newPassword.value && newPassword.value.length > 4) || ((newUsername.value && newUsername.value.length > 4) && (newPassword.value && newPassword.value.length > 4)))) {
+          saveAccBtn.disabled = false
+        } else {
+          saveAccBtn.disabled = true
         }
         document.getElementById('username').innerText = cred.user.username
         setTimeout(() => {
@@ -690,3 +830,4 @@ window.onload = () => {
 // export
 document.deleteUser = deleteUser
 document.createUser = createUser
+document.editUser = editUser

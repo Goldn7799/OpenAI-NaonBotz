@@ -297,6 +297,108 @@ const runMain = async () => {
     }
   })
 
+  app.post('/edit/user/:auth/:auths', (req, res) => {
+    const { auth, auths } = req.params
+    const { currentPassword, password, username } = req.body
+    const users = databases.getUsers()
+    const emailList = Object.keys(users)
+    const authList = databases.getAllAuth()
+    if (auth && authList.includes(auth) && ((auths === 'no') || (auths && authList.includes(auths)))) {
+      let pickedUser = false
+      let emailUser = false
+      let pickedAdminUser = false
+      for (const emails of emailList) {
+        if (users[emails].auth === auth) {
+          pickedUser = users[emails]
+          emailUser = emails
+        };
+        if (auths !== 'no' && users[emails].auth === auths && !(users[emails].auth === auth)) {
+          pickedAdminUser = users[emails]
+        };
+      };
+      if (pickedUser && ((currentPassword && currentPassword === pickedUser.password) || (pickedAdminUser && (pickedAdminUser.isAdministator || (!pickedUser.isAdministator && pickedAdminUser.permission.manageUsers))))) {
+        if (password) {
+          pickedUser.password = password
+        };
+        if (username) {
+          const usernameList = emailList.map((emails) => {
+            return users[emails].username
+          })
+          if (usernameList.includes(username)) {
+            databases.func.editUsers(emailUser, pickedUser)
+            res.status(200).json({
+              success: true,
+              message: `Success Edit${(password) ? ' Password' : ''} but username failed, Already Used`
+            })
+          } else {
+            pickedUser.username = username
+            databases.func.editUsers(emailUser, pickedUser)
+            res.status(200).json({
+              success: true,
+              message: `Success Edit${(username) ? ' Username' : ''}${(username && password) ? ' and' : ''}${(password) ? ' Password' : ''}`
+            })
+          }
+        } else {
+          databases.func.editUsers(emailUser, pickedUser)
+          res.status(200).json({
+            success: true,
+            message: `Success Edit ${(password) ? ' Password' : ''}`
+          })
+        };
+      } else {
+        res.status(403).json({
+          success: false,
+          message: 'User not found or current password wrong or you not admin or you tired to edit admin account'
+        })
+      }
+    } else {
+      res.status(403).json({
+        success: false,
+        message: 'Data Invalid'
+      })
+    }
+  })
+
+  app.post('/edit/permission/:auth/:auths', (req, res) => {
+    const { auth, auths } = req.params
+    const { manageUsers, manageConnection, sendMessage } = req.body
+    const parManageUsers = !!(manageUsers)
+    const parManageConnection = !!(manageConnection)
+    const parSendMessage = !!(sendMessage)
+    const users = databases.getUsers()
+    const emailList = Object.keys(users)
+    const authList = databases.getAllAuth()
+    if (auth && authList.includes(auth) && (auths && authList.includes(auths))) {
+      let pickedUser = false
+      let emailUser = false
+      let pickedAdminUser = false
+      for (const emails of emailList) {
+        if (users[emails].auth === auth) {
+          pickedUser = users[emails]
+          emailUser = emails
+        };
+        if (auths !== 'no' && users[emails].auth === auths && !(users[emails].auth === auth)) {
+          pickedAdminUser = users[emails]
+        };
+      };
+      if ((pickedUser && pickedAdminUser) && (pickedAdminUser.isAdministator || (pickedAdminUser.permission.manageUsers && !pickedUser.isAdministator && pickedUser.auth !== pickedAdminUser.auth))) {
+        pickedUser.permission.manageUsers = parManageUsers
+        pickedUser.permission.manageConnection = parManageConnection
+        pickedUser.permission.sendMessage = parSendMessage
+        databases.func.editUsers(emailUser, pickedUser)
+        res.status(200).json({
+          success: true,
+          message: 'Success changed'
+        })
+      } else {
+        res.status(403).json({
+          success: false,
+          message: 'You dont have permission to edit this user'
+        })
+      }
+    }
+  })
+
   app.listen(config.bot.port, () => {
     console.log(`${color.bright + color.magenta}`, `Webserver Started at port ${color.underscore + config.bot.port}`)
   })

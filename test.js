@@ -1,14 +1,14 @@
 
 const a = () => {
-  fetch('http://localhost:8090/add/user/4FYY7qYl2A19J6uxd9', {
+  fetch('http://localhost:8090/edit/user/gnsfSOl2OZ0SjRTofC/2YuKpD5OnfZCLNCm9f/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      email: 'babi@asu.cok',
-      username: 'Ardian',
-      password: 'bambang'
+      currentPassword: 'gbKJAAm1dA5t5Xdeq5',
+      password: '',
+      username: 'Ardian'
     })
   }).then(ress => { return ress.json() })
     .then(res => console.log(res))
