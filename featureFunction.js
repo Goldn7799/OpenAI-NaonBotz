@@ -87,7 +87,7 @@ host.on('message_create', async (m) => {
       const listOfMenu = Object.keys(menuList)
       const listSubMenu = {}
       for (const menus of listOfMenu) {
-        listOfMenu[menus] = Object.keys(menuList[menus])
+        listSubMenu[menus] = Object.keys(menuList[menus])
       }
       const date = new Date()
       const uptimeInSeconds = process.uptime()
@@ -101,10 +101,10 @@ host.on('message_create', async (m) => {
       const minLevelUp = 250 * (senderDb.level + 1 / 2) * (senderDb.level + 1)
       let messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${senderDb.limit.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(senderDb.level)}*\n│ 🔼 Level : *${senderDb.level}* ( ${'```'}${(minLevelUp - senderDb.exp)}${'```'} )\n│ 💫 Total XP : ${senderDb.exp} / ${minLevelUp} ✨\n│\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upHours}H ${upMinutes}M ${upSeconds}S*\n│ 📊 Database: ${'```'}${Object.keys(databases.getChats()).length}${'```'} *Users* | ${'```'}${Object.keys(databases.getGroups()).length}${'```'} *Group*\n╰────\n${readMore}`
       messages += '───「 Menu List 」───\n'
-      for (const menu of listOfMenu) {
-        messages += `╭─「 *${capitalLetter(menu)}* 」\n`
-        for (const subMenu of listSubMenu[menu]) {
-          messages += (menuList[menu][subMenu][2]) ? `│ • *${menuList[menu][subMenu][0]}* : ${menuList[menu][subMenu][1]}\n` : ''
+      for (const menus of listOfMenu) {
+        messages += `╭─「 *${capitalLetter(menus)}* 」\n`
+        for (const subMenu of listSubMenu[menus]) {
+          messages += (menuList[menus][subMenu][2]) ? `│ • *${menuList[menus][subMenu][0]}* : ${menuList[menus][subMenu][1]}\n` : ''
         }
         messages += '╰────\n'
       }
