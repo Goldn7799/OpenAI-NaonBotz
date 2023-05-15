@@ -873,10 +873,10 @@ const page = {
             const lastChat = message[key].chat[(message[key].chat).length - 1]
             const time = new Date(lastChat.timeStamp * 1000)
             messageViewList += `<div class="chatList">
-              <img src="./assets/user.png" alt="${metaMsg.name} icon">
+              <img src="${(metaMsg.profile) ? metaMsg.profile : './assets/user.png'}" alt="${metaMsg.name} icon">
               <div class="clTitle">
                 <h6>${metaMsg.name}</h6>
-                <p><span>${lastChat.type}</span> : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...':''}</p>
+                <p><span>[${lastChat.type}]</span> ${lastChat.notifyName} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...':''}</p>
               </div>
               <div class="clSubTitle">
                 <p ${(metaMsg.unreadCount === 0) ? 'style="opacity: 0;"':''}>${metaMsg.unreadCount}</p>

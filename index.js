@@ -430,6 +430,8 @@ const runMain = async () => {
       const senderId = (m.author) ? m.author : m.from
       const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
       if (m.from.includes('@g.us')||m.from.includes('@c.us')){
+        const rawProfile = await host.getProfilePicUrl(chat.id._serialized);
+        const profile = (rawProfile) ? rawProfile : false
         const quotedMsg = (quoted) ? {
           body: quoted.body,
           type: quoted.type,
@@ -448,12 +450,13 @@ const runMain = async () => {
           unreadCount: chat.unreadCount,
           timeStamp: chat.timestamp,
           pinned: chat.pinned,
-          isMuted: chat.isMuted
+          isMuted: chat.isMuted,
+          profile
         }
         const msg = {
           body: m.body,
           type: m.type,
-          notifyName: m.notifyName,
+          notifyName: m._data.notifyName,
           from: m.from,
           to: m.to,
           author: senderId,
