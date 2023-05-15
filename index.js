@@ -6,6 +6,7 @@ const config = require('./config.json')
 const bodyParser = require('body-parser')
 const { exec } = require('child_process')
 const utility = require('./lib/Utility/Utility.js')
+const host = require('./lib/WhatsApp/Connection.js')
 
 // Main Command
 const runMain = async () => {
@@ -403,6 +404,9 @@ const runMain = async () => {
     console.log(`${color.bright + color.magenta}`, `Webserver Started at port ${color.underscore + config.bot.port}`)
   })
   /// / End Interface
+  // / Whatsapp
+  host.initialize()
+  // / END Whatsapp
 }
 
 // Check if ready

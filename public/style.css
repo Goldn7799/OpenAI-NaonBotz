@@ -259,3 +259,66 @@ html {
 .confirmCreate p {
   margin-bottom: -4px;
 }
+
+#waitingLogs h4 {
+  margin-top: 12px;
+  color: gray;
+}
+#waitingLogs {
+  margin-top: 15px;
+}
+
+.ring {
+  margin-top: 10px;
+  --uib-size: 50px;
+  --uib-speed: 2s;
+  --uib-color: rgb(255, 255, 255);
+  
+  height: var(--uib-size);
+  width: var(--uib-size);
+  vertical-align: middle;
+  transform-origin: center;
+  animation: rotate var(--uib-speed) linear infinite;
+}
+
+.ring circle {
+  fill: none;
+  stroke: var(--uib-color);
+  stroke-dasharray: 1, 200;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: stretch calc(var(--uib-speed) * 0.75) ease-in-out infinite;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes stretch {
+  0% {
+    stroke-dasharray: 1, 200;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 200;
+    stroke-dashoffset: -35px;
+  }
+  100% {
+    stroke-dashoffset: -124px;
+  }
+}
+
+#qr-code {
+  margin-top: 12px;
+  padding: 5px 5px;
+  height: 285px;
+  width: 285px;
+  border-radius: 5px;
+  background-color: white;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+}

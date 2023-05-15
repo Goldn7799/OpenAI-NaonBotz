@@ -490,7 +490,19 @@ const page = {
           </div>
         </nav>
         <center>
-          <div class="animationAll" id="home" style="display: block; opacity: 1; margin-left: 0px;">Home</div>
+          <div class="animationAll" id="home" style="display: block; opacity: 1; margin-left: 0px;">
+            <div id="qr-code" style="display: none;"><div id="QrPlace"></div></div>
+            <center id="waitingLogs">
+              <svg
+                class="ring"
+                viewBox="25 25 50 50"
+                stroke-width="5"
+              >
+                <circle cx="50" cy="50" r="20" />
+              </svg>
+              <h4><b>Waiting Logs..</b></h4>
+            </center>
+          </div>
           <div class="animationAll" id="settings" style="display: none; opacity: 0; margin-left: -1000px;">
             <div id="settingsSelector">
               <h5>Genral</h5>
@@ -551,6 +563,40 @@ const page = {
     const newPassword = document.getElementById('newPassword')
     const currentPassword = document.getElementById('currentPassword')
     const saveAccBtn = document.getElementById('saveAccBtn')
+    const qrCode = document.getElementById('qr-code')
+    const waitingLogs = document.getElementById('waitingLogs')
+    
+    const qrcodes = new QRCode(document.getElementById('QrPlace'), {
+      text: 'Example',
+      width: 275,
+      height: 275,
+      colorDark : "#122e31",
+      colorLight : "#ffffff",
+      correctLevel : QRCode.CorrectLevel.L,
+      small: true
+    })
+    const generateQrCode = (text)=> {
+      qrcodes.clear()
+      qrcodes.makeCode(text)
+      qrCode.style.display = '';
+      waitingLogs.innerHTML = '<h4>Scan This Code</h4>'
+    }
+    const clearQrCode = () => {
+      qrCode.style.display = 'none';
+    }
+
+    const showLoading = (state)=>{
+      waitingLogs.innerHTML = `<h5>${state}%</h5>
+      <div style="width: 250px; height: 10px;" class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="${state}" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar animated" style="width: ${state}%"></div>
+      </div>
+      <h4>Loading Chats..</h4>`
+      waitingLogs.style.display = ''
+    }
+    const hideLoading = ()=>{
+      waitingLogs.style.display = 'none'
+    }
+
     homeBtn.addEventListener('click', () => {
       homeBtn.classList.add('active')
       settingsBtn.classList.remove('active')
@@ -748,6 +794,20 @@ const page = {
             currentLog = JSON.stringify(logs)
             commandsValue = ''
             for (const rawLog of logs) {
+              if (rawLog.includes('[.qr.]')){
+                const qr = `${rawLog}`.replaceAll(/\[\.(.*)\.\]/g, '')
+                generateQrCode(qr)
+              };
+              if (rawLog.includes('[.qrDone.]')){
+                clearQrCode()
+              };
+              if (rawLog.includes('[.loading.]')){
+                const state = rawLog.split('%')[1];
+                showLoading(state)
+              };
+              if (rawLog.includes('[.loadingDone.]')) {
+                hideLoading()
+              }
               const log = rawLog.split(/\n/g)
               for (const rtxt of log) {
                 const txt = (`${rtxt}`.includes('[.') && `${rtxt}`.includes('.]')) ? rtxt : ('[.white.]' + rtxt)

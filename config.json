@@ -6,7 +6,8 @@
     "syncInterval": 5000,
     "origin": "*",
     "port": 8090,
-    "limit": "100mb"
+    "limit": "100mb",
+    "session": "primary"
   },
   "defaultDB": {
     "database": {
