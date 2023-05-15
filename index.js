@@ -462,6 +462,7 @@ host.initialize()
           type: m.type,
           notifyName: m._data.notifyName,
           from: m.from,
+          fromMe: m.fromMe,
           to: m.to,
           author: senderId,
           timeStamp: m.timestamp,

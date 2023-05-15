@@ -876,7 +876,7 @@ const page = {
               <img src="${(metaMsg.profile) ? metaMsg.profile : './assets/user.png'}" alt="${metaMsg.name} icon">
               <div class="clTitle">
                 <h6>${metaMsg.name}</h6>
-                <p><span>[${lastChat.type}]</span> ${lastChat.notifyName} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...' : ''}</p>
+                <p><span>[${lastChat.type}]</span> ${(lastChat.notifyName) ? `${(lastChat.fromMe) ? `<span style="color: blue;">${lastChat.notifyName}</span>` : lastChat.notifyName}` : '<span style="color: blue;">BOT</span>'} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...' : ''}</p>
               </div>
               <div class="clSubTitle">
                 <p ${(metaMsg.unreadCount === 0) ? 'style="opacity: 0;"' : ''}>${metaMsg.unreadCount}</p>
