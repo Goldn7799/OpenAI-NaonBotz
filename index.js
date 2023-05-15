@@ -32,8 +32,9 @@ const runMain = async () => {
         const user = users[username]
         if (user) {
           if (user.password === password) {
-            if (type === 'check') {
+            if (type !== 'check') {
               databases.func.updateLastLoginUser(username, type, Date())
+              databases.func.putLog(`[.orange.]User <b>${username}</b> Loged in at <b>${Date()}</b>`)
             };
             users = databases.getUsers()
             res.status(200).json({
@@ -69,6 +70,7 @@ const runMain = async () => {
           if (user.password === password) {
             if (type !== 'check') {
               databases.func.updateLastLoginUser(user.email, type, Date())
+              databases.func.putLog(`[.orange.]User <b>${username}</b> Loged in at <b>${Date()}</b>`)
             };
             users = databases.getUsers()
             res.status(200).json({
