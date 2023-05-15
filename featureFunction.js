@@ -1,5 +1,5 @@
-const host = require('./index.js')
 const config = require('./config.json')
+const host = require('./index.js')
 const { matchItem, capitalLetter } = require('./lib/Utility/Utility.js')
 const databases = require('./lib/Database/Database.js')
 const { MessageMedia } = require('whatsapp-web.js')
@@ -82,7 +82,7 @@ host.on('message_create', async (m) => {
     // const chat = await m.getChat()
     const senderId = (m.author) ? m.author : m.from
     // Command
-    if (matchItem(command, pfcmd('.menu'))) {
+    if (matchItem(command, pfcmd('menu'))) {
       await m.react('✅')
       const listOfMenu = Object.keys(menuList)
       const listSubMenu = {}
@@ -112,5 +112,10 @@ host.on('message_create', async (m) => {
       const media = (profilePic) ? await MessageMedia.fromUrl(profilePic) : await MessageMedia.fromFilePath('./profile.jpg')
       await m.reply(messages, null, { media })
     };
-  } catch (e) {}
+  } catch (e) {
+    databases.func.putLog(`[.red.]Feature : ${e}`)
+    console.error(e)
+  }
 })
+
+module.exports = host

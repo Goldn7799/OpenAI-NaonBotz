@@ -424,7 +424,8 @@ const runMain = async () => {
   })
   /// / End Interface
   // / Whatsapp
-  host.initialize()
+  // Starting Service
+host.initialize()
   host.on('message_create', async (m) => {
     try {
       const chat = await m.getChat()
@@ -496,12 +497,16 @@ const runMain = async () => {
         })
       };
       databases.func.addExp(senderId, 15)
-      const minLevelUp = 250 * ((databases.getChats(senderId)).level + 1 / 2) * ((databases.getChats(senderId)).level + 1)
-      if ((databases.getChats(senderId)).exp > minLevelUp) {
+      const minLevelUp = 250 * ((databases.getChats())[senderId].level + 1 / 2) * ((databases.getChats())[senderId].level + 1)
+      if ((databases.getChats())[senderId].exp > minLevelUp) {
         databases.func.addLevel(senderId, 1)
       };
-    } catch (e) {}
+    } catch (e) {
+      databases.func.putLog(`[.red.]${e}`)
+      console.error(e)
+    }
   })
+  require('./featureFunction.js')
   // / END Whatsapp
 }
 
