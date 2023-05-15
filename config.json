@@ -7,7 +7,9 @@
     "origin": "*",
     "port": 8090,
     "limit": "100mb",
-    "session": "primary"
+    "session": "primary",
+    "typoDificult": 0.75,
+    "prefix": "."
   },
   "defaultDB": {
     "database": {

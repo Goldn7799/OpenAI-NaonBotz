@@ -54,13 +54,13 @@ const getResource = async () => {
       pings = 'Unreacable'
       logs.push('[.red.]Disconnected, Reconneting')
     })
-    fetch(`${ipUrl}/message/${cred.user.auth}`, { method: 'GET' })
+  fetch(`${ipUrl}/message/${cred.user.auth}`, { method: 'GET' })
     .then(ress => { return ress.json() })
     .then(res => {
       if (res.success) {
         message = res.data
       };
-    });
+    })
   if (cred.user.isAdministator || cred.user.permission.manageUsers) {
     fetch(`${ipUrl}/userlist/${cred.user.auth}`, { method: 'GET' })
       .then(ress => { return ress.json() })
@@ -361,7 +361,7 @@ const logOut = () => {
 
 const shortMessage = () => {
   const keys = Object.keys(message)
-  const msgArray = keys.map((key)=>{
+  const msgArray = keys.map((key) => {
     return {
       key,
       value: message[key].metadata.lastUpdate
@@ -575,27 +575,27 @@ const page = {
     const qrCode = document.getElementById('qr-code')
     const waitingLogs = document.getElementById('waitingLogs')
     const chatsRoom = document.getElementById('chatsPlace')
-    
+
     const qrcodes = new QRCode(document.getElementById('QrPlace'), {
       text: 'Example',
       width: 275,
       height: 275,
-      colorDark : "#122e31",
-      colorLight : "#ffffff",
-      correctLevel : QRCode.CorrectLevel.L,
+      colorDark: '#122e31',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.L,
       small: true
     })
-    const generateQrCode = (text)=> {
+    const generateQrCode = (text) => {
       qrcodes.clear()
       qrcodes.makeCode(text)
-      qrCode.style.display = '';
+      qrCode.style.display = ''
       waitingLogs.innerHTML = '<h4>Scan This Code</h4>'
     }
     const clearQrCode = () => {
-      qrCode.style.display = 'none';
+      qrCode.style.display = 'none'
     }
 
-    const showLoading = (state)=>{
+    const showLoading = (state) => {
       waitingLogs.innerHTML = `<h5>${state}%</h5>
       <div style="width: 250px; height: 10px;" class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="${state}" aria-valuemin="0" aria-valuemax="100">
         <div class="progress-bar animated" style="width: ${state}%"></div>
@@ -603,7 +603,7 @@ const page = {
       <h4>Loading Chats..</h4>`
       waitingLogs.style.display = ''
     }
-    const hideLoading = ()=>{
+    const hideLoading = () => {
       waitingLogs.style.display = 'none'
     }
 
@@ -806,15 +806,15 @@ const page = {
             currentLog = JSON.stringify(logs)
             commandsValue = ''
             for (const rawLog of logs) {
-              if (rawLog.includes('[.qr.]')){
+              if (rawLog.includes('[.qr.]')) {
                 const qr = `${rawLog}`.replaceAll(/\[\.(.*)\.\]/g, '')
                 generateQrCode(qr)
               };
-              if (rawLog.includes('[.qrDone.]')){
+              if (rawLog.includes('[.qrDone.]')) {
                 clearQrCode()
               };
-              if (rawLog.includes('[.loading.]')){
-                const state = rawLog.split('%')[1];
+              if (rawLog.includes('[.loading.]')) {
+                const state = rawLog.split('%')[1]
                 showLoading(state)
               };
               if (rawLog.includes('[.loadingDone.]')) {
@@ -866,9 +866,9 @@ const page = {
         }
         if (currentMessage !== JSON.stringify(message).length) {
           currentMessage = JSON.stringify(message).length
-          const shortMessageList = shortMessage();
+          const shortMessageList = shortMessage()
           messageViewList = ''
-          for (let { key } of shortMessageList) {
+          for (const { key } of shortMessageList) {
             const metaMsg = message[key].metadata
             const lastChat = message[key].chat[(message[key].chat).length - 1]
             const time = new Date(lastChat.timeStamp * 1000)
@@ -876,10 +876,10 @@ const page = {
               <img src="${(metaMsg.profile) ? metaMsg.profile : './assets/user.png'}" alt="${metaMsg.name} icon">
               <div class="clTitle">
                 <h6>${metaMsg.name}</h6>
-                <p><span>[${lastChat.type}]</span> ${lastChat.notifyName} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...':''}</p>
+                <p><span>[${lastChat.type}]</span> ${lastChat.notifyName} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...' : ''}</p>
               </div>
               <div class="clSubTitle">
-                <p ${(metaMsg.unreadCount === 0) ? 'style="opacity: 0;"':''}>${metaMsg.unreadCount}</p>
+                <p ${(metaMsg.unreadCount === 0) ? 'style="opacity: 0;"' : ''}>${metaMsg.unreadCount}</p>
                 <p>${time.getHours()}:${time.getMinutes()}</p>
               </div>
             </div>`

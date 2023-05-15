@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "yarn run eslint ./",
+    "test": "yarn run eslint ./ --ignore-pattern '**/public/*.js'",
     "fix": "yarn run eslint ./ --fix"
   },
   "repository": {

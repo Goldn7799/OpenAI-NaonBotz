@@ -402,7 +402,7 @@ const runMain = async () => {
     }
   })
 
-  app.get('/message/:auth', (req, res)=>{
+  app.get('/message/:auth', (req, res) => {
     const { auth } = req.params
     const authList = databases.getAllAuth()
     if (authList.includes(auth)) {
@@ -428,22 +428,23 @@ const runMain = async () => {
   host.on('message_create', async (m) => {
     try {
       const chat = await m.getChat()
-      const command = (m.body.toLowerCase()).split(' ')[0]
       const senderId = (m.author) ? m.author : m.from
       const quoted = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
-      if (m.from.includes('@g.us')||m.from.includes('@c.us')){
-        const rawProfile = await host.getProfilePicUrl(chat.id._serialized);
-        const profile = (rawProfile) ? rawProfile : false
-        const quotedMsg = (quoted) ? {
-          body: quoted.body,
-          type: quoted.type,
-          notifyName: quoted.notifyName,
-          from: quoted.from,
-          to: quoted.to,
-          author: (quoted.author) ? quoted.author : quoted.from,
-          timeStamp: quoted.timestamp,
-          quotedMessage: false
-        } : false
+      if (m.from.includes('@g.us') || m.from.includes('@c.us')) {
+        const rawProfile = await host.getProfilePicUrl(chat.id._serialized)
+        const profile = (rawProfile) || false
+        const quotedMsg = (quoted)
+          ? {
+              body: quoted.body,
+              type: quoted.type,
+              notifyName: quoted.notifyName,
+              from: quoted.from,
+              to: quoted.to,
+              author: (quoted.author) ? quoted.author : quoted.from,
+              timeStamp: quoted.timestamp,
+              quotedMessage: false
+            }
+          : false
         const metadata = {
           id: chat.id,
           name: chat.name,
@@ -465,12 +466,41 @@ const runMain = async () => {
           timeStamp: m.timestamp,
           quotedMessage: quotedMsg
         }
-        const chatId = chat.id._serialized;
+        const chatId = chat.id._serialized
         databases.func.addChatMessage(chatId, msg, metadata)
       };
-      // console.log('message' + JSON.stringify(m))
-      // console.log('chat' + JSON.stringify(chat))
-    } catch (e){}
+      if (chat.isGroup) {
+        if (!Object.keys((databases.getDb()).groups).includes(m.from)) {
+          databases.func.editGroups(m.from, {
+            name: chat.name,
+            state: {
+              antilink: false,
+              welcome: true,
+              isBanned: false,
+              isVerify: false
+            },
+            usersChat: {}
+          })
+        } else {
+          databases.func.editGroupName(m.from, chat.name)
+        };
+        databases.func.addChatCout(m.from, m.author)
+      };
+      if (!Object.keys((databases.getDb()).chats).includes(senderId)) {
+        databases.func.editChats(senderId, {
+          isBanned: false,
+          exp: 0,
+          level: 0,
+          limit: 0,
+          warn: 0
+        })
+      };
+      databases.func.addExp(senderId, 15)
+      const minLevelUp = 250 * ((databases.getChats(senderId)).level + 1 / 2) * ((databases.getChats(senderId)).level + 1)
+      if ((databases.getChats(senderId)).exp > minLevelUp) {
+        databases.func.addLevel(senderId, 1)
+      };
+    } catch (e) {}
   })
   // / END Whatsapp
 }
@@ -486,3 +516,5 @@ const checkState = () => {
   }
 }
 checkState()
+
+module.exports = host

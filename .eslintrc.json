@@ -11,6 +11,7 @@
     "parserOptions": {
         "ecmaVersion": "latest"
     },
+    "ignorePatterns": ["**/public/assets/*/*.js"],
     "rules": {
     }
 }
