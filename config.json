@@ -19,7 +19,8 @@
           "state": false,
           "time": 0,
           "lastChatId": ""
-        }
+        },
+        "upTime": ""
       },
       "chats": {},
       "groups": {}

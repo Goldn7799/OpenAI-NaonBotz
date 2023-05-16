@@ -405,3 +405,9 @@ html {
   flex-direction: column; */
   overflow-y: scroll;
 }
+
+#setWhatsapp {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+}

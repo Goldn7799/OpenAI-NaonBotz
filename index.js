@@ -320,10 +320,15 @@ const runMain = async () => {
         };
       };
       if (pickedUser && ((currentPassword && currentPassword === pickedUser.password) || (pickedAdminUser && (pickedAdminUser.isAdministator || (!pickedUser.isAdministator && pickedAdminUser.permission.manageUsers))))) {
-        if (password) {
+        if (password && password.length > 4) {
           pickedUser.password = password
+        } else if (password) {
+          res.status(403).json({
+            success: false,
+            message: 'Password Min 5 Char'
+          })
         };
-        if (username) {
+        if (username && username.length > 4) {
           const usernameList = emailList.map((emails) => {
             return users[emails].username
           })
@@ -341,6 +346,11 @@ const runMain = async () => {
               message: `Success Edit${(username) ? ' Username' : ''}${(username && password) ? ' and' : ''}${(password) ? ' Password' : ''}`
             })
           }
+        } else if (username) {
+          res.status(403).json({
+            success: false,
+            message: 'Username Min 5 Char'
+          })
         } else {
           databases.func.editUsers(emailUser, pickedUser)
           res.status(200).json({
@@ -410,6 +420,23 @@ const runMain = async () => {
         success: true,
         message: 'Succes get Message List',
         data: databases.getMessage()
+      })
+    } else {
+      res.status(403).json({
+        success: false,
+        message: 'Data Invalid'
+      })
+    }
+  })
+
+  app.get('/botstate/:auth', (req, res)=>{
+    const { auth } = req.params
+    const authList = databases.getAllAuth()
+    if (authList.includes(auth)) {
+      res.status(200).json({
+        success: true,
+        message: 'Success get botstate',
+        data: databases.getBotState()
       })
     } else {
       res.status(403).json({

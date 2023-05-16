@@ -9,6 +9,7 @@ let pings = 0
 let logs = []
 let userlist = {}
 let message = {}
+let botState = {}
 
 // pages
 const pageState = {
@@ -61,6 +62,13 @@ const getResource = async () => {
         message = res.data
       };
     })
+  fetch(`${ipUrl}/botstate/${cred.user.auth}`, { method: 'GET' })
+    .then(ress => { return ress.json() })
+    .then(res => {
+      if (res.success) {
+        botState = res.data
+      };
+    })
   if (cred.user.isAdministator || cred.user.permission.manageUsers) {
     fetch(`${ipUrl}/userlist/${cred.user.auth}`, { method: 'GET' })
       .then(ress => { return ress.json() })
@@ -82,6 +90,16 @@ const getResource = async () => {
 }
 
 // function
+function timeParse (hours, minute, second) {
+  if (`${hours}` && `${minute}` && `${second}` !== 'undefined') {
+    return `${(`${hours}`.length > 1) ? `${hours}` : `0${hours}`}:${(`${minute}`.length > 1) ? `${minute}` : `0${minute}`}:${(`${second}`.length > 1) ? `${second}` : `0${second}`}`
+  } else if (`${hours}` && `${minute}`) {
+    return `${(`${hours}`.length > 1) ? `${hours}` : `0${hours}`}:${(`${minute}`.length > 1) ? `${minute}` : `0${minute}`}`
+  } else {
+    return false
+  }
+}
+
 const deleteUser = (email) => {
   if (email) {
     Notipin.Confirm({
@@ -301,7 +319,7 @@ const editUser = (email) => {
           body: JSON.stringify({
             currentPassword: conPassword.value,
             username: conUsername.value,
-            newPassword: conPassword.value
+            password: conPassword.value
           })
         })
           .then(ress => { return ress.json() })
@@ -540,7 +558,12 @@ const page = {
                 </div>
               </div>
               <div class="animationAll" id="setUsers" style="display: none; opacity: 0;"></div>
-              <div class="animationAll" id="setWhatsapp" style="display: none; opacity: 0;">Whatsapp</div>
+              <div class="animationAll" id="setWhatsapp" style="display: none; opacity: 0;">
+                <p>Session : <b id="session"></b></p>
+                <p>OpenIA Limit : <b id="openaiLimit"></b></p>
+                <p>Prefix : <b id="prefix"></b></p>
+                <p>Uptime : <b id="uptime"></b></p>
+              </div>
             </div>
           </div>
           <div class="animationAll" id="console" style="display: none; opacity: 0; margin-left: -1000px;">
@@ -880,7 +903,7 @@ const page = {
               </div>
               <div class="clSubTitle">
                 <p ${(metaMsg.unreadCount === 0) ? 'style="opacity: 0;"' : ''}>${metaMsg.unreadCount}</p>
-                <p>${time.getHours()}:${time.getMinutes()}</p>
+                <p>${timeParse(time.getHours(), time.getMinutes())}</p>
               </div>
             </div>`
           }
@@ -888,7 +911,14 @@ const page = {
             chatsRoom.innerHTML = messageViewList
           };
         }
-        document.getElementById('username').innerText = cred.user.username
+        document.getElementById('username').innerText = (cred.user?.username) ? cred.user.username : '';
+        if (botState) {
+          const upTime = `${botState.upTime}`.split(':')
+          document.getElementById('session').innerText = botState.session
+          document.getElementById('openaiLimit').innerText = botState.openaiLimit + '$'
+          document.getElementById('prefix').innerText = botState.prefix 
+          document.getElementById('uptime').innerText = upTime[0] + 'H ' + upTime[1] + 'M ' +upTime[2] + 'S '
+        };
         setTimeout(() => {
           runHome()
         }, 250)
