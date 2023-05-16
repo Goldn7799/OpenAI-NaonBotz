@@ -322,7 +322,8 @@ host.on('message_create', async (m) => {
           const idleLatency = (speedtest.match(/Idle Latency:(.*?)\[\?\.\?\]/))[1]
           const upload = (speedtest.match(/Upload:(.*?)\[\?\.\?\]/))[1]
           const download = (speedtest.match(/Download:(.*?)\[\?\.\?\]/))[1]
-          await m.reply(`「 *Speed Test* 」\n*Server* : ${server}\n*ISP* : ${isp}\n*Idle Latency* : ${idleLatency}\n*Upload* : ${upload}\n*Download* : ${download}\n`)
+          const resultUrl = (speedtest.match(/Result URL:(.*?)\[\?\.\?\]/))[1].replaceAll(' ', '')
+          await m.reply(`╭─「 *Speed Test* 」\n│ • *Server* : ${server}\n│ • *ISP* : ${isp}\n│ • *Idle Latency* : ${idleLatency}\n│ • *Upload* : ${upload}\n│ • *Download* : ${download}\n╰────`, null, { media: await MessageMedia.fromUrl(resultUrl + '.png') })
           await doneLoad(m)
         } else {
           await m.reply('Test Speed Failed')

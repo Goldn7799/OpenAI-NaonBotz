@@ -37,12 +37,14 @@ const a = async () => {
           const idleLatency = (speedtest.match(/Idle Latency:(.*?)\[\?\.\?\]/))[1].replaceAll('*', '')
           const upload = (speedtest.match(/Upload:(.*?)\[\?\.\?\]/))[1].replaceAll('*', '')
           const download = (speedtest.match(/Download:(.*?)\[\?\.\?\]/))[1].replaceAll('*', '')
+          const resultUrl = (speedtest.match(/Result URL:(.*?)\[\?\.\?\]/))[1].replaceAll(' ', '')
   console.log({
     server,
     isp,
     idleLatency,
     upload,
-    download
+    download,
+    resultUrl
   })
 }
 a()
