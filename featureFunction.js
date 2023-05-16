@@ -493,15 +493,17 @@ host.on('message_create', async (m) => {
           if (chat.owner) {
             mentions.push(await host.getContactById(chat.owner._serialized))
           };
+          let totalAdmin = 0
           for (const participant of chat.participants) {
             if (participant.isAdmin) {
               messageAdminList += `│ • @${participant.id.user} \n`
               mentions.push(await host.getContactById(participant.id._serialized))
+              totalAdmin++
             };
           }
           messageAdminList += '╰────\n'
           const groupDb = (databases.getGroups())[chat.id._serialized]
-          await m.reply(`Name : *${chat.name}*\nUID : *${chat.id._serialized}*\nCreated at : *${(chat.createdAt) ? `${chat.createdAt}`.substring(0, 24) : 'Unknown Time'}*\nAntilink : *${(groupDb.state.antilink) ? 'On' : 'Off'}*\nWelcome : *${(groupDb.state.welcome) ? 'On' : 'Off'}*\nis Archived : *${(chat.archived) ? 'Yes' : 'No'}*\nis Muted : *${(chat.isMuted) ? 'Yes' : 'No'}*\nis Read Only : *${(chat.isReadOnly) ? 'Yes' : 'No'}*\nis Pinned : *${(chat.pinned) ? 'Yes' : 'No'}*\nOwner : ${(chat.owner?.user) ? `@${chat.owner?.user}` : 'No Have Owner'} \n${messageAdminList}Total Member : *${chat.participants.length} User's*\nUnread Count : *${(chat.unreadCount) ? chat.unreadCount : 0} Chat's*`, null, { media, mentions })
+          await m.reply(`Name : *${chat.name}*\nUID : *${chat.id._serialized}*\nCreated at : *${(chat.createdAt) ? `${chat.createdAt}`.substring(0, 24) : 'Unknown Time'}*\nAntilink : *${(groupDb.state.antilink) ? 'On' : 'Off'}*\nWelcome : *${(groupDb.state.welcome) ? 'On' : 'Off'}*\nis Archived : *${(chat.archived) ? 'Yes' : 'No'}*\nis Muted : *${(chat.isMuted) ? 'Yes' : 'No'}*\nis Read Only : *${(chat.isReadOnly) ? 'Yes' : 'No'}*\nis Pinned : *${(chat.pinned) ? 'Yes' : 'No'}*\nOwner : ${(chat.owner?.user) ? `@${chat.owner?.user}` : 'No Have Owner'} \n${messageAdminList}Total Admin : *${totalAdmin} User's*\nTotal Member : *${chat.participants.length} User's*\nUnread Count : *${(chat.unreadCount) ? chat.unreadCount : 0} Chat's*`, null, { media, mentions })
           await doneLoad(m)
         } catch (e) {
           await m.reply('Failed To Get *Group Info*')
