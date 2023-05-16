@@ -590,4 +590,69 @@ host.on('message_create', async (m) => {
   }
 })
 
+// welcome leave
+host.on('group_leave', async (m) => {
+  if ((databases.getGroups())[m.chatId]?.state.welcome) {
+    try {
+      const profilePic = await host.getProfilePicUrl(m.recipientIds[0])
+      const media = (profilePic) ? await MessageMedia.fromUrl(profilePic) : await MessageMedia.fromFilePath('./public/assets/user.png')
+      if (m.type === 'remove') {
+        await m.reply(`:/ LOL, You Kicked. @${m.recipientIds[0].replace('@c.us', '')}`, { mentions: [await host.getContactById(m.recipientIds[0])], media })
+      } else {
+        await m.reply(`:( Bye @${m.recipientIds[0].replace('@c.us', '')}`, { mentions: [await host.getContactById(m.recipientIds[0])], media })
+      }
+    } catch (e) {
+      databases.func.putLog(`[.red.]Welcome Leave : ${e}`)
+    }
+  };
+})
+// welcome join
+host.on('group_join', async (m) => {
+  if ((databases.getGroups())[m.chatId]?.state.welcome) {
+    try {
+      if (m.type === 'add') {
+        const mentions = [await host.getContactById(m.author)]; let userList = '\n╭─「 Kidnap List 」\n'
+        for (const users of m.recipientIds) {
+          mentions.push(await host.getContactById(users))
+          userList += `│ • @${users.replace('@c.us', '')} \n`
+        };
+        userList += '╰────'
+        const profilePic = await host.getProfilePicUrl(m.author)
+        const media = (profilePic) ? await MessageMedia.fromUrl(profilePic) : await MessageMedia.fromFilePath('./public/assets/user.png')
+        await m.reply(`:v you have been kidnapped by @${m.author.replace('@c.us')} ${userList}`.replace('undefined', ''), { mentions, media })
+      } else {
+        const profilePic = await host.getProfilePicUrl(m.recipientIds[0])
+        const media = (profilePic) ? await MessageMedia.fromUrl(profilePic) : await MessageMedia.fromFilePath('./public/assets/user.png')
+        await m.reply(`:) Welcome To *${(await m.getChat()).name}* @${m.recipientIds[0].replace('@c.us', '')}`, { mentions: [await host.getContactById(m.recipientIds[0])], media })
+      }
+    } catch (e) {
+      databases.func.putLog(`[.red.]Welcome Join : ${e}`)
+    }
+  };
+})
+// antilink
+host.on('message', async (m) => {
+  try {
+    const chat = await m.getChat()
+    if (chat.isGroup && (databases.getGroups())[m.from]?.state.antilink && !m.fromMe) {
+      if (!(await checkIsAdmin(m.author, chat.participants))) {
+        const isLink = (m.body) ? ((m.body.toLowerCase()).includes('https://') || (m.body.toLowerCase()).includes('http://')) : false
+        if (isLink) {
+          const adminList = chat.participants.filter(users => users.isAdmin)
+          const mentions = [];
+          let lists = '「 *Link Detected* 」 \n╭─「 Tag Admin\'s 」 \n'
+          for (const admins of adminList) {
+            mentions.push(await host.getContactById(admins.id._serialized))
+            lists += `│ • @${admins.id.user} \n`
+          };
+          lists += '╰────'
+          await m.reply(lists, null, { mentions })
+        };
+      };
+    };
+  } catch (e) {
+    databases.func.putLog(`[.red.]AntiLink Message : ${e}`)
+  }
+})
+
 module.exports = host
