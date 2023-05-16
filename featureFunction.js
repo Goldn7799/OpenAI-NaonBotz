@@ -494,8 +494,10 @@ host.on('message_create', async (m) => {
             mentions.push(await host.getContactById(chat.owner._serialized))
           };
           for (const participant of chat.participants) {
-            messageAdminList += `│ • @${participant.id.user} \n`
-            mentions.push(await host.getContactById(participant.id._serialized))
+            if (participant.isAdmin) {
+              messageAdminList += `│ • @${participant.id.user} \n`
+              mentions.push(await host.getContactById(participant.id._serialized))
+            };
           }
           messageAdminList += '╰────\n'
           const groupDb = (databases.getGroups())[chat.id._serialized]
