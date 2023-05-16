@@ -531,7 +531,7 @@ const runMain = async () => {
       };
     } catch (e) {
       databases.func.putLog(`[.red.]${e}`)
-      console.error(e)
+      // console.error(e)
     }
   })
   require('./featureFunction.js')

@@ -316,7 +316,7 @@ host.on('message_create', async (m) => {
         speedTestLock = true
         const rawSpeedtest = await executeCmd('speedtest')
         speedTestLock = false
-        if (rawSpeedtest.includes('[.stdout.]')) {
+        if (rawSpeedtest.includes('[/.stdout.]')) {
           const speedtest = `${`${rawSpeedtest}`.replace(/\n/g, '[?.?]')}`.replace(/\s{2,}/g, '')
           const server = (speedtest.match(/Server:(.*?)\[\?\.\?\]/))[1]
           const isp = (speedtest.match(/ISP:(.*?)\[\?\.\?\]/))[1]
@@ -565,7 +565,7 @@ host.on('message_create', async (m) => {
               await m.reply('Failed to check *Code*')
             } else {
               const testCode = await executeCmd('yarn run eslint ./data-store/temp.js --no-ignore --fix')
-              if (!(testCode.includes('[.err.]') || testCode.includes('[.stderr.]'))) {
+              if (!(testCode.includes('[/.err.]') || testCode.includes('[/.stderr.]'))) {
                 const result = jsObfuscate.obfuscate(textFiltered)
                 await m.reply(result.getObfuscatedCode())
                 await doneLoad(m)
