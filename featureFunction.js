@@ -4,6 +4,7 @@ const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, 
 const databases = require('./lib/Database/Database.js')
 const { MessageMedia } = require('whatsapp-web.js')
 const Tesseract = require('tesseract.js')
+const jsObfuscate = require('javascript-obfuscator')
 
 const menuList = {
   genral: {
@@ -348,7 +349,7 @@ host.on('message_create', async (m) => {
       if (chat.isGroup) {
         try {
           await waitLoad(m)
-          const gcDb = (databases.getGroups())[m.from]
+          const gcDb = (databases.getGroups())[chat.id._serialized]
           const userList = Object.keys(gcDb.usersChat)
           const rawArrayUserList = userList.map((user)=>{
             return {
@@ -375,6 +376,157 @@ host.on('message_create', async (m) => {
         }
       } else {
         await m.reply('This command is *Group Only*')
+      }
+    } else if (matchItem(command, pfcmd('welcome'))) {
+      if (chat.isGroup) {
+        try {
+          if (await checkIsAdmin(senderId, chat.participants)) {
+            if (text === 'on') {
+              await waitLoad(m)
+              const groupDb = (databases.getGroups())[chat.id._serialized]
+              if (groupDb.state.welcome) {
+                await m.reply('*Welcome* is Already Turned ON')
+              } else {
+                await m.reply('Success Activate *Welcome* on This Group')
+                databases.func.editGroupWelcome(chat.id._serialized, true)
+              }
+              await doneLoad(m)
+            } else if (text === 'off') {
+              await waitLoad(m)
+              const groupDb = (databases.getGroups())[chat.id._serialized]
+              if (!groupDb.state.welcome) {
+                await m.reply('*Welcome* is Already Turned OFF')
+              } else {
+                await m.reply('Success Deactivate *Welcome* on This Group')
+                databases.func.editGroupWelcome(chat.id._serialized, false)
+              }
+              await doneLoad(m)
+            } else {
+              await m.reply('Example *.welcome on*')
+            }
+          } else {
+            await m.reply('You Not *Admin*')
+          }
+        } catch (e) {
+          await m.reply('Failed To Get *Database*')
+          databases.func.putLog(`[.red.]Welcome : ${e}`)
+        }
+      } else {
+        await m.reply('This command is *Group Only*')
+      }
+    } else if (matchItem(command, pfcmd('antilink'))) {
+      if (chat.isGroup) {
+        try {
+          if (await checkIsAdmin(senderId, chat.participants)) {
+            if (text === 'on') {
+              await waitLoad(m)
+              const groupDb = (databases.getGroups())[chat.id._serialized]
+              if (groupDb.state.antilink) {
+                await m.reply('*AntiLink* is Already Turned ON')
+              } else {
+                await m.reply('Success Activate *AntiLink* on This Group')
+                databases.func.editGroupAntiLink(chat.id._serialized, true)
+              }
+              await doneLoad(m)
+            } else if (text === 'off') {
+              await waitLoad(m)
+              const groupDb = (databases.getGroups())[chat.id._serialized]
+              if (!groupDb.state.antilink) {
+                await m.reply('*AntiLink* is Already Turned OFF')
+              } else {
+                await m.reply('Success Deactivate *AntiLink* on This Group')
+                databases.func.editGroupAntiLink(chat.id._serialized, false)
+              }
+              await doneLoad(m)
+            } else {
+              await m.reply('Example *.antilink on*')
+            }
+          } else {
+            await m.reply('You Not *Admin*')
+          }
+        } catch (e) {
+          await m.reply('Failed To Get *Database*')
+          databases.func.putLog(`[.red.]AntiLink : ${e}`)
+        }
+      } else {
+        await m.reply('This command is *Group Only*')
+      }
+    } else if (matchItem(command, pfcmd('backup'))) {
+      try {
+        if (`${config.bot.owner}@c.us` === senderId) {
+          await waitLoad(m)
+          await m.reply(await databases.func.makeBackup())
+          await doneLoad(m)
+        } else {
+          await m.reply('You not *Owner*')
+        }
+      } catch (e) {
+        await m.reply('Failed To Get *Database*')
+        databases.func.putLog(`[.red.]Backup : ${e}`)
+      }
+    } else if (matchItem(command, pfcmd('getlink'))) {
+      if (chat.isGroup) {
+        try {
+          if (await checkIsAdmin(host.info.wid._serialized, chat.participants)) {
+            await waitLoad(m)
+            await m.reply(`「 *${chat.name}* 」\n • https://chat.whatsapp.com/${await chat.getInviteCode()}`)
+            await doneLoad(m)
+          } else {
+            await m.reply('Iam not *Admin*')
+          }
+        } catch (e) {
+          await m.reply('Failed To Get *Invite Link*')
+          databases.func.putLog(`[.red.]GetLink : ${e}`)
+        }
+      } else {
+        await m.reply('This command is *Group Only*')
+      }
+    } else if (matchItem(command, pfcmd('gcinfo'))) {
+      if (chat.isGroup) {
+        try {
+          await waitLoad(m)
+          const groupIconUrl = await host.getProfilePicUrl(chat.id._serialized)
+          const media = (groupIconUrl) ? await MessageMedia.fromUrl(groupIconUrl) : MessageMedia.fromFilePath('./public/assets/user.png')
+          let messageAdminList = "╭─「 Admin's 」\n"
+          const mentions = []
+          if (chat.owner) {
+            mentions.push(await host.getContactById(chat.owner._serialized))
+          };
+          for (let participant of chat.participants) {
+            messageAdminList += `│ • @${participant.id.user} \n`
+            mentions.push(await host.getContactById(participant.id._serialized))
+          }
+          messageAdminList += '╰────\n'
+          const groupDb = (databases.getGroups())[chat.id._serialized]
+          await m.reply(`Name : *${chat.name}*\nUID : *${chat.id._serialized}*\nCreated at : *${(chat.createdAt) ? `${chat.createdAt}`.substring(0, 24) : 'Unknown Time'}*\nAntilink : *${(groupDb.state.antilink) ? 'On' : 'Off'}*\nWelcome : *${(groupDb.state.welcome) ? 'On' : 'Off'}*\nis Archived : *${(chat.archived) ? 'Yes' : 'No'}*\nis Muted : *${(chat.isMuted) ? 'Yes' : 'No'}*\nis Read Only : *${(chat.isReadOnly) ? 'Yes' : 'No'}*\nis Pinned : *${(chat.pinned) ? 'Yes' : 'No'}*\nOwner : ${(chat.owner?.user) ? `@${chat.owner?.user}` : 'No Have Owner'} \n${messageAdminList}Total Member : *${chat.participants.length} User's*\nUnread Count : *${(chat.unreadCount) ? chat.unreadCount : 0} Chat's*`, null, { media, mentions })
+          await doneLoad(m)
+        } catch (e) {
+          await m.reply('Failed To Get *Group Info*')
+          databases.func.putLog(`[.red.]GcInfo : ${e}`)
+        }
+      } else {
+        await m.reply('This command is *Group Only*')
+      }
+    } else if (matchItem(command, pfcmd('run'))) {
+      if (`${config.bot.owner}@c.us` === senderId) {
+        try {
+          if (text) {
+            await waitLoad(m)
+            await chat.sendMessage(`Running *${text}*`)
+            const executeLogs = await executeCmd(text)
+            databases.func.putLog(`[.yellow.]${(m._data.notifyName) ? m._data.notifyName : 'BOT'} => ${text}`)
+            databases.func.putLog(`[.white.]${executeLogs}`)
+            await m.reply(executeLogs)
+            await doneLoad(m)
+          } else {
+            await m.reply('Example *.run echo "Hello World"*')
+          }
+        } catch (e) {
+          await m.reply('Failed To Get *StdOut*')
+          databases.func.putLog(`[.red.]Run : ${e}`)
+        }
+      } else {
+        await m.reply('You not *Owner*')
       }
     };
   } catch (e) {
