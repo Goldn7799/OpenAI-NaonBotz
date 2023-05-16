@@ -1,6 +1,6 @@
 const config = require('./config.json')
 const host = require('./index.js')
-const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid } = require('./lib/Utility/Utility.js')
+const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid, executeCmd } = require('./lib/Utility/Utility.js')
 const databases = require('./lib/Database/Database.js')
 const { MessageMedia } = require('whatsapp-web.js')
 const Tesseract = require('tesseract.js')
@@ -97,6 +97,8 @@ const waitLoad = async (m)=>{
 const mediaToBase64 = (media) => {
   return `data:${media.mimetype};base64,${media.data}`
 }
+
+let speedTestLock = false
 
 host.on('message_create', async (m) => {
   try {
@@ -243,7 +245,7 @@ host.on('message_create', async (m) => {
               logger: async wrk => {
                 if (wrk.progress) {
                   progress += wrk.progress
-                  databases.func.editLog(logId, '[.blue.]' + await makeProgressBar(progress))
+                  databases.func.editLog(logId, '[.blue.]' + await makeProgressBar(progress, 'Detecting Text '))
                 };
               }
             })
@@ -276,6 +278,58 @@ host.on('message_create', async (m) => {
       } catch (e) {
         await m.reply('Failed To Load *Image*')
         databases.func.putLog(`[.red.]ToText : ${e}`)
+      }
+    } else if(matchItem(command, pfcmd('tovn'))) {
+      try {
+        const quotedMsg = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
+        const media = (quotedMsg.hasMedia) ? await quotedMsg.downloadMedia() : false
+        if (media) {
+          if ((media.mimetype).includes('audio')) {
+            await waitLoad(m)
+            await m.reply(media, null, { sendAudioAsVoice: true })
+            await doneLoad(m)
+          } else {
+            await m.reply(`Is not Audio, is a *${media.mimetype}*`)
+          }
+        } else {
+          await m.reply('Where Audio??')
+        }
+      } catch (e) {
+        await m.reply('Failed To Load *Audio*')
+        databases.func.putLog(`[.red.]ToVn : ${e}`)
+      }
+    } else if(matchItem(command, pfcmd('owner'))) {
+      try {
+        await m.reply(await host.getContactById(`${config.bot.owner}@c.us`))
+        await doneLoad(m)
+      } catch (e) {
+        await m.reply('Failed To Load *Contact*')
+        databases.func.putLog(`[.red.]Owner : ${e}`)
+      }
+    } else if(matchItem(command, pfcmd('speed'))) {
+      try {
+        await chat.sendMessage('Testing Speed...')
+        await waitLoad(m)
+        if (speedTestLock) return await m.reply('Speed Test is Running')
+        speedTestLock = true
+        const rawSpeedtest = await executeCmd('speedtest')
+        speedTestLock = false
+        if (rawSpeedtest.includes('[.stdout.]')) {
+          console.log(rawSpeedtest)
+          const speedtest = `${`${rawSpeedtest}`.replace(/\n/g, '[?.?]')}`.replace(/\s{2,}/g, '')
+          const server = (speedtest.match(/Server:(.*?)\[\?\.\?\]/))[1]
+          const isp = (speedtest.match(/ISP:(.*?)\[\?\.\?\]/))[1]
+          const idleLatency = (speedtest.match(/Idle Latency:(.*?)\[\?\.\?\]/))[1]
+          const upload = (speedtest.match(/Upload:(.*?)\[\?\.\?\]/))[1]
+          const download = (speedtest.match(/Download:(.*?)\[\?\.\?\]/))[1]
+          await m.reply(`「 *Speed Test* 」\n*Server* : ${server}\n*ISP* : ${isp}\n*Idle Latency* : ${idleLatency}\n*Upload* : ${upload}\n*Download* : ${download}\n`)
+          await doneLoad(m)
+        } else {
+          await m.reply('Test Speed Failed')
+        }
+      } catch (e) {
+        await m.reply('Failed To Get *Speed*')
+        databases.func.putLog(`[.red.]Speed : ${e}`)
       }
     };
   } catch (e) {
