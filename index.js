@@ -4,7 +4,6 @@ const express = require('express')
 const cors = require('cors')
 const config = require('./config.json')
 const bodyParser = require('body-parser')
-const { exec } = require('child_process')
 const utility = require('./lib/Utility/Utility.js')
 const host = require('./lib/WhatsApp/Connection.js')
 
@@ -430,7 +429,7 @@ const runMain = async () => {
     }
   })
 
-  app.get('/botstate/:auth', (req, res)=>{
+  app.get('/botstate/:auth', (req, res) => {
     const { auth } = req.params
     const authList = databases.getAllAuth()
     if (authList.includes(auth)) {
@@ -453,7 +452,7 @@ const runMain = async () => {
   /// / End Interface
   // / Whatsapp
   // Starting Service
-host.initialize()
+  host.initialize()
   host.on('message_create', async (m) => {
     try {
       const chat = await m.getChat()

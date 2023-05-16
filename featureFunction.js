@@ -78,9 +78,9 @@ const rolePicker = (level) => {
   }
 }
 const checkIsAdmin = (senderId, participants) => {
-  return new Promise((resolve)=>{
+  return new Promise((resolve) => {
     let isSenderAdmin = false
-    for (let participant of participants) {
+    for (const participant of participants) {
       if (participant.id._serialized === senderId && participant.isAdmin) {
         isSenderAdmin = true
       };
@@ -89,11 +89,11 @@ const checkIsAdmin = (senderId, participants) => {
   })
 }
 
-const doneLoad = async (m)=>{
-  return m.react(pickRandomString(['✅','👍','👌','🆗']))
+const doneLoad = async (m) => {
+  return m.react(pickRandomString(['✅', '👍', '👌', '🆗']))
 }
-const waitLoad = async (m)=>{
-  return m.react(pickRandomString(['⏳','🕓','⏱️','⏰']))
+const waitLoad = async (m) => {
+  return m.react(pickRandomString(['⏳', '🕓', '⏱️', '⏰']))
 }
 
 const mediaToBase64 = (media) => {
@@ -146,10 +146,10 @@ host.on('message_create', async (m) => {
         await m.reply('Failed to load *Menu*')
         databases.func.putLog(`[.red.]Menu : ${e}`)
       }
-    } else if(matchItem(command, pfcmd('sticker')||matchItem(command, pfcmd('stiker')))) {
+    } else if (matchItem(command, pfcmd('sticker') || matchItem(command, pfcmd('stiker')))) {
       try {
         const runSticker = async (media) => {
-          if((media.mimetype).includes('image')){
+          if ((media.mimetype).includes('image')) {
             await waitLoad(m)
             await chat.sendMessage('Waitt A Sec..')
             await m.reply(media, null, { sendMediaAsSticker: true, stickerName: 'NaonBotz', stickerAuthor: 'SGStudio' })
@@ -175,7 +175,7 @@ host.on('message_create', async (m) => {
         await m.reply('Failed to load *image*')
         databases.func.putLog(`[.red.]Sticker : ${e}`)
       }
-    } else if (matchItem(command, pfcmd('toimg'))){
+    } else if (matchItem(command, pfcmd('toimg'))) {
       try {
         const quotedMsg = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
         if (quotedMsg && quotedMsg.hasMedia) {
@@ -198,7 +198,7 @@ host.on('message_create', async (m) => {
             await waitLoad(m)
             let message = '「 *Tag All* 」\n'
             const mentions = []
-            for (let participant of chat.participants) {
+            for (const participant of chat.participants) {
               mentions.push(await host.getContactById(participant.id._serialized))
               message += `• @${participant.id.user} \n`
             }
@@ -217,10 +217,10 @@ host.on('message_create', async (m) => {
     } else if (matchItem(command, pfcmd('hidetag'))) {
       if (chat.isGroup) {
         try {
-          if (checkIsAdmin(senderId, chat.participants)){
+          if (checkIsAdmin(senderId, chat.participants)) {
             await waitLoad(m)
             const mentions = []
-            for (let participant of chat.participants) {
+            for (const participant of chat.participants) {
               mentions.push(await host.getContactById(participant.id._serialized))
             }
             await m.reply(text, null, { mentions })
@@ -238,7 +238,7 @@ host.on('message_create', async (m) => {
     } else if (matchItem(command, pfcmd('totext'))) {
       try {
         const runToText = async (media) => {
-          if ((media.mimetype).includes('image')){
+          if ((media.mimetype).includes('image')) {
             await waitLoad(m)
             await chat.sendMessage('Waitt A Sec..')
             const logId = makeid(8)
@@ -269,7 +269,7 @@ host.on('message_create', async (m) => {
         } else if (m.hasQuotedMsg) {
           const quotedMsg = await m.getQuotedMessage()
           const media = (quotedMsg.hasMedia) ? await quotedMsg.downloadMedia() : false
-          if(media) {
+          if (media) {
             await runToText(media)
           } else {
             await m.reply('Where Image??')
@@ -281,7 +281,7 @@ host.on('message_create', async (m) => {
         await m.reply('Failed To Load *Image*')
         databases.func.putLog(`[.red.]ToText : ${e}`)
       }
-    } else if(matchItem(command, pfcmd('tovn'))) {
+    } else if (matchItem(command, pfcmd('tovn'))) {
       try {
         const quotedMsg = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
         const media = (quotedMsg.hasMedia) ? await quotedMsg.downloadMedia() : false
@@ -300,7 +300,7 @@ host.on('message_create', async (m) => {
         await m.reply('Failed To Load *Audio*')
         databases.func.putLog(`[.red.]ToVn : ${e}`)
       }
-    } else if(matchItem(command, pfcmd('owner'))) {
+    } else if (matchItem(command, pfcmd('owner'))) {
       try {
         await m.reply(await host.getContactById(`${config.bot.owner}@c.us`))
         await doneLoad(m)
@@ -308,7 +308,7 @@ host.on('message_create', async (m) => {
         await m.reply('Failed To Load *Contact*')
         databases.func.putLog(`[.red.]Owner : ${e}`)
       }
-    } else if(matchItem(command, pfcmd('speed'))) {
+    } else if (matchItem(command, pfcmd('speed'))) {
       try {
         await waitLoad(m)
         if (speedTestLock) return await m.reply('Speed Test is Running')
@@ -333,7 +333,7 @@ host.on('message_create', async (m) => {
         await m.reply('Failed To Get *Speed*')
         databases.func.putLog(`[.red.]Speed : ${e}`)
       }
-    } else if (matchItem(command, pfcmd('pickrandom'))){
+    } else if (matchItem(command, pfcmd('pickrandom'))) {
       if (chat.isGroup) {
         try {
           const userPicked = pickRandomObject(chat.participants)
@@ -352,7 +352,7 @@ host.on('message_create', async (m) => {
           await waitLoad(m)
           const gcDb = (databases.getGroups())[chat.id._serialized]
           const userList = Object.keys(gcDb.usersChat)
-          const rawArrayUserList = userList.map((user)=>{
+          const rawArrayUserList = userList.map((user) => {
             return {
               user,
               count: gcDb.usersChat[user]
@@ -364,7 +364,7 @@ host.on('message_create', async (m) => {
           for (let i = 0; i < 5; i++) {
             const pickedUser = arrayUserList[i]
             if (pickedUser) {
-              message += `│ ${i+1}. @${pickedUser.user.replace('@c.us', '')} *${pickedUser.count}* Chat's\n`
+              message += `│ ${i + 1}. @${pickedUser.user.replace('@c.us', '')} *${pickedUser.count}* Chat's\n`
               mentions.push(await host.getContactById(pickedUser.user))
             };
           }
@@ -493,7 +493,7 @@ host.on('message_create', async (m) => {
           if (chat.owner) {
             mentions.push(await host.getContactById(chat.owner._serialized))
           };
-          for (let participant of chat.participants) {
+          for (const participant of chat.participants) {
             messageAdminList += `│ • @${participant.id.user} \n`
             mentions.push(await host.getContactById(participant.id._serialized))
           }
@@ -529,7 +529,7 @@ host.on('message_create', async (m) => {
       } else {
         await m.reply('You not *Owner*')
       }
-    } else if(matchItem(command, pfcmd('runnode'))) {
+    } else if (matchItem(command, pfcmd('runnode'))) {
       if (`${config.bot.owner}@c.us` === senderId) {
         try {
           if (text) {
@@ -554,8 +554,9 @@ host.on('message_create', async (m) => {
       try {
         if (text) {
           await waitLoad(m)
+          await chat.sendMessage('Checking Code..')
           const textFiltered = text.replace(/\n/g, '')
-          fs.writeFile(`${process.cwd()}/data-store/temp.js`, `${textFiltered}`, async (err)=>{
+          fs.writeFile(`${process.cwd()}/data-store/temp.js`, `${textFiltered}`, async (err) => {
             if (err) {
               await m.reply('Failed to check *Code*')
             } else {

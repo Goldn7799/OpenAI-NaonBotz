@@ -56,7 +56,7 @@ const getResource = async () => {
     .catch(() => {
       pings = 'Unreacable'
       loop++
-      if (loop > 6&&fuse) {
+      if (loop > 6 && fuse) {
         fuse = false
         logs.push('[.red.]Disconnected')
       } else {
@@ -921,13 +921,13 @@ const page = {
             chatsRoom.innerHTML = messageViewList
           };
         }
-        document.getElementById('username').innerText = (cred.user?.username) ? cred.user.username : '';
+        document.getElementById('username').innerText = (cred.user?.username) ? cred.user.username : ''
         if (botState) {
           const upTime = `${botState.upTime}`.split(':')
           document.getElementById('session').innerText = botState.session
           document.getElementById('openaiLimit').innerText = botState.openaiLimit + '$'
-          document.getElementById('prefix').innerText = botState.prefix 
-          document.getElementById('uptime').innerText = upTime[0] + 'H ' + upTime[1] + 'M ' +upTime[2] + 'S '
+          document.getElementById('prefix').innerText = botState.prefix
+          document.getElementById('uptime').innerText = upTime[0] + 'H ' + upTime[1] + 'M ' + upTime[2] + 'S '
         };
         setTimeout(() => {
           runHome()
