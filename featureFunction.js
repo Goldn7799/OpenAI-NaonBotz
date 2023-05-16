@@ -1,8 +1,9 @@
 const config = require('./config.json')
 const host = require('./index.js')
-const { matchItem, capitalLetter, timeParse } = require('./lib/Utility/Utility.js')
+const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid } = require('./lib/Utility/Utility.js')
 const databases = require('./lib/Database/Database.js')
 const { MessageMedia } = require('whatsapp-web.js')
+const Tesseract = require('tesseract.js')
 
 const menuList = {
   genral: {
@@ -74,44 +75,208 @@ const rolePicker = (level) => {
     return 'Beginner'
   }
 }
+const checkIsAdmin = (senderId, participants) => {
+  return new Promise((resolve)=>{
+    let isSenderAdmin = false
+    for (let participant of participants) {
+      if (participant.id._serialized === senderId && participant.isAdmin) {
+        isSenderAdmin = true
+      };
+    }
+    resolve(isSenderAdmin)
+  })
+}
+
+const doneLoad = async (m)=>{
+  return m.react(pickRandomString(['✅','👍','👌','🆗']))
+}
+const waitLoad = async (m)=>{
+  return m.react(pickRandomString(['⏳','🕓','⏱️','⏰']))
+}
+
+const mediaToBase64 = (media) => {
+  return `data:${media.mimetype};base64,${media.data}`
+}
 
 host.on('message_create', async (m) => {
   try {
     const command = (m.body.toLowerCase()).split(' ')[0]
-    // const text = `${m.body}`.replace(command)
-    // const chat = await m.getChat()
+    const rawText = `${m.body}`.replace(command, '')
+    const text = (rawText.startsWith(' ')) ? rawText.replace(' ', '') : rawText
+    const chat = await m.getChat()
     const senderId = (m.author) ? m.author : m.from
     // Command
     if (matchItem(command, pfcmd('menu'))) {
-      await m.react('✅')
-      const listOfMenu = Object.keys(menuList)
-      const listSubMenu = {}
-      for (const menus of listOfMenu) {
-        listSubMenu[menus] = Object.keys(menuList[menus])
-      }
-      const date = new Date()
-      const uptimeInSeconds = process.uptime()
-      const upHours = Math.floor(uptimeInSeconds / 3600)
-      const upMinutes = Math.floor((uptimeInSeconds % 3600) / 60)
-      const upSeconds = Math.floor(uptimeInSeconds % 60)
-      const more = String.fromCharCode(8206)
-      const readMore = more.repeat(4001)
-      const db = databases.getDb()
-      const senderDb = db.chats[senderId]
-      const minLevelUp = 250 * (senderDb.level + 1 / 2) * (senderDb.level + 1)
-      const upTime = (timeParse(upHours, upMinutes, upSeconds)).split(':')
-      let messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${senderDb.limit.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(senderDb.level)}*\n│ 🔼 Level : *${senderDb.level}* ( ${'```'}${(minLevelUp - senderDb.exp)}${'```'} )\n│ 💫 Total XP : ${senderDb.exp} / ${minLevelUp} ✨\n│\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upTime[0]}H ${upTime[1]}M ${upTime[2]}S*\n│ 📊 Database: ${'```'}${Object.keys(databases.getChats()).length}${'```'} *Users* | ${'```'}${Object.keys(databases.getGroups()).length}${'```'} *Group*\n╰────\n${readMore}`
-      messages += '───「 Menu List 」───\n'
-      for (const menus of listOfMenu) {
-        messages += `╭─「 *${capitalLetter(menus)}* 」\n`
-        for (const subMenu of listSubMenu[menus]) {
-          messages += (menuList[menus][subMenu][2]) ? `│ • *${menuList[menus][subMenu][0]}* : ${menuList[menus][subMenu][1]}\n` : ''
+      try {
+        await waitLoad(m)
+        const listOfMenu = Object.keys(menuList)
+        const listSubMenu = {}
+        for (const menus of listOfMenu) {
+          listSubMenu[menus] = Object.keys(menuList[menus])
         }
-        messages += '╰────\n'
+        const date = new Date()
+        const uptimeInSeconds = process.uptime()
+        const upHours = Math.floor(uptimeInSeconds / 3600)
+        const upMinutes = Math.floor((uptimeInSeconds % 3600) / 60)
+        const upSeconds = Math.floor(uptimeInSeconds % 60)
+        const more = String.fromCharCode(8206)
+        const readMore = more.repeat(4001)
+        const db = databases.getDb()
+        const senderDb = db.chats[senderId]
+        const minLevelUp = 250 * (senderDb.level + 1 / 2) * (senderDb.level + 1)
+        const upTime = (timeParse(upHours, upMinutes, upSeconds)).split(':')
+        let messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${senderDb.limit.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(senderDb.level)}*\n│ 🔼 Level : *${senderDb.level}* ( ${'```'}${(minLevelUp - senderDb.exp)}${'```'} )\n│ 💫 Total XP : ${senderDb.exp} / ${minLevelUp} ✨\n│\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upTime[0]}H ${upTime[1]}M ${upTime[2]}S*\n│ 📊 Database: ${'```'}${Object.keys(databases.getChats()).length}${'```'} *Users* | ${'```'}${Object.keys(databases.getGroups()).length}${'```'} *Group*\n╰────\n${readMore}`
+        messages += '───「 Menu List 」───\n'
+        for (const menus of listOfMenu) {
+          messages += `╭─「 *${capitalLetter(menus)}* 」\n`
+          for (const subMenu of listSubMenu[menus]) {
+            messages += (menuList[menus][subMenu][2]) ? `│ • *${menuList[menus][subMenu][0]}* : ${menuList[menus][subMenu][1]}\n` : ''
+          }
+          messages += '╰────\n'
+        }
+        const profilePic = await host.getProfilePicUrl(await host.info.wid._serialized)
+        const media = (profilePic) ? await MessageMedia.fromUrl(profilePic) : await MessageMedia.fromFilePath('./profile.jpg')
+        await m.reply(messages, null, { media })
+        await doneLoad(m)
+      } catch (e) {
+        await m.reply('Failed to load *Menu*')
+        databases.func.putLog(`[.red.]Menu : ${e}`)
       }
-      const profilePic = await host.getProfilePicUrl(await host.info.wid._serialized)
-      const media = (profilePic) ? await MessageMedia.fromUrl(profilePic) : await MessageMedia.fromFilePath('./profile.jpg')
-      await m.reply(messages, null, { media })
+    } else if(matchItem(command, pfcmd('sticker')||matchItem(command, pfcmd('stiker')))) {
+      try {
+        const runSticker = async (media) => {
+          if((media.mimetype).includes('image')){
+            await waitLoad(m)
+            await chat.sendMessage('Waitt A Sec..')
+            await m.reply(media, null, { sendMediaAsSticker: true, stickerName: 'NaonBotz', stickerAuthor: 'SGStudio' })
+            await doneLoad(m)
+          } else {
+            await m.reply(`Unknown Format *${media.mimetype}*`)
+          }
+        }
+        if (m.hasMedia) {
+          await runSticker(await m.downloadMedia())
+        } else if (m.hasQuotedMsg) {
+          const quotedMsg = await m.getQuotedMessage()
+          const media = (quotedMsg.hasMedia) ? await quotedMsg.downloadMedia() : false
+          if (media) {
+            runSticker(media)
+          } else {
+            await m.reply('Where Image??')
+          }
+        } else {
+          await m.reply('Where Image??')
+        }
+      } catch (e) {
+        await m.reply('Failed to load *image*')
+        databases.func.putLog(`[.red.]Sticker : ${e}`)
+      }
+    } else if (matchItem(command, pfcmd('toimg'))){
+      try {
+        const quotedMsg = (m.hasQuotedMsg) ? await m.getQuotedMessage() : false
+        if (quotedMsg && quotedMsg.hasMedia) {
+          await waitLoad(m)
+          await chat.sendMessage('Waitt A Sec')
+          const media = await quotedMsg.downloadMedia()
+          await m.reply('Done!!..', null, { media })
+          await doneLoad(m)
+        } else {
+          await m.reply('Where Sticker??')
+        }
+      } catch (e) {
+        await m.reply('Failed to load *Sticker*')
+        databases.func.putLog(`[.red.]ToImg : ${e}`)
+      }
+    } else if (matchItem(command, pfcmd('tagall'))) {
+      if (chat.isGroup) {
+        try {
+          if (await checkIsAdmin(senderId, chat.participants)) {
+            await waitLoad(m)
+            let text = '「 *Tag All* 」\n'
+            const mentions = []
+            for (let participant of chat.participants) {
+              mentions.push(await host.getContactById(participant.id._serialized))
+              text += `• @${participant.id.user} \n`
+            }
+            await m.reply(text, null, { mentions })
+            await doneLoad(m)
+          } else {
+            await m.reply('You Is Not *Admin*')
+          }
+        } catch (e) {
+          await m.reply('Failed To Load *Users*')
+          databases.func.putLog(`[.red.]TagAll : ${e}`)
+        }
+      } else {
+        await m.reply('This command is *Group Only*')
+      }
+    } else if (matchItem(command, pfcmd('hidetag'))) {
+      if (chat.isGroup) {
+        try {
+          if (checkIsAdmin(senderId, chat.participants)){
+            await waitLoad(m)
+            const mentions = []
+            for (let participant of chat.participants) {
+              mentions.push(await host.getContactById(participant.id._serialized))
+            }
+            await m.reply(text, null, { mentions })
+            await doneLoad(m)
+          } else {
+            await m.reply('You Is Not *Admin*')
+          }
+        } catch (e) {
+          await m.reply('Failed To Load *Users*')
+          databases.func.putLog(`[.red.]HideTag : ${e}`)
+        }
+      } else {
+        await m.reply('This command is *Group Only*')
+      }
+    } else if (matchItem(command, pfcmd('totext'))) {
+      try {
+        const runToText = async (media) => {
+          if ((media.mimetype).includes('image')){
+            await waitLoad(m)
+            await chat.sendMessage('Waitt A Sec..')
+            const logId = makeid(8)
+            let progress = 0
+            const worker = await Tesseract.createWorker({
+              logger: async wrk => {
+                if (wrk.progress) {
+                  progress += wrk.progress
+                  databases.func.editLog(logId, '[.blue.]' + await makeProgressBar(progress))
+                };
+              }
+            })
+            await worker.loadLanguage('eng')
+            await worker.initialize('eng')
+            const { data: { text } } = await worker.recognize(mediaToBase64(media))
+            if (text) {
+              await m.reply(text)
+            } else {
+              await m.reply('No Text Detected')
+            }
+            await doneLoad(m)
+          } else {
+            await m.reply(`Is Not Image, Is A *${media.mimetype}*`)
+          }
+        }
+        if (m.hasMedia) {
+          await runToText(await m.downloadMedia())
+        } else if (m.hasQuotedMsg) {
+          const quotedMsg = await m.getQuotedMessage()
+          const media = (quotedMsg.hasMedia) ? await quotedMsg.downloadMedia() : false
+          if(media) {
+            await runToText(media)
+          } else {
+            await m.reply('Where Image??')
+          }
+        } else {
+          await m.reply('Where Image??')
+        }
+      } catch (e) {
+        await m.reply('Failed To Load *Image*')
+        databases.func.putLog(`[.red.]ToText : ${e}`)
+      }
     };
   } catch (e) {
     databases.func.putLog(`[.red.]Feature : ${e}`)
