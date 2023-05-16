@@ -308,9 +308,9 @@ host.on('message_create', async (m) => {
       }
     } else if(matchItem(command, pfcmd('speed'))) {
       try {
-        await chat.sendMessage('Testing Speed...')
         await waitLoad(m)
         if (speedTestLock) return await m.reply('Speed Test is Running')
+        await chat.sendMessage('Testing Speed...')
         speedTestLock = true
         const rawSpeedtest = await executeCmd('speedtest')
         speedTestLock = false
