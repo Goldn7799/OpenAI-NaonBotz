@@ -1,6 +1,6 @@
 const config = require('./config.json')
 const host = require('./index.js')
-const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid, executeCmd } = require('./lib/Utility/Utility.js')
+const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid, executeCmd, pickRandomObject } = require('./lib/Utility/Utility.js')
 const databases = require('./lib/Database/Database.js')
 const { MessageMedia } = require('whatsapp-web.js')
 const Tesseract = require('tesseract.js')
@@ -194,13 +194,13 @@ host.on('message_create', async (m) => {
         try {
           if (await checkIsAdmin(senderId, chat.participants)) {
             await waitLoad(m)
-            let text = '「 *Tag All* 」\n'
+            let message = '「 *Tag All* 」\n'
             const mentions = []
             for (let participant of chat.participants) {
               mentions.push(await host.getContactById(participant.id._serialized))
-              text += `• @${participant.id.user} \n`
+              message += `• @${participant.id.user} \n`
             }
-            await m.reply(text, null, { mentions })
+            await m.reply(message, null, { mentions })
             await doneLoad(m)
           } else {
             await m.reply('You Is Not *Admin*')
@@ -315,7 +315,6 @@ host.on('message_create', async (m) => {
         const rawSpeedtest = await executeCmd('speedtest')
         speedTestLock = false
         if (rawSpeedtest.includes('[.stdout.]')) {
-          console.log(rawSpeedtest)
           const speedtest = `${`${rawSpeedtest}`.replace(/\n/g, '[?.?]')}`.replace(/\s{2,}/g, '')
           const server = (speedtest.match(/Server:(.*?)\[\?\.\?\]/))[1]
           const isp = (speedtest.match(/ISP:(.*?)\[\?\.\?\]/))[1]
@@ -331,6 +330,51 @@ host.on('message_create', async (m) => {
       } catch (e) {
         await m.reply('Failed To Get *Speed*')
         databases.func.putLog(`[.red.]Speed : ${e}`)
+      }
+    } else if (matchItem(command, pfcmd('pickrandom'))){
+      if (chat.isGroup) {
+        try {
+          const userPicked = pickRandomObject(chat.participants)
+          await m.reply(`Picked @${userPicked.id.user}`, null, { mentions: [await host.getContactById(userPicked.id._serialized)] })
+          await doneLoad(m)
+        } catch (e) {
+          await m.reply('Failed To Get *User*')
+          databases.func.putLog(`[.red.]PickRandom : ${e}`)
+        }
+      } else {
+        await m.reply('This command is *Group Only*')
+      }
+    } else if (matchItem(command, pfcmd('active'))) {
+      if (chat.isGroup) {
+        try {
+          await waitLoad(m)
+          const gcDb = (databases.getGroups())[m.from]
+          const userList = Object.keys(gcDb.usersChat)
+          const rawArrayUserList = userList.map((user)=>{
+            return {
+              user,
+              count: gcDb.usersChat[user]
+            }
+          })
+          const arrayUserList = rawArrayUserList.sort((a, b) => b.count - a.count)
+          let message = "╭─「 *Top 5 Active User's* 」\n"
+          const mentions = []
+          for (let i = 0; i < 5; i++) {
+            const pickedUser = arrayUserList[i]
+            if (pickedUser) {
+              message += `│ ${i+1}. @${pickedUser.user.replace('@c.us', '')} *${pickedUser.count}* Chat's\n`
+              mentions.push(await host.getContactById(pickedUser.user))
+            };
+          }
+          message += '╰────'
+          await m.reply(message, null, { mentions })
+          await doneLoad(m)
+        } catch (e) {
+          await m.reply('Failed To Get *Users*')
+          databases.func.putLog(`[.red.]Active : ${e}`)
+        }
+      } else {
+        await m.reply('This command is *Group Only*')
       }
     };
   } catch (e) {
