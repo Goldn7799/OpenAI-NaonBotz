@@ -11,7 +11,7 @@
     "parserOptions": {
         "ecmaVersion": "latest"
     },
-    "ignorePatterns": ["**/public/assets/*/*.js"],
+    "ignorePatterns": ["**/public/assets/*/*.js", "**/data-store/*.js"],
     "rules": {
     }
 }

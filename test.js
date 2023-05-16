@@ -1,20 +1,20 @@
 // const databases = require("./lib/Database/Database")
-const {exec} = require('child_process')
-const executeCmd = (cmd) => {
-  return new Promise((resolve)=>{
-    exec(cmd, (error, stdout, stderr) => {
-      // if (error) {
-      //   resolve(`[.err.]${cmd}`)
-      //   return;
-      // };
-      // if (stderr) {
-      //   resolve(`[.stderr.]${stderr}`)
-      //   return;
-      // };
-      resolve(`[.stdout.]${stdout}`)
-    })
-  })
-}
+// const { exec } = require('child_process')
+// const executeCmd = (cmd) => {
+//   return new Promise((resolve) => {
+//     exec(cmd, (error, stdout, stderr) => {
+//       // if (error) {
+//       //   resolve(`[.err.]${cmd}`)
+//       //   return;
+//       // };
+//       // if (stderr) {
+//       //   resolve(`[.stderr.]${stderr}`)
+//       //   return;
+//       // };
+//       resolve(`[.stdout.]${stdout}`)
+//     })
+//   })
+// }
 
 const a = async () => {
   // fetch('http://localhost:8090/edit/user/gnsfSOl2OZ0SjRTofC/2YuKpD5OnfZCLNCm9f/', {

@@ -127,7 +127,7 @@ const runMain = async () => {
     }
   })
 
-  app.post('/execute/:auth', (req, res) => {
+  app.post('/execute/:auth', async (req, res) => {
     const { auth } = req.params
     const { commands } = req.body
     const authList = databases.getAllAuth()
@@ -146,15 +146,16 @@ const runMain = async () => {
       })
       databases.func.putLog(`[.green.]${pickedUser.username} => ${commands}`)
       if (pickedUser.isAdministator) {
-        exec(commands, (error, stdout, stderr) => {
-          if (error) {
-            return databases.func.putLog(`[.red.]${error}`)
-          };
-          if (stderr) {
-            return databases.func.putLog(`[.yellow.]${stderr}`)
-          };
-          databases.func.putLog(`[.white.]${stdout}`)
-        })
+        // exec(commands, (error, stdout, stderr) => {
+        //   if (error) {
+        //     return databases.func.putLog(`[.red.]${error}`)
+        //   };
+        //   if (stderr) {
+        //     return databases.func.putLog(`[.yellow.]${stderr}`)
+        //   };
+        //   databases.func.putLog(`[.white.]${stdout}`)
+        // })
+        databases.func.putLog(`[.white.]${await utility.executeCmd(commands)}`)
       } else {
         databases.func.putLog('[.red.]You not Administrator')
       }

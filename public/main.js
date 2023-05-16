@@ -30,8 +30,9 @@ const ipCheck = async () => {
 }
 ipCheck()
 
+let fuse = true
+let loop = 0
 const getResource = async () => {
-  let fuse = true
   const start = Date.now()
   fetch(`${ipUrl}/log/${cred.user.auth}`, { method: 'GET' })
     .then(ress => {
@@ -46,6 +47,7 @@ const getResource = async () => {
     .then(res => {
       if (res.success) {
         logs = res.data
+        loop = 0
       } else {
         logs.push('[.red.]Auth code Experied, please the reload page')
         fuse = false
@@ -53,7 +55,15 @@ const getResource = async () => {
     })
     .catch(() => {
       pings = 'Unreacable'
-      logs.push('[.red.]Disconnected, Reconneting')
+      loop++
+      if (loop > 6&&fuse) {
+        fuse = false
+        logs.push('[.red.]Disconnected')
+      } else {
+        if (fuse) {
+          logs.push('[.red.]Disconnected, Reconneting')
+        };
+      };
     })
   fetch(`${ipUrl}/message/${cred.user.auth}`, { method: 'GET' })
     .then(ress => { return ress.json() })

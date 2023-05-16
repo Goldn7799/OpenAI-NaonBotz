@@ -1,9 +1,10 @@
 const config = require('./config.json')
 const host = require('./index.js')
-const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid, executeCmd, pickRandomObject } = require('./lib/Utility/Utility.js')
+const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid, executeCmd, pickRandomObject, executeNode } = require('./lib/Utility/Utility.js')
 const databases = require('./lib/Database/Database.js')
 const { MessageMedia } = require('whatsapp-web.js')
 const Tesseract = require('tesseract.js')
+const fs = require('fs')
 const jsObfuscate = require('javascript-obfuscator')
 
 const menuList = {
@@ -514,7 +515,7 @@ host.on('message_create', async (m) => {
             await waitLoad(m)
             await chat.sendMessage(`Running *${text}*`)
             const executeLogs = await executeCmd(text)
-            databases.func.putLog(`[.yellow.]${(m._data.notifyName) ? m._data.notifyName : 'BOT'} => ${text}`)
+            databases.func.putLog(`[.yellow.]WA|[${(m._data.notifyName) ? m._data.notifyName : 'BOT'}] => ${text}`)
             databases.func.putLog(`[.white.]${executeLogs}`)
             await m.reply(executeLogs)
             await doneLoad(m)
@@ -527,6 +528,55 @@ host.on('message_create', async (m) => {
         }
       } else {
         await m.reply('You not *Owner*')
+      }
+    } else if(matchItem(command, pfcmd('runnode'))) {
+      if (`${config.bot.owner}@c.us` === senderId) {
+        try {
+          if (text) {
+            await waitLoad(m)
+            await chat.sendMessage(`Running Node *${text}*`)
+            const executeLogs = await executeNode(text)
+            databases.func.putLog(`[.yellow.]WA|[${(m._data.notifyName) ? m._data.notifyName : 'BOT'}] (NODE)=> ${text}`)
+            databases.func.putLog(`[.white.]${executeLogs}`)
+            await m.reply(executeLogs)
+            await doneLoad(m)
+          } else {
+            await m.reply('Example *.runnode console.log("Hello World")*')
+          }
+        } catch (e) {
+          await m.reply('Failed To Get *StdOut*')
+          databases.func.putLog(`[.red.]RunNode : ${e}`)
+        }
+      } else {
+        await m.reply('You not *Owner*')
+      }
+    } else if (matchItem(command, pfcmd('obfuscate'))) {
+      try {
+        if (text) {
+          await waitLoad(m)
+          const textFiltered = text.replace(/\n/g, '')
+          fs.writeFile(`${process.cwd()}/data-store/temp.js`, `${textFiltered}`, async (err)=>{
+            if (err) {
+              await m.reply('Failed to check *Code*')
+            } else {
+              const testCode = await executeCmd('yarn run eslint ./data-store/temp.js --no-ignore --fix')
+              if (!(testCode.includes('[.err.]') || testCode.includes('[.stderr.]'))) {
+                const result = jsObfuscate.obfuscate(textFiltered)
+                await m.reply(result.getObfuscatedCode())
+                await doneLoad(m)
+              } else {
+                await m.reply('Code test *Failed*, please fix your code')
+                await chat.sendMessage(testCode)
+                await doneLoad(m)
+              }
+            }
+          })
+        } else {
+          await m.reply('Where Code??, Example : .obfuscate console.log("Hello World")')
+        }
+      } catch (e) {
+        await m.reply('Failed To Get *Code*')
+        databases.func.putLog(`[.red.]Obfuscate : ${e}`)
       }
     };
   } catch (e) {
