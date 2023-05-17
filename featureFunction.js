@@ -17,10 +17,10 @@ const menuList = {
     hidetag: ['.hidetag <text>', 'Hide tag message', true],
     active: ['.active', 'Top 5 Active users', true],
     pickrandom: ['.pickrandom', 'Pick random users', true],
-    promote: ['.promote @user', 'Promote User', true],
-    demote: ['.demote @user', 'Demote User', true],
+    promote: ['.promote @user', 'Promote User', false],
+    demote: ['.demote @user', 'Demote User', false],
     getlink: ['.getlink', 'Get Invite Link Group', true],
-    gc: ['.gc [open|close]', 'set Group open or close', true],
+    gc: ['.gc [open|close]', 'set Group open or close', false],
     gcinfo: ['.gcinfo', 'get group information', true]
   },
   notify: {
@@ -33,12 +33,13 @@ const menuList = {
     toimg: ['.toimg', 'Make image to Sticker', true],
     totext: ['.totext', 'Detect text on Image', true],
     tovn: ['.tovn', 'Make audio to Voice Note', true],
-    limit: ['.limit', 'Check global limit and price', true],
-    obfuscate: ['.obfuscate <js script>', 'Encrypt JS', true]
+    limit: ['.limit', 'Check global limit and price', false],
+    obfuscate: ['.obfuscate <js script>', 'Encrypt JS', true],
+    getimage: ['.getimage <URL>', 'Get Image', true]
   },
   premium: {
     aiimgvar: ['.aiimgvar <query>', 'Extend image', false],
-    aiimg: ['.aiimg <query>', 'AI Create Image', true]
+    aiimg: ['.aiimg <query>', 'AI Create Image', false]
   },
   info: {
     speed: ['.speed', 'Test Ping', true],
@@ -582,6 +583,20 @@ host.on('message_create', async (m) => {
       } catch (e) {
         await m.reply('Failed To Get *Code*')
         databases.func.putLog(`[.red.]Obfuscate : ${e}`)
+      }
+    } else if (matchItem(command, pfcmd('getimage'))) {
+      try {
+        if (text) {
+          await waitLoad(m)
+          const media = await MessageMedia.fromUrl(text)
+          await m.reply('Done!!', null, { media })
+          await doneLoad(m)
+        } else {
+          await m.reply('Where Image??')
+        }
+      } catch (e) {
+        await m.reply('URL Failed To Get *Image*')
+        databases.func.putLog(`[.red.]GetImage : ${e}`)
       }
     };
   } catch (e) {
