@@ -588,9 +588,7 @@ const page = {
                 <p>Prefix : <b id="prefix"></b></p>
                 <p>Uptime : <b id="uptime"></b></p>
                 <p>Databases : <span id="databaseState"></span></p>
-                <center>
-                  <div style="height: 400px; width: 118vh;" id="dataStatistic"></div>
-                </center>
+                <div style="height: 400px; width: 100%;" id="dataStatistic"></div>
               </div>
             </div>
           </div>
@@ -776,6 +774,7 @@ const page = {
         setWhatsapp.style.display = ''
         setUsers.style.display = 'none'
         setAccount.style.display = 'none'
+        loadStatistic()
         setTimeout(() => {
           setWhatsapp.style.opacity = '1'
         }, 50)
@@ -979,9 +978,6 @@ const page = {
           if (currentStatsHistory !== JSON.stringify(databaseLength.statsHistory)) {
             currentStatsHistory = JSON.stringify(databaseLength.statsHistory)
             loadStatistic()
-            setTimeout(() => {
-              loadStatistic()
-            }, 250);
           };
         };
         if (pageState.enterChat.isEnter) {
