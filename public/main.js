@@ -1009,7 +1009,7 @@ const page = {
                 ${(quoted)
                   ? `<div class="reply">
                     <p>~ ${(quoted.notifyName && quoted.notifyName !== 'undefined') ? `<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${quoted.notifyName}</b>` : `<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${(quoted.author)}</b>`}</p>
-                    <p>${(quoted.chat !== 'chat') ? `<span style="color: orange;">[${quoted.type}]</span> ` : ''}${(quoted.body).substring(0, 18)}${((quoted.body).length > 17) ? '...' : ''}</p>
+                    <p>${(quoted.type !== 'chat') ? `<span style="color: orange;">[${quoted.type}]</span> ` : ''}${(quoted.body).substring(0, 18)}${((quoted.body).length > 17) ? '...' : ''}</p>
                   </div>`
                 : ''}
                 ${(chat.type === 'chat')
