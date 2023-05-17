@@ -10,6 +10,7 @@ let logs = []
 let userlist = {}
 let message = {}
 let botState = {}
+let databaseLength = {}
 
 // pages
 const pageState = {
@@ -81,6 +82,7 @@ const getResource = async () => {
     .then(res => {
       if (res.success) {
         botState = res.data
+        databaseLength = res.database
       };
     })
   if (cred.user.isAdministator || cred.user.permission.manageUsers) {
@@ -585,6 +587,10 @@ const page = {
                 <p>OpenIA Limit : <b id="openaiLimit"></b></p>
                 <p>Prefix : <b id="prefix"></b></p>
                 <p>Uptime : <b id="uptime"></b></p>
+                <p>Databases : <span id="databaseState"></span></p>
+                <center>
+                  <div style="height: 400px; width: 118vh;" id="dataStatistic"></div>
+                </center>
               </div>
             </div>
           </div>
@@ -645,6 +651,23 @@ const page = {
     }
     const clearQrCode = () => {
       qrCode.style.display = 'none'
+    }
+
+    const loadStatistic = ()=>{
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable(databaseLength.statsHistory);
+
+        var options = {
+          title: 'Database Statistic',
+          hAxis: {title: 'Time',  titleTextStyle: {color: '#333'}},
+          vAxis: {minValue: 0}
+        };
+
+        var chart = new google.visualization.AreaChart(document.getElementById('dataStatistic'));
+        chart.draw(data, options);
+      }
     }
 
     const showLoading = (state) => {
@@ -839,6 +862,7 @@ const page = {
     let messageViewList = ''
     let commandsValue = ''
     let currentEnterChat = ''
+    let currentStatsHistory = ''
     const runHome = () => {
       if (pageState.home) {
         if (typeof (pings) === 'number') {
@@ -951,6 +975,14 @@ const page = {
           document.getElementById('openaiLimit').innerText = botState.openaiLimit + '$'
           document.getElementById('prefix').innerText = botState.prefix
           document.getElementById('uptime').innerText = upTime[0] + 'H ' + upTime[1] + 'M ' + upTime[2] + 'S '
+          document.getElementById('databaseState').innerHTML = `<b>${databaseLength.users}</b><span style="color: yellowgreen;">Users</span> <b>${databaseLength.groups}</b><span style="color: yellowgreen;">Groups</span>`
+          if (currentStatsHistory !== JSON.stringify(databaseLength.statsHistory)) {
+            currentStatsHistory = JSON.stringify(databaseLength.statsHistory)
+            loadStatistic()
+            setTimeout(() => {
+              loadStatistic()
+            }, 250);
+          };
         };
         if (pageState.enterChat.isEnter) {
           const chatId = pageState.enterChat.chatId

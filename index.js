@@ -436,6 +436,11 @@ const runMain = async () => {
       res.status(200).json({
         success: true,
         message: 'Success get botstate',
+        database: {
+          users: (Object.keys(databases.getChats())).length,
+          groups: (Object.keys(databases.getGroups())).length,
+          statsHistory: databases.getStatsHistory()
+        },
         data: databases.getBotState()
       })
     } else {

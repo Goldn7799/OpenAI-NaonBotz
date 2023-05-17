@@ -724,3 +724,9 @@ html {
     transform: translateX(0) rotate(0deg);
   }
 }
+
+#dataStatistic {
+  margin-left: 10px;
+  margin-top: 5px;
+  margin-left: 10px;
+}
