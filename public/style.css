@@ -504,6 +504,7 @@ html {
   background-color: rgb(25, 25, 25);
   padding: 6px 10px 6px 10px;
   border-radius: 12px;
+  max-width: 98%;
   -webkit-border-radius: 12px;
   -moz-border-radius: 12px;
   -ms-border-radius: 12px;
@@ -545,10 +546,11 @@ html {
 .enterChatList .time {
   color: gray;
   font-weight: bold;
-  height: 10px;
+  height: 6px;
   width: fit-content;
   align-self: end;
-  margin-top: -12px;
+  margin-top: -16px;
+  font-size: 14px;
   /* padding-top: 5px;
   padding-bottom: 5px; */
 }
@@ -623,6 +625,19 @@ html {
   margin-top: 10px;
   margin-left: 5px;
   margin-bottom: -27.8px;
+}
+
+.arrow-rightMe {
+  width: 0;
+  height: 0;
+  border-top: 0px solid transparent;
+  border-bottom: 18px solid transparent;
+  border-right: 0px solid transparent;
+  border-left: 18px solid #285D4C;
+  margin-top: 10px;
+  margin-right: 4px;
+  margin-bottom: -30px;
+  align-self: end;
 }
 
 #sendMsgBtn {
@@ -731,4 +746,69 @@ html {
   margin-left: 10px;
   margin-top: 5px;
   margin-left: 10px;
+}
+
+.enterChatListMe {
+  align-self: end;
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+  margin-left: 15px;
+  margin-right: 12px;
+  align-items: start;
+  background-color: #285D4C;
+  padding: 6px 10px 6px 10px;
+  border-radius: 12px;
+  max-width: 98%;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  -ms-border-radius: 12px;
+  -o-border-radius: 12px;
+}
+
+.enterChatListMe .time {
+  color: #cacaca;
+  font-weight: bold;
+  height: 6px;
+  width: fit-content;
+  align-self: end;
+  margin-top: -16px;
+  font-size: 14px;
+  /* padding-top: 5px;
+  padding-bottom: 5px; */
+}
+
+.enterChatListMe .mbody {
+  padding-right: 25px;
+}
+
+.enterChatListMe .reply {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 6px;
+  border-radius: 6px;
+  border-color: rgb(0, 153, 255);
+  background-color: #225245;
+  border-style: none none none solid;
+  border-width: 6px;
+  align-items: start;
+  width: 100%;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+} 
+
+.enterChatListMe .reply p:first-child {
+  color: rgba(255, 255, 255, 0.747);
+  height: fit-content;
+  margin-top: -5px;
+}
+
+.enterChatListMe .reply p:last-child {
+  color: rgba(255, 255, 255, 0.63);
+  height: fit-content;
+  margin-top: -15px;
+  margin-bottom: -5px;
 }

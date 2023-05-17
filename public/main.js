@@ -995,12 +995,14 @@ const page = {
               </div>
               <h7>${metaMsg.name}</h7>
             `
+            let lastUser = ''
             for (const chat of chatMsg) {
               const time = new Date(chat.timeStamp * 1000)
               const quoted = chat.quotedMessage
               enterChatList += `
-              <div class="arrow-right"></div>
-              <div class="enterChatList">
+              ${(!chat.fromMe) ? `
+              ${(lastUser !== chat.author) ? '<div class="arrow-right"></div>' : ''}
+              <div ${(lastUser === chat.author) ? 'style="margin-top: 4px;"' : ''} class="enterChatList">
                 <div class="user">
                   <img src="${(chat.userProfile) ? chat.userProfile : './assets/user.png'}" alt="User Profile">
                   <p class="name">~ <b>${(chat.notifyName && chat.notifyName !== 'undefined') ? `${(chat.fromMe) ? `<span style="color: blue;">${chat.notifyName}</span>` : chat.notifyName}` : `${(chat.fromMe) ? `<span style="color: blue;">${(chat.author)}</span>` : `${(chat.author)}`}`}</b></p>
@@ -1016,8 +1018,23 @@ const page = {
                 ? `<p class="mbody">${`${chat.body}`.replace(/\n/g, '<br>')}</p>`
                 : `<p class="mbody"><span style="color: orange;">[${chat.type}]</span> : ${`${chat.body}`.replace(/\n/g, '<br>')}</p>`}
                 <p class="time">${timeParse(time.getHours(), time.getMinutes())}</p>
-              </div>
+              </div>` : `
+                ${(lastUser !== chat.author) ? '<div class="arrow-rightMe"></div>' : ''}
+                <div ${(lastUser === chat.author) ? 'style="margin-top: 4px;"' : ''} class="enterChatListMe">
+                  ${(quoted)
+                    ? `<div class="reply">
+                      <p>~ ${(quoted.notifyName && quoted.notifyName !== 'undefined') ? `<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${quoted.notifyName}</b>` : `<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${(quoted.author)}</b>`}</p>
+                      <p>${(quoted.type !== 'chat') ? `<span style="color: orange;">[${quoted.type}]</span> ` : ''}${(quoted.body).substring(0, 18)}${((quoted.body).length > 17) ? '...' : ''}</p>
+                    </div>`
+                  : ''}
+                  ${(chat.type === 'chat')
+                  ? `<p class="mbody">${`${chat.body}`.replace(/\n/g, '<br>')}</p>`
+                  : `<p class="mbody"><span style="color: orange;">[${chat.type}]</span> : ${`${chat.body}`.replace(/\n/g, '<br>')}</p>`}
+                  <p class="time">${timeParse(time.getHours(), time.getMinutes())}</p>
+                </div>
+              `}
               `
+              lastUser = chat.author
             }
             enterChatsPlace.innerHTML = enterChatList
             setTimeout(() => {
@@ -1039,8 +1056,8 @@ const page = {
       if (sendMsgInput.value && !sendMsgInput.value.startsWith(' ')) {
         const msgValue = `${sendMsgInput.value}`
         sendMsgInput.value = ''
-        enterChatsPlace.innerHTML += `<div class="arrow-right"></div>
-        <div class="enterChatList">
+        enterChatsPlace.innerHTML += `<div class="arrow-rightMe"></div>
+        <div class="enterChatListMe">
           <div class="leap-frog">
             <div class="leap-frog__dot"></div>
             <div class="leap-frog__dot"></div>
