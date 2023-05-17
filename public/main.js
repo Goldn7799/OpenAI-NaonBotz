@@ -651,20 +651,20 @@ const page = {
       qrCode.style.display = 'none'
     }
 
-    const loadStatistic = ()=>{
-      google.charts.load('current', {'packages':['corechart']});
-      google.charts.setOnLoadCallback(drawChart);
-      function drawChart() {
-        var data = google.visualization.arrayToDataTable(databaseLength.statsHistory);
+    const loadStatistic = () => {
+      google.charts.load('current', { packages: ['corechart'] })
+      google.charts.setOnLoadCallback(drawChart)
+      function drawChart () {
+        const data = google.visualization.arrayToDataTable(databaseLength.statsHistory)
 
-        var options = {
+        const options = {
           title: 'Database Statistic',
-          hAxis: {title: 'Time',  titleTextStyle: {color: '#333'}},
-          vAxis: {minValue: 0}
-        };
+          hAxis: { title: 'Time', titleTextStyle: { color: '#333' } },
+          vAxis: { minValue: 0 }
+        }
 
-        var chart = new google.visualization.AreaChart(document.getElementById('dataStatistic'));
-        chart.draw(data, options);
+        const chart = new google.visualization.AreaChart(document.getElementById('dataStatistic'))
+        chart.draw(data, options)
       }
     }
 
@@ -952,7 +952,7 @@ const page = {
               <img src="${(metaMsg.profile) ? metaMsg.profile : './assets/user.png'}" alt="${metaMsg.name} icon">
               <div class="clTitle">
                 <h6>${metaMsg.name}</h6>
-                <p><span>[${lastChat.type}]</span> ${(lastChat.notifyName&&lastChat.notifyName !== 'undefined') ? `~${(lastChat.fromMe) ? `<span style="color: blue;">${lastChat.notifyName}</span>` : lastChat.notifyName}` : `+${(lastChat.fromMe) ? `<span style="color: blue;">${(lastChat.author).replace('@c.us', '')}</span>` : `${(lastChat.author).replace('@c.us', '')}`}`} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...' : ''}</p>
+                <p><span>[${lastChat.type}]</span> ${(lastChat.notifyName && lastChat.notifyName !== 'undefined') ? `~${(lastChat.fromMe) ? `<span style="color: blue;">${lastChat.notifyName}</span>` : lastChat.notifyName}` : `+${(lastChat.fromMe) ? `<span style="color: blue;">${(lastChat.author).replace('@c.us', '')}</span>` : `${(lastChat.author).replace('@c.us', '')}`}`} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...' : ''}</p>
               </div>
               <div class="clSubTitle">
                 <p ${(metaMsg.unreadCount === 0) ? 'style="opacity: 0;"' : ''}>${metaMsg.unreadCount}</p>
@@ -964,7 +964,7 @@ const page = {
             chatsRoom.innerHTML = messageViewList
           };
           if (messageViewList.length < 10) {
-            chatsRoom.innerHTML = `<center><h4 style="margin-top: 25px; color: gray;"><b>Waitting Chat List To Load...</b></h4></center>`
+            chatsRoom.innerHTML = '<center><h4 style="margin-top: 25px; color: gray;"><b>Waitting Chat List To Load...</b></h4></center>'
           };
         }
         document.getElementById('username').innerText = (cred.user?.username) ? cred.user.username : ''
@@ -995,7 +995,7 @@ const page = {
               </div>
               <h7>${metaMsg.name}</h7>
             `
-            for (let chat of chatMsg) {
+            for (const chat of chatMsg) {
               const time = new Date(chat.timeStamp * 1000)
               const quoted = chat.quotedMessage
               enterChatList += `
@@ -1003,18 +1003,18 @@ const page = {
               <div class="enterChatList">
                 <div class="user">
                   <img src="${(chat.userProfile) ? chat.userProfile : './assets/user.png'}" alt="User Profile">
-                  <p class="name">~<b>${(chat.notifyName&&chat.notifyName !== 'undefined') ? `${(chat.fromMe) ? `<span style="color: blue;">${chat.notifyName}</span>` : chat.notifyName}` : `${(chat.fromMe) ? `<span style="color: blue;">${(chat.author)}</span>` : `${(chat.author)}`}`}</b></p>
+                  <p class="name">~<b>${(chat.notifyName && chat.notifyName !== 'undefined') ? `${(chat.fromMe) ? `<span style="color: blue;">${chat.notifyName}</span>` : chat.notifyName}` : `${(chat.fromMe) ? `<span style="color: blue;">${(chat.author)}</span>` : `${(chat.author)}`}`}</b></p>
                   <p class="number">+${(chat.author).replace('@c.us', '')}</p>
                 </div>
-                ${(quoted) ? 
-                  `<div class="reply">
-                    <p>${(quoted.notifyName&&quoted.notifyName !== 'undefined') ? `~<b ${(quoted.fromMe) ? 'style="color: blue;"':''}>${quoted.notifyName}</b>` : `+<b ${(quoted.fromMe) ? 'style="color: blue;"':''}>${(quoted.author).replace('@c.us', '')}</b>`}</p>
+                ${(quoted)
+                  ? `<div class="reply">
+                    <p>${(quoted.notifyName && quoted.notifyName !== 'undefined') ? `~<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${quoted.notifyName}</b>` : `+<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${(quoted.author).replace('@c.us', '')}</b>`}</p>
                     <p>${(quoted.body).substring(0, 18)}${((quoted.body).length > 17) ? '...' : ''}</p>
                   </div>`
                 : ''}
-                ${(chat.type === 'chat') ?
-                `<p class="mbody">${`${chat.body}`.replace(/\n/g, '<br>')}</p>`:
-                `<p class="mbody"><span style="color: orange;">[${chat.type}]</span> : ${`${chat.body}`.replace(/\n/g, '<br>')}</p>`}
+                ${(chat.type === 'chat')
+                ? `<p class="mbody">${`${chat.body}`.replace(/\n/g, '<br>')}</p>`
+                : `<p class="mbody"><span style="color: orange;">[${chat.type}]</span> : ${`${chat.body}`.replace(/\n/g, '<br>')}</p>`}
                 <p class="time">${timeParse(time.getHours(), time.getMinutes())}</p>
               </div>
               `
@@ -1022,7 +1022,7 @@ const page = {
             enterChatsPlace.innerHTML = enterChatList
             setTimeout(() => {
               enterChatsPlace.scrollTop = enterChatsPlace.scrollHeight
-            }, 100);
+            }, 100)
           };
         };
         if (sendMsgInput.value && !sendMsgInput.value.startsWith(' ')) {
@@ -1035,9 +1035,9 @@ const page = {
         }, 250)
       };
     }
-    sendMsgBtn.addEventListener('click', ()=>{
+    sendMsgBtn.addEventListener('click', () => {
       if (sendMsgInput.value && !sendMsgInput.value.startsWith(' ')) {
-        let msgValue = `${sendMsgInput.value}`
+        const msgValue = `${sendMsgInput.value}`
         sendMsgInput.value = ''
         enterChatsPlace.innerHTML += `<div class="arrow-right"></div>
         <div class="enterChatList">
@@ -1049,7 +1049,7 @@ const page = {
         </div>`
         enterChatsPlace.scrollTop = enterChatsPlace.scrollHeight
         fetch(`${ipUrl}/sendchat/${cred.user.auth}`, {
-          method: "POST",
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -1058,30 +1058,30 @@ const page = {
             message: msgValue
           })
         })
-        .then(ress => { return ress.json() })
-        .then(res => {
-          if (!res.success){
+          .then(ress => { return ress.json() })
+          .then(res => {
+            if (!res.success) {
+              Notipin.Alert({
+                msg: `${res.message}`, // Pesan kamu
+                yes: 'Ok', // Tulisan di tombol 'Yes'
+                onYes: () => { /* Kode di sini */ },
+                type: 'INFO',
+                mode: 'DARK'
+              })
+            };
+          })
+          .catch(() => {
             Notipin.Alert({
-              msg: `${res.message}`, // Pesan kamu
+              msg: 'Server Not Avabile', // Pesan kamu
               yes: 'Ok', // Tulisan di tombol 'Yes'
               onYes: () => { /* Kode di sini */ },
               type: 'INFO',
               mode: 'DARK'
             })
-          };
-        })
-        .catch(()=>{
-          Notipin.Alert({
-            msg: `Server Not Avabile`, // Pesan kamu
-            yes: 'Ok', // Tulisan di tombol 'Yes'
-            onYes: () => { /* Kode di sini */ },
-            type: 'INFO',
-            mode: 'DARK'
           })
-        })
       };
     })
-    const enterChat = (id) =>{
+    const enterChat = (id) => {
       pageState.enterChat.chatId = id
       pageState.enterChat.isEnter = true
       chatsRoom.style.opacity = '0'
@@ -1090,10 +1090,10 @@ const page = {
         enterChatView.style.display = ''
         setTimeout(() => {
           enterChatView.style.opacity = '1'
-        }, 50);
-      }, 250);
+        }, 50)
+      }, 250)
     }
-    const closeEnterChat = () =>{
+    const closeEnterChat = () => {
       pageState.enterChat.isEnter = false
       enterChatView.style.opacity = '0'
       setTimeout(() => {
@@ -1101,8 +1101,8 @@ const page = {
         chatsRoom.style.display = ''
         setTimeout(() => {
           chatsRoom.style.opacity = '1'
-        }, 50);
-      }, 250);
+        }, 50)
+      }, 250)
     }
     document.enterChat = enterChat
     document.closeEnterChat = closeEnterChat

@@ -604,14 +604,14 @@ host.on('message_create', async (m) => {
         if (text) {
           await waitLoad(m)
           takeScreenshotWeb(text, './data-store/temp.png')
-          .then(async ()=>{
-            const media = MessageMedia.fromFilePath('./data-store/temp.png')
-            await m.reply('Done!!', null, { media })
-            await doneLoad(m)
-          })
-          .catch(async ()=> {
-            await m.reply('Failed to get *Image*')
-          })
+            .then(async () => {
+              const media = MessageMedia.fromFilePath('./data-store/temp.png')
+              await m.reply('Done!!', null, { media })
+              await doneLoad(m)
+            })
+            .catch(async () => {
+              await m.reply('Failed to get *Image*')
+            })
         } else {
           await m.reply('Where Image??')
         }
@@ -675,7 +675,7 @@ host.on('message', async (m) => {
         const isLink = (m.body) ? ((m.body.toLowerCase()).includes('https://') || (m.body.toLowerCase()).includes('http://')) : false
         if (isLink) {
           const adminList = chat.participants.filter(users => users.isAdmin)
-          const mentions = [];
+          const mentions = []
           let lists = '「 *Link Detected* 」 \n╭─「 Tag Admin\'s 」 \n'
           for (const admins of adminList) {
             mentions.push(await host.getContactById(admins.id._serialized))
