@@ -332,10 +332,15 @@ html {
   margin-right: 10px;
   margin-left: 10px;
   border-radius: 5px;
+  cursor: pointer;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   -ms-border-radius: 5px;
   -o-border-radius: 5px;
+}
+
+.chatList:hover {
+  background-color: rgba(255, 255, 255, 0.144);
 }
 
 .chatList .clTitle {
