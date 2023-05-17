@@ -478,7 +478,7 @@ html {
 
 #enterChatsPlace {
   overflow-y: scroll;
-  height: 70vh;
+  height: 67vh;
   display: flex;
   flex-direction: column;
   align-items: start;
@@ -547,6 +547,12 @@ html {
 }
 
 .sendMsg {
+  position: fixed;
+  bottom: 0;
+  margin-bottom: 8px;
+  width: 90%;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: row;
   margin-left: 6px;
@@ -555,6 +561,15 @@ html {
 
 .sendMsg input {
   flex-grow: 1;
+  border-radius: 25px;
+  background-color: rgb(25, 25, 25);
+  border-style: none;
+  padding-left: 8px;
+  color: white;
+  -webkit-border-radius: 25px;
+  -moz-border-radius: 25px;
+  -ms-border-radius: 25px;
+  -o-border-radius: 25px;
 }
 
 .arrow-right {
@@ -566,4 +581,34 @@ html {
   margin-top: 10px;
   margin-left: 5px;
   margin-bottom: -27.8px;
+}
+
+#sendMsgBtn {
+  background-color: #56c44e;
+  border-radius: 50%;
+  height: 40px;
+  width: 40px;
+  margin-left: 5px;
+  margin-bottom: 4px;
+  padding-right: 8px;
+  text-align: center;
+  color: white;
+  border-style: none;
+  transition: all ease-in-out 0.1s;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+  -webkit-transition: all ease-in-out 0.1s;
+  -moz-transition: all ease-in-out 0.1s;
+  -ms-transition: all ease-in-out 0.1s;
+  -o-transition: all ease-in-out 0.1s;
+}
+
+#sendMsgBtn:hover {
+  transform: scale(1.1, 1.1);
+  -webkit-transform: scale(1.1, 1.1);
+  -moz-transform: scale(1.1, 1.1);
+  -ms-transform: scale(1.1, 1.1);
+  -o-transform: scale(1.1, 1.1);
 }

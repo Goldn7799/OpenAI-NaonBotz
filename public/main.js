@@ -547,8 +547,8 @@ const page = {
               <div id="enterChatHeader"></div>
               <div id="enterChatsPlace"></div>
               <div class="sendMsg">
-                <input type="text" placeholder="Send Message">
-                <button>Send</button>
+                <input id="sendMsgInput" type="text" placeholder="Type Message">
+                <button id="sendMsgBtn"><i class="fa-regular fa-paper-plane"></i></button>
               </div>
             </div>
           </div>
@@ -624,6 +624,8 @@ const page = {
     // Enter Chat
     const enterChatHeader = document.getElementById('enterChatHeader')
     const enterChatsPlace = document.getElementById('enterChatsPlace')
+    const sendMsgInput = document.getElementById('sendMsgInput')
+    const sendMsgBtn = document.getElementById('sendMsgBtn')
     // End Enter Chat
 
     const qrcodes = new QRCode(document.getElementById('QrPlace'), {
@@ -988,11 +990,22 @@ const page = {
             }, 100);
           };
         };
+        if (sendMsgInput.value && !sendMsgInput.value.startsWith(' ')) {
+          sendMsgBtn.style.boxShadow = '0 0 10px 2px white'
+        } else {
+          sendMsgBtn.style.boxShadow = ''
+        };
         setTimeout(() => {
           runHome()
         }, 250)
       };
     }
+    sendMsgBtn.addEventListener('click', ()=>{
+      if (sendMsgInput.value && !sendMsgInput.value.startsWith(' ')) {
+        let msgValue = `${sendMsgInput.value}`
+        sendMsgInput.value = ''
+      };
+    })
     const enterChat = (id) =>{
       pageState.enterChat.chatId = id
       pageState.enterChat.isEnter = true

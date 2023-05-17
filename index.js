@@ -446,6 +446,43 @@ const runMain = async () => {
     }
   })
 
+  app.post('/sendchat/:auth', (req, res)=>{
+    const { auth } = req.params
+    const { chatId, message } = req.body
+    const authList = databases.getAllAuth()
+    if (auth && chatId && message && authList.includes(auth)) {
+      const users = databases.getUsers()
+      const emailList = Object.keys(users)
+      let pickedUser = false
+      for (const emails of emailList) {
+        if (users[emails].auth === auth) {
+          pickedUser = users[emails]
+        };
+      };
+      if (pickedUser.isAdministator || pickedUser.permission.sendMessage) {
+        try {
+          host.sendMessage(chatId, message)
+        } catch (e) {
+          databases.func.putLog(`[.red.]Send Message(POST) : ${e}`)
+        }
+        res.status(200).json({
+          success: true,
+          message: 'Succes Send Message'
+        })
+      } else {
+        res.status(403).json({
+          success: false,
+          message: 'No Have Permissions'
+        })
+      }
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Auth Failed or Invalid Data'
+      })
+    }
+  })
+
   app.listen(config.bot.port, () => {
     console.log(`${color.bright + color.magenta}`, `Webserver Started at port ${color.underscore + config.bot.port}`)
   })
