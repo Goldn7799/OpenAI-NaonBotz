@@ -546,6 +546,10 @@ const page = {
             <div class="animationAll" id="enterChatView" style="display: none; opacity: 0;">
               <div id="enterChatHeader"></div>
               <div id="enterChatsPlace"></div>
+              <div class="sendMsg">
+                <input type="text" placeholder="Send Message">
+                <button>Send</button>
+              </div>
             </div>
           </div>
           <div class="animationAll" id="settings" style="display: none; opacity: 0; margin-left: -1000px;">
@@ -952,14 +956,36 @@ const page = {
             currentEnterChat = JSON.stringify(message[chatId])
             const thisMsg = message[chatId]
             const metaMsg = thisMsg.metadata
+            const chatMsg = thisMsg.chat
             let enterChatList = ''
             enterChatHeader.innerHTML = `
               <div onClick="closeEnterChat()">
                 <button class="btnBackTrans"><i class="fa-solid fa-angle-left"></i></button>
-                <img src="${metaMsg.profile}" alt="${metaMsg.name} Icon">
+                <img src="${(metaMsg.profile) ? metaMsg.profile : './assets/user.png'}" alt="${metaMsg.name} Icon">
               </div>
-              <h8>${metaMsg.name}</h8>
+              <h7>${metaMsg.name}</h7>
             `
+            for (let chat of chatMsg) {
+              const time = new Date(chat.timeStamp * 1000)
+              enterChatList += `
+              <div class="arrow-right"></div>
+              <div class="enterChatList">
+                <div>
+                  <img src="${(chat.userProfile) ? chat.userProfile : './assets/user.png'}" alt="User Profile">
+                  <p class="name"><b>${(chat.notifyName) ? `${(chat.fromMe) ? `<span style="color: blue;">${chat.notifyName}</span>` : chat.notifyName}` : '<span style="color: blue;">BOT</span>'}</b></p>
+                  <p class="number">+${(chat.author).replace('@c.us', '')}</p>
+                </div>
+                ${(chat.type === 'chat') ?
+                `<p class="mbody">${chat.body}</p>`:
+                `<p class="mbody"><span style="color: orange;">[${chat.type}]</span> : ${chat.body}</p>`}
+                <p class="time">${timeParse(time.getHours(), time.getMinutes())}</p>
+              </div>
+              `
+            }
+            enterChatsPlace.innerHTML = enterChatList
+            setTimeout(() => {
+              enterChatsPlace.scrollTop = enterChatsPlace.scrollHeight
+            }, 100);
           };
         };
         setTimeout(() => {

@@ -488,6 +488,7 @@ const runMain = async () => {
           body: m.body,
           type: m.type,
           notifyName: m._data.notifyName,
+          userProfile: await host.getProfilePicUrl(senderId),
           from: m.from,
           fromMe: m.fromMe,
           to: m.to,

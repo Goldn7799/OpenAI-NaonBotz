@@ -440,7 +440,7 @@ html {
   -o-border-radius: 50%;
 }
 
-#enterChatHeader h8 {
+#enterChatHeader h7 {
   flex-grow: 1;
   font-weight: bold;
 }
@@ -474,4 +474,95 @@ html {
   width: 40px;
   border-style: none;
   font-size: 25px;
+}
+
+#enterChatsPlace {
+  overflow-y: scroll;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  padding-bottom: 15px;
+  padding-right: 6px;
+  scroll-behavior: smooth;
+}
+
+.enterChatList {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+  margin-left: 15px;
+  margin-right: 12px;
+  align-items: start;
+  background-color: rgb(25, 25, 25);
+  padding: 6px 10px 6px 10px;
+  border-radius: 12px;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  -ms-border-radius: 12px;
+  -o-border-radius: 12px;
+}
+
+.enterChatList div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.enterChatList div .name {
+  margin-left: 6px;
+  margin-top: 8px;
+}
+
+.enterChatList div .number {
+  margin-left: 26px;
+  margin-top: 8px;
+  color: gray;
+}
+
+.enterChatList div img {
+  height: 35px;
+  width: 35px;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+}
+
+.enterChatList .time {
+  color: gray;
+  font-weight: bold;
+  height: 10px;
+  width: fit-content;
+  align-self: end;
+  margin-top: -12px;
+  /* padding-top: 5px;
+  padding-bottom: 5px; */
+}
+
+.enterChatList .mbody {
+  padding-right: 25px;
+}
+
+.sendMsg {
+  display: flex;
+  flex-direction: row;
+  margin-left: 6px;
+  margin-right: 6px;
+}
+
+.sendMsg input {
+  flex-grow: 1;
+}
+
+.arrow-right {
+  width: 0;
+  height: 0;
+  border-top: 0px solid transparent;
+  border-bottom: 16px solid transparent;
+  border-right: 18px solid rgb(25, 25, 25);
+  margin-top: 10px;
+  margin-left: 5px;
+  margin-bottom: -27.8px;
 }
