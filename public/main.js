@@ -980,13 +980,13 @@ const page = {
                 </div>
                 ${(quoted) ? 
                   `<div class="reply">
-                    <p>${(quoted.notifyName&&quoted.notifyName !== 'undefined') ? `~<b>${quoted.notifyName}</b>` : `+<b>${(quoted.author).replace('@c.us', '')}</b>`}</p>
+                    <p>${(quoted.notifyName&&quoted.notifyName !== 'undefined') ? `~<b ${(quoted.fromMe) ? 'style="color: blue;"':''}>${quoted.notifyName}</b>` : `+<b ${(quoted.fromMe) ? 'style="color: blue;"':''}>${(quoted.author).replace('@c.us', '')}</b>`}</p>
                     <p>${(quoted.body).substring(0, 18)}${((quoted.body).length > 17) ? '...' : ''}</p>
                   </div>`
                 : ''}
                 ${(chat.type === 'chat') ?
-                `<p class="mbody">${chat.body}</p>`:
-                `<p class="mbody"><span style="color: orange;">[${chat.type}]</span> : ${chat.body}</p>`}
+                `<p class="mbody">${`${chat.body}`.replace(/\n/g, '<br>')}</p>`:
+                `<p class="mbody"><span style="color: orange;">[${chat.type}]</span> : ${`${chat.body}`.replace(/\n/g, '<br>')}</p>`}
                 <p class="time">${timeParse(time.getHours(), time.getMinutes())}</p>
               </div>
               `
