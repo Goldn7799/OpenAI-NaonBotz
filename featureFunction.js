@@ -6,6 +6,7 @@ const { MessageMedia } = require('whatsapp-web.js')
 const Tesseract = require('tesseract.js')
 const fs = require('fs')
 const jsObfuscate = require('javascript-obfuscator')
+const openai = require('./lib/Utility/OpenAI')
 
 const menuList = {
   genral: {
@@ -39,8 +40,9 @@ const menuList = {
     ssweb: ['.ssweb <URL>', 'ScreenShot Web', true]
   },
   premium: {
+    ai: ['.ai <Query>', 'AI Response', true],
     aiimgvar: ['.aiimgvar <query>', 'Extend image', false],
-    aiimg: ['.aiimg <query>', 'AI Create Image', false]
+    aiimg: ['.aiimg <query>', 'AI Create Image', true]
   },
   info: {
     speed: ['.speed', 'Test Ping', true],
@@ -57,6 +59,12 @@ const menuList = {
     restart: ['.restart', 'restart process']
   }
 }
+
+// Cache
+const botCache = {
+  openAi: {}
+} 
+// End cache
 
 const prefix = config.bot.prefix
 const pfcmd = (cmd) => {
@@ -630,6 +638,41 @@ host.on('message_create', async (m) => {
       } catch (e) {
         await m.reply('URL Failed To Get *ScreenShot*')
         databases.func.putLog(`[.red.]SSWeb : ${e}`)
+      }
+    } else if (matchItem(command, pfcmd('ai'))) {
+      if (text) {
+        try {
+          await waitLoad(m)
+          if (botCache.openAi[m.from]) {
+            const result = await openai.chatCompletion(text, botCache.openAi[m.from])
+            await m.reply(result)
+            botCache.openAi[m.from] = result
+          } else {
+            const result = await openai.chatCompletion(text)
+            await m.reply(result)
+            botCache.openAi[m.from] = result
+          }
+          await doneLoad(m)
+        } catch (e) {
+          await m.reply('Failed to getting *Response*')
+          databases.func.putLog(`[.red.]Ai : ${e}`)
+        }
+      } else {
+        await m.reply('No Text Found.')
+      }
+    } else if (matchItem(command, pfcmd('aiimg'))) {
+      if (text) {
+        try {
+          await waitLoad(m)
+          const media = await MessageMedia.fromUrl(await openai.generateImage(text))
+          await m.reply(`This is a *${text}*`, null, { media })
+          await doneLoad(m)
+        } catch (e) {
+          await m.reply('Failed to getting *Image*')
+          databases.func.putLog(`[.red.]AiIMG : ${e}`)
+        }
+      } else {
+        await m.reply('Where Text or Query??')
       }
     };
   } catch (e) {
