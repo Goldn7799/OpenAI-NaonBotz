@@ -14,7 +14,11 @@ let botState = {}
 // pages
 const pageState = {
   login: false,
-  home: false
+  home: false,
+  enterChat: {
+    chatId: '',
+    isEnter: false
+  }
 }
 
 // Ping
@@ -538,7 +542,11 @@ const page = {
               </svg>
               <h4><b>Waiting Logs..</b></h4>
             </center>
-            <div id="chatsPlace"></div>
+            <div class="animationAll" id="chatsPlace" style="opacity: 1;"></div>
+            <div class="animationAll" id="enterChatView" style="display: none; opacity: 0;">
+              <div id="enterChatHeader"></div>
+              <div id="enterChatsPlace"></div>
+            </div>
           </div>
           <div class="animationAll" id="settings" style="display: none; opacity: 0; margin-left: -1000px;">
             <div id="settingsSelector">
@@ -608,6 +616,11 @@ const page = {
     const qrCode = document.getElementById('qr-code')
     const waitingLogs = document.getElementById('waitingLogs')
     const chatsRoom = document.getElementById('chatsPlace')
+    const enterChatView = document.getElementById('enterChatView')
+    // Enter Chat
+    const enterChatHeader = document.getElementById('enterChatHeader')
+    const enterChatsPlace = document.getElementById('enterChatsPlace')
+    // End Enter Chat
 
     const qrcodes = new QRCode(document.getElementById('QrPlace'), {
       text: 'Example',
@@ -819,6 +832,7 @@ const page = {
     let currentMessage = ''
     let messageViewList = ''
     let commandsValue = ''
+    let currentEnterChat = ''
     const runHome = () => {
       if (pageState.home) {
         if (typeof (pings) === 'number') {
@@ -905,7 +919,7 @@ const page = {
             const metaMsg = message[key].metadata
             const lastChat = message[key].chat[(message[key].chat).length - 1]
             const time = new Date(lastChat.timeStamp * 1000)
-            messageViewList += `<div class="chatList">
+            messageViewList += `<div class="chatList" onClick="enterChat('${metaMsg.id._serialized}')">
               <img src="${(metaMsg.profile) ? metaMsg.profile : './assets/user.png'}" alt="${metaMsg.name} icon">
               <div class="clTitle">
                 <h6>${metaMsg.name}</h6>
@@ -920,6 +934,9 @@ const page = {
           if (messageViewList) {
             chatsRoom.innerHTML = messageViewList
           };
+          if (messageViewList.length < 10) {
+            chatsRoom.innerHTML = `<center><h4 style="margin-top: 25px; color: gray;"><b>Waitting Chat List To Load...</b></h4></center>`
+          };
         }
         document.getElementById('username').innerText = (cred.user?.username) ? cred.user.username : ''
         if (botState) {
@@ -929,11 +946,52 @@ const page = {
           document.getElementById('prefix').innerText = botState.prefix
           document.getElementById('uptime').innerText = upTime[0] + 'H ' + upTime[1] + 'M ' + upTime[2] + 'S '
         };
+        if (pageState.enterChat.isEnter) {
+          const chatId = pageState.enterChat.chatId
+          if (chatId && JSON.stringify(message[chatId]) !== currentEnterChat) {
+            currentEnterChat = JSON.stringify(message[chatId])
+            const thisMsg = message[chatId]
+            const metaMsg = thisMsg.metadata
+            let enterChatList = ''
+            enterChatHeader.innerHTML = `
+              <div onClick="closeEnterChat()">
+                <button class="btnBackTrans"><i class="fa-solid fa-angle-left"></i></button>
+                <img src="${metaMsg.profile}" alt="${metaMsg.name} Icon">
+              </div>
+              <h8>${metaMsg.name}</h8>
+            `
+          };
+        };
         setTimeout(() => {
           runHome()
         }, 250)
       };
     }
+    const enterChat = (id) =>{
+      pageState.enterChat.chatId = id
+      pageState.enterChat.isEnter = true
+      chatsRoom.style.opacity = '0'
+      setTimeout(() => {
+        chatsRoom.style.display = 'none'
+        enterChatView.style.display = ''
+        setTimeout(() => {
+          enterChatView.style.opacity = '1'
+        }, 50);
+      }, 250);
+    }
+    const closeEnterChat = () =>{
+      pageState.enterChat.isEnter = false
+      enterChatView.style.opacity = '0'
+      setTimeout(() => {
+        enterChatView.style.display = 'none'
+        chatsRoom.style.display = ''
+        setTimeout(() => {
+          chatsRoom.style.opacity = '1'
+        }, 50);
+      }, 250);
+    }
+    document.enterChat = enterChat
+    document.closeEnterChat = closeEnterChat
     runHome()
     getResource()
   }

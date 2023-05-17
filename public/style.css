@@ -411,3 +411,67 @@ html {
   flex-direction: column;
   align-items: start;
 }
+
+#enterChatHeader {
+  display: flex;
+  flex-direction: row;
+  background-color: rgb(20, 20, 20);
+  margin-top: 10px;
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-bottom: 10px;
+  border-radius: 15px;
+  align-items: center;
+  padding: 10px 10px 10px 10px;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  -ms-border-radius: 15px;
+  -o-border-radius: 15px;
+}
+
+#enterChatHeader div img {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  margin-left: 5px;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+}
+
+#enterChatHeader h8 {
+  flex-grow: 1;
+  font-weight: bold;
+}
+
+#enterChatHeader div {
+  padding: 2px 2px 2px 2px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 20px;
+  transition: all ease-in-out 0.15s;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+  -ms-border-radius: 20px;
+  -o-border-radius: 20px;
+  -webkit-transition: all ease-in-out 0.15s;
+  -moz-transition: all ease-in-out 0.15s;
+  -ms-transition: all ease-in-out 0.15s;
+  -o-transition: all ease-in-out 0.15s;
+}
+
+#enterChatHeader div:hover {
+  background-color: rgba(255, 255, 255, 0.404);
+}
+
+.btnBackTrans {
+  background-color: transparent;
+  color: white;
+  height: 40px;
+  width: 40px;
+  border-style: none;
+  font-size: 25px;
+}
