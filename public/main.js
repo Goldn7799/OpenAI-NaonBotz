@@ -952,7 +952,7 @@ const page = {
               <img src="${(metaMsg.profile) ? metaMsg.profile : './assets/user.png'}" alt="${metaMsg.name} icon">
               <div class="clTitle">
                 <h6>${metaMsg.name}</h6>
-                <p><span>[${lastChat.type}]</span> ${(lastChat.notifyName && lastChat.notifyName !== 'undefined') ? `~${(lastChat.fromMe) ? `<span style="color: blue;">${lastChat.notifyName}</span>` : lastChat.notifyName}` : `+${(lastChat.fromMe) ? `<span style="color: blue;">${(lastChat.author).replace('@c.us', '')}</span>` : `${(lastChat.author).replace('@c.us', '')}`}`} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...' : ''}</p>
+                <p><span>[${lastChat.type}]</span> ${(lastChat.notifyName && lastChat.notifyName !== 'undefined') ? `~ ${(lastChat.fromMe) ? `<span style="color: blue;">${lastChat.notifyName}</span>` : lastChat.notifyName}` : `+${(lastChat.fromMe) ? `<span style="color: blue;">${(lastChat.author).replace('@c.us', '')}</span>` : `${(lastChat.author).replace('@c.us', '')}`}`} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...' : ''}</p>
               </div>
               <div class="clSubTitle">
                 <p ${(metaMsg.unreadCount === 0) ? 'style="opacity: 0;"' : ''}>${metaMsg.unreadCount}</p>
@@ -1003,13 +1003,13 @@ const page = {
               <div class="enterChatList">
                 <div class="user">
                   <img src="${(chat.userProfile) ? chat.userProfile : './assets/user.png'}" alt="User Profile">
-                  <p class="name">~<b>${(chat.notifyName && chat.notifyName !== 'undefined') ? `${(chat.fromMe) ? `<span style="color: blue;">${chat.notifyName}</span>` : chat.notifyName}` : `${(chat.fromMe) ? `<span style="color: blue;">${(chat.author)}</span>` : `${(chat.author)}`}`}</b></p>
+                  <p class="name">~ <b>${(chat.notifyName && chat.notifyName !== 'undefined') ? `${(chat.fromMe) ? `<span style="color: blue;">${chat.notifyName}</span>` : chat.notifyName}` : `${(chat.fromMe) ? `<span style="color: blue;">${(chat.author)}</span>` : `${(chat.author)}`}`}</b></p>
                   <p class="number">+${(chat.author).replace('@c.us', '')}</p>
                 </div>
                 ${(quoted)
                   ? `<div class="reply">
-                    <p>${(quoted.notifyName && quoted.notifyName !== 'undefined') ? `~<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${quoted.notifyName}</b>` : `+<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${(quoted.author).replace('@c.us', '')}</b>`}</p>
-                    <p>${(quoted.body).substring(0, 18)}${((quoted.body).length > 17) ? '...' : ''}</p>
+                    <p>~ ${(quoted.notifyName && quoted.notifyName !== 'undefined') ? `<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${quoted.notifyName}</b>` : `<b ${(quoted.fromMe) ? 'style="color: blue;"' : ''}>${(quoted.author)}</b>`}</p>
+                    <p>${(quoted.chat !== 'chat') ? `<span style="color: orange;">[${quoted.type}]</span> ` : ''}${(quoted.body).substring(0, 18)}${((quoted.body).length > 17) ? '...' : ''}</p>
                   </div>`
                 : ''}
                 ${(chat.type === 'chat')
