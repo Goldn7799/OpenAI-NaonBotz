@@ -508,25 +508,29 @@ html {
   -o-border-radius: 12px;
 }
 
-.enterChatList div {
+.enterChatList .user {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: start;
+  width: 100%;
 }
 
-.enterChatList div .name {
+.enterChatList .user .name {
   margin-left: 6px;
   margin-top: 8px;
+  text-align: start;
+  flex-grow: 1;
 }
 
-.enterChatList div .number {
+.enterChatList .user .number {
+  margin-right: 5px;
   margin-left: 26px;
   margin-top: 8px;
   color: gray;
-  align-self: end;
 }
 
-.enterChatList div img {
+.enterChatList .user img {
+  margin-top: 4px;
   height: 35px;
   width: 35px;
   border-radius: 50%;
@@ -549,6 +553,37 @@ html {
 
 .enterChatList .mbody {
   padding-right: 25px;
+}
+
+.enterChatList .reply {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 6px;
+  border-radius: 6px;
+  border-color: greenyellow;
+  background-color: rgb(32, 32, 32);
+  border-style: none none none solid;
+  border-width: 6px;
+  align-items: start;
+  width: 100%;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+} 
+
+.enterChatList .reply p:first-child {
+  color: rgba(255, 255, 255, 0.747);
+  height: fit-content;
+  margin-top: -5px;
+}
+
+.enterChatList .reply p:last-child {
+  color: rgba(255, 255, 255, 0.63);
+  height: fit-content;
+  margin-top: -15px;
+  margin-bottom: -5px;
 }
 
 .sendMsg {
