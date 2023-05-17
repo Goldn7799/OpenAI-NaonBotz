@@ -610,7 +610,19 @@ host.on('message_create', async (m) => {
               await doneLoad(m)
             })
             .catch(async () => {
-              await m.reply('Failed to get *Image*')
+              if (text.includes('http://') || text.includes('https://')) {
+                await m.reply('Failed to get *Image*')
+              } else {
+                takeScreenshotWeb('http://' + text, './data-store/temp.png')
+                  .then(async () => {
+                    const media = MessageMedia.fromFilePath('./data-store/temp.png')
+                    await m.reply('Done!!', null, { media })
+                    await doneLoad(m)
+                  })
+                  .catch(async () => {
+                    await m.reply('Failed to get *Image*')
+                  })
+              }
             })
         } else {
           await m.reply('Where Image??')

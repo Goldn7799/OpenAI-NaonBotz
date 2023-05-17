@@ -505,9 +505,9 @@ const runMain = async () => {
         const profile = (rawProfile) || false
         const quotedMsg = (quoted)
           ? {
-              body: `${quoted.body}`.replace(/\</g, '&lt;').replace(/\>/g, '&gt;'),
+              body: `${quoted.body}`.replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
               type: quoted.type,
-              notifyName: `${quoted._data.notifyName}`.replace(/\</g, '&lt;').replace(/\>/g, '&gt;'),
+              notifyName: `${quoted._data.notifyName}`.replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
               from: quoted.from,
               to: quoted.to,
               author: (quoted.author) ? quoted.author : quoted.from,
@@ -527,9 +527,9 @@ const runMain = async () => {
           profile
         }
         const msg = {
-          body: `${m.body}`.replace(/\</g, '&lt;').replace(/\>/g, '&gt;'),
+          body: `${m.body}`.replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
           type: m.type,
-          notifyName: `${m._data.notifyName}`.replace(/\</g, '&lt;').replace(/\>/g, '&gt;'),
+          notifyName: `${m._data.notifyName}`.replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
           userProfile: await host.getProfilePicUrl(senderId),
           from: m.from,
           fromMe: m.fromMe,
