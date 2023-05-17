@@ -518,6 +518,7 @@ html {
   margin-left: 26px;
   margin-top: 8px;
   color: gray;
+  align-self: end;
 }
 
 .enterChatList div img {

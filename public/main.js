@@ -926,7 +926,7 @@ const page = {
             messageViewList += `<div class="chatList" onClick="enterChat('${metaMsg.id._serialized}')">
               <img src="${(metaMsg.profile) ? metaMsg.profile : './assets/user.png'}" alt="${metaMsg.name} icon">
               <div class="clTitle">
-                <h6>${metaMsg.name}</h6>
+                <h6>~${metaMsg.name}</h6>
                 <p><span>[${lastChat.type}]</span> ${(lastChat.notifyName) ? `${(lastChat.fromMe) ? `<span style="color: blue;">${lastChat.notifyName}</span>` : lastChat.notifyName}` : '<span style="color: blue;">BOT</span>'} : ${(lastChat.body).substring(0, 30)}${((lastChat.body).length > 29) ? '...' : ''}</p>
               </div>
               <div class="clSubTitle">
