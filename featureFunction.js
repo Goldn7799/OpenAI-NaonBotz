@@ -1,6 +1,6 @@
 const config = require('./config.json')
 const host = require('./index.js')
-const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid, executeCmd, pickRandomObject, executeNode } = require('./lib/Utility/Utility.js')
+const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid, executeCmd, pickRandomObject, executeNode, takeScreenshotWeb } = require('./lib/Utility/Utility.js')
 const databases = require('./lib/Database/Database.js')
 const { MessageMedia } = require('whatsapp-web.js')
 const Tesseract = require('tesseract.js')
@@ -35,7 +35,8 @@ const menuList = {
     tovn: ['.tovn', 'Make audio to Voice Note', true],
     limit: ['.limit', 'Check global limit and price', false],
     obfuscate: ['.obfuscate <js script>', 'Encrypt JS', true],
-    getimage: ['.getimage <URL>', 'Get Image', true]
+    getimage: ['.getimage <URL>', 'Get Image', true],
+    ssweb: ['.ssweb <URL>', 'ScreenShot Web', true]
   },
   premium: {
     aiimgvar: ['.aiimgvar <query>', 'Extend image', false],
@@ -592,11 +593,31 @@ host.on('message_create', async (m) => {
           await m.reply('Done!!', null, { media })
           await doneLoad(m)
         } else {
-          await m.reply('Where Image??')
+          await m.reply('Where URL???')
         }
       } catch (e) {
         await m.reply('URL Failed To Get *Image*')
         databases.func.putLog(`[.red.]GetImage : ${e}`)
+      }
+    } else if (matchItem(command, pfcmd('ssweb'))) {
+      try {
+        if (text) {
+          await waitLoad(m)
+          takeScreenshotWeb(text, './data-store/temp.png')
+          .then(async ()=>{
+            const media = MessageMedia.fromFilePath('./data-store/temp.png')
+            await m.reply('Done!!', null, { media })
+            await doneLoad(m)
+          })
+          .catch(async ()=> {
+            await m.reply('Failed to get *Image*')
+          })
+        } else {
+          await m.reply('Where Image??')
+        }
+      } catch (e) {
+        await m.reply('URL Failed To Get *ScreenShot*')
+        databases.func.putLog(`[.red.]SSWeb : ${e}`)
       }
     };
   } catch (e) {

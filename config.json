@@ -10,7 +10,8 @@
     "limit": "100mb",
     "session": "primary",
     "typoDificult": 0.95,
-    "prefix": "."
+    "prefix": ".",
+    "puppeteerPath": "/usr/bin/google-chrome"
   },
   "defaultDB": {
     "database": {
