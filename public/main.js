@@ -1004,6 +1004,46 @@ const page = {
       if (sendMsgInput.value && !sendMsgInput.value.startsWith(' ')) {
         let msgValue = `${sendMsgInput.value}`
         sendMsgInput.value = ''
+        enterChatsPlace.innerHTML += `<div class="arrow-right"></div>
+        <div class="enterChatList">
+          <div class="leap-frog">
+            <div class="leap-frog__dot"></div>
+            <div class="leap-frog__dot"></div>
+            <div class="leap-frog__dot"></div>
+          </div>
+        </div>`
+        enterChatsPlace.scrollTop = enterChatsPlace.scrollHeight
+        fetch(`${ipUrl}/sendchat/${cred.user.auth}`, {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            chatId: pageState.enterChat.chatId,
+            message: msgValue
+          })
+        })
+        .then(ress => { return ress.json() })
+        .then(res => {
+          if (!res.success){
+            Notipin.Alert({
+              msg: `${res.message}`, // Pesan kamu
+              yes: 'Ok', // Tulisan di tombol 'Yes'
+              onYes: () => { /* Kode di sini */ },
+              type: 'INFO',
+              mode: 'DARK'
+            })
+          };
+        })
+        .catch(()=>{
+          Notipin.Alert({
+            msg: `Server Not Avabile`, // Pesan kamu
+            yes: 'Ok', // Tulisan di tombol 'Yes'
+            onYes: () => { /* Kode di sini */ },
+            type: 'INFO',
+            mode: 'DARK'
+          })
+        })
       };
     })
     const enterChat = (id) =>{
