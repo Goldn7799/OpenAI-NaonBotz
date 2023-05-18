@@ -156,7 +156,7 @@ host.on('message_create', async (m) => {
         await m.reply('Failed to load *Menu*')
         databases.func.putLog(`[.red.]Menu : ${e}`)
       }
-    } else if (matchItem(command, pfcmd('sticker') || matchItem(command, pfcmd('stiker')))) {
+    } else if (matchItem(command, pfcmd('sticker')) || matchItem(command, pfcmd('stiker'))) {
       try {
         const runSticker = async (media) => {
           if ((media.mimetype).includes('image')) {
