@@ -674,6 +674,7 @@ host.on('message_create', async (m) => {
             databases.func.putLog(`[.red.]AiIMG : ${e}`)
           }
         } else {
+          databases.limit.openaiSell(0.018)
           await m.reply('Where Text or Query??')
         }
       } else {
@@ -697,6 +698,7 @@ host.on('message_create', async (m) => {
             databases.func.putLog(`[.red.]AiIMGVar : ${e}`)
           }
         } else {
+          databases.limit.openaiSell(0.018)
           await m.reply('Where Image??')
         }
       } else {
