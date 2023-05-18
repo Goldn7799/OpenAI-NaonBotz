@@ -588,7 +588,8 @@ const page = {
                 <p>Prefix : <b id="prefix"></b></p>
                 <p>Uptime : <b id="uptime"></b></p>
                 <p>Databases : <span id="databaseState"></span></p>
-                <div style="height: 400px; width: 100%;" id="dataStatistic"></div>
+                <div style="height: 400px; width: 100%;" id="databaseStatistic"></div>
+                <div style="height: 400px; width: 100%;" id="limitStatistic"></div>
               </div>
             </div>
           </div>
@@ -720,16 +721,24 @@ const page = {
       google.charts.load('current', { packages: ['corechart'] })
       google.charts.setOnLoadCallback(drawChart)
       function drawChart () {
-        const data = google.visualization.arrayToDataTable(databaseLength.statsHistory)
+        const database = google.visualization.arrayToDataTable(databaseLength.statsHistory.database)
+        const limit = google.visualization.arrayToDataTable(databaseLength.statsHistory.limit)
 
-        const options = {
+        const databaseOptions = {
           title: 'Database Statistic',
           hAxis: { title: 'Time', titleTextStyle: { color: '#333' } },
           vAxis: { minValue: 0 }
         }
+        const limitOptions = {
+          title: 'Limit Statistic',
+          hAxis: { title: 'Time', titleTextStyle: { color: '#333' } },
+          vAxis: { minValue: 0 }
+        }
 
-        const chart = new google.visualization.AreaChart(document.getElementById('dataStatistic'))
-        chart.draw(data, options)
+        const databaseChart = new google.visualization.AreaChart(document.getElementById('databaseStatistic'))
+        databaseChart.draw(database, databaseOptions)
+        const limitChart = new google.visualization.AreaChart(document.getElementById('limitStatistic'))
+        limitChart.draw(limit, limitOptions)
       }
     }
 
