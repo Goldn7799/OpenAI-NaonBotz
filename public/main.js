@@ -1036,7 +1036,7 @@ const page = {
         if (botState) {
           const upTime = `${botState.upTime}`.split(':')
           document.getElementById('session').innerText = botState.session
-          document.getElementById('openaiLimit').innerText = botState.openaiLimit + '$'
+          document.getElementById('openaiLimit').innerText = (botState.openaiLimit).toFixed(4) + '$'
           document.getElementById('prefix').innerText = botState.prefix
           document.getElementById('uptime').innerText = upTime[0] + 'H ' + upTime[1] + 'M ' + upTime[2] + 'S '
           document.getElementById('databaseState').innerHTML = `<b>${databaseLength.users}</b><span style="color: yellowgreen;">Users</span> <b>${databaseLength.groups}</b><span style="color: yellowgreen;">Groups</span>`

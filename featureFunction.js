@@ -10,8 +10,12 @@ const openai = require('./lib/Utility/OpenAI')
 
 const menuList = {
   genral: {
+    menu: ['.menu', 'Show All Feature', true],
+    limit: ['.limit', 'Check Limit', true],
     ai: ['.ai <query>', 'AI Chat', true],
-    menu: ['.menu', 'Show All Feature', true]
+    sticker: ['.s / .sticker', 'Make image to sticker', true],
+    toimg: ['.toimg', 'Make image to Sticker', true],
+    totext: ['.totext', 'Detect text on Image', true]
   },
   group: {
     tagall: ['.tagall', 'Tag all members on group', true],
@@ -30,11 +34,7 @@ const menuList = {
     antidelete: ['.antidelete [on|off]', 'Anti Delete chats', false]
   },
   common: {
-    sticker: ['.s / .sticker', 'Make image to sticker', true],
-    toimg: ['.toimg', 'Make image to Sticker', true],
-    totext: ['.totext', 'Detect text on Image', true],
     tovn: ['.tovn', 'Make audio to Voice Note', true],
-    limit: ['.limit', 'Check global limit and price', false],
     obfuscate: ['.obfuscate <js script>', 'Encrypt JS', true],
     getimage: ['.getimage <URL>', 'Get Image', true],
     ssweb: ['.ssweb <URL>', 'ScreenShot Web', true]
@@ -703,6 +703,14 @@ host.on('message_create', async (m) => {
         }
       } else {
         await m.reply(('Global Limit Reached!!\nPrice : *0.00018$*\nGlobal Limit : ' + databases.limit.getOpenaiBalance()))
+      }
+    } else if (matchItem(command, pfcmd('limit'))) {
+      try {
+        await m.reply(`「 *Limit* 」\nYour Limit : *${((databases.getChats())[senderId].limit).toFixed(4)}$*\nGlobal OpenAI : *${(databases.limit.getOpenaiBalance()).toFixed(4)}$*`)
+        await doneLoad(m)
+      } catch (e) {
+        await m.reply('Failed to getting *Database*')
+        databases.func.putLog(`[.red.]Limit : ${e}`)
       }
     };
   } catch (e) {
