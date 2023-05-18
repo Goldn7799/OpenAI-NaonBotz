@@ -40,8 +40,7 @@ const menuList = {
     ssweb: ['.ssweb <URL>', 'ScreenShot Web', true]
   },
   premium: {
-    ai: ['.ai <Query>', 'AI Response', true],
-    aiimgvar: ['.aiimgvar <query>', 'Extend image', false],
+    aiimgvar: ['.aiimgvar <query>', 'Extend image', true],
     aiimg: ['.aiimg <query>', 'AI Create Image', true]
   },
   info: {
@@ -139,7 +138,7 @@ host.on('message_create', async (m) => {
         const senderDb = db.chats[senderId]
         const minLevelUp = 250 * (senderDb.level + 1 / 2) * (senderDb.level + 1)
         const upTime = (timeParse(upHours, upMinutes, upSeconds)).split(':')
-        let messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey, ${m._data.notifyName}!\n│\n│ 🧱 Limit : *${senderDb.limit.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(senderDb.level)}*\n│ 🔼 Level : *${senderDb.level}* ( ${'```'}${(minLevelUp - senderDb.exp)}${'```'} )\n│ 💫 Total XP : ${senderDb.exp} / ${minLevelUp} ✨\n│\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upTime[0]}H ${upTime[1]}M ${upTime[2]}S*\n│ 📊 Database: ${'```'}${Object.keys(databases.getChats()).length}${'```'} *Users* | ${'```'}${Object.keys(databases.getGroups()).length}${'```'} *Group*\n╰────\n${readMore}`
+        let messages = `╭─「 ${host.info.pushname} 🤖」\n│ 👋🏻 Hey *${m._data.notifyName}*!\n│\n│ 🧱 Limit : *${senderDb.limit.toFixed(4)}$*\n│ 🦸🏼‍♂️ Role : *${rolePicker(senderDb.level)}*\n│ 🔼 Level : *${senderDb.level}* ( ${'```'}${(minLevelUp - senderDb.exp)}${'```'} )\n│ 💫 Total XP : *${senderDb.exp} / ${minLevelUp}* ✨\n│\n│ 📅 Date: *${Date().substring(0, 15)}*\n│ 🕰️ Time: *${date.getUTCHours()}:${date.getUTCMinutes()}:${date.getUTCSeconds()}(UTC)*\n│\n│ 📈 Uptime: *${upTime[0]}H ${upTime[1]}M ${upTime[2]}S*\n│ 📊 Database: ${'```'}${Object.keys(databases.getChats()).length}${'```'} *Users* | ${'```'}${Object.keys(databases.getGroups()).length}${'```'} *Group*\n╰────\n${readMore}`
         messages += '───「 Menu List 」───\n'
         for (const menus of listOfMenu) {
           messages += `╭─「 *${capitalLetter(menus)}* 」\n`
