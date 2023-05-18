@@ -516,7 +516,7 @@ const page = {
                     Shorcut
                   </a>
                   <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">Action</a></li>
+                    <li><a class="dropdown-item" id="setOpenAiLimit" href="#">Set OpenAi Limit</a></li>
                     <li><a class="dropdown-item" href="#">Another action</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="#">Something else here</a></li>
@@ -650,6 +650,71 @@ const page = {
     const clearQrCode = () => {
       qrCode.style.display = 'none'
     }
+
+    document.getElementById('setOpenAiLimit').addEventListener('click', ()=>{
+      Notipin.Prompt({
+        msg: "Set Limit For OpenAi", // Pesan kamu
+        placeholder: "Example : 5",
+        max: 0, // Maksimal karakter (integer)
+        textarea: false, // tag element (boolean)
+        yes: "Ok", // Tulisan di tombol 'Yes'
+        no: "Cancel", // Tulisan di tombol 'No'
+        onYes: (res) => {
+          if (res && Number(res) && typeof(Number(res)) === 'number') {
+            fetch(`${ipUrl}/setlimit/${cred.user.auth}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                type: 'openai',
+                limit: Number(res)
+              })
+            })
+            .then(ress => { return ress.json() })
+            .then(res => {
+              if (res.success) {
+                Notipin.Alert({
+                  msg: `${res.message}`, // Pesan kamu
+                  yes: "Ok", // Tulisan di tombol 'Yes'
+                  onYes: () => { /* Kode di sini */ },
+                  type: "INFO",
+                  mode: "DARK",
+                })
+              } else {
+                Notipin.Alert({
+                  msg: `${res.message}`, // Pesan kamu
+                  yes: "Ok", // Tulisan di tombol 'Yes'
+                  onYes: () => { /* Kode di sini */ },
+                  type: "NORMAL",
+                  mode: "DARK",
+                })
+              }
+            })
+            .catch(()=>{
+              Notipin.Alert({
+                msg: "Server not avabile", // Pesan kamu
+                yes: "Ok", // Tulisan di tombol 'Yes'
+                onYes: () => { /* Kode di sini */ },
+                type: "DANGER",
+                mode: "DARK",
+              })
+            })
+          } else {
+            Notipin.Alert({
+              msg: "Please Fill Limit To be set", // Pesan kamu
+              yes: "Ok", // Tulisan di tombol 'Yes'
+              onYes: () => { /* Kode di sini */ },
+              type: "NORMAL",
+              mode: "DARK",
+            })
+          }
+        },
+        onNo: (res) => { /* Kode di sini */ },
+        type: "BLUE",
+        mode: "DARK",
+      })
+    })
 
     const loadStatistic = () => {
       google.charts.load('current', { packages: ['corechart'] })

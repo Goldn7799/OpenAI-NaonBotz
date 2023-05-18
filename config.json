@@ -2,7 +2,7 @@
   "bot": {
     "owner": "6281228020195",
     "backupTime": [19,30],
-    "openaiApiKey": "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",
+    "openaiApiKey": "",
     "clearLogOnStartup": true,
     "syncInterval": 5000,
     "origin": "*",

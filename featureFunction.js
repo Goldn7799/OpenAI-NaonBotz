@@ -661,7 +661,7 @@ host.on('message_create', async (m) => {
         await m.reply('No Text Found.')
       }
     } else if (matchItem(command, pfcmd('aiimg'))) {
-      if (databases.limit.openaiBuy(0.0018)) {
+      if (databases.limit.openaiBuy(0.018)) {
         if (text) {
           try {
             await waitLoad(m)
@@ -669,11 +669,35 @@ host.on('message_create', async (m) => {
             await m.reply(`This is a *${text}*`, null, { media })
             await doneLoad(m)
           } catch (e) {
+            databases.limit.openaiSell(0.018)
             await m.reply('Failed to getting *Image*')
             databases.func.putLog(`[.red.]AiIMG : ${e}`)
           }
         } else {
           await m.reply('Where Text or Query??')
+        }
+      } else {
+        await m.reply(('Global Limit Reached!!\nPrice : *0.00018$*\nGlobal Limit : ' + databases.limit.getOpenaiBalance()))
+      }
+    } else if (matchItem(command, pfcmd('aiimgvar'))) {
+      if (databases.limit.openaiBuy(0.018)) {
+        const quoted = (!m.hasMedia && m.hasQuotedMsg) ? await m.getQuotedMessage() : false
+        if (m.hasMedia || quoted?.hasMedia) {
+          try {
+            await waitLoad(m)
+            const rawMedia = (quoted?.hasMedia) ? await quoted.downloadMedia() : await m.downloadMedia()
+            const buffer = await Buffer.from(rawMedia.data, 'base64')
+            await fs.writeFileSync('./data-store/varTemp.png', buffer)
+            const media = await MessageMedia.fromUrl(await openai.generateImageVariation(`${process.cwd()}/data-store/varTemp.png`))
+            await m.reply(`Done!!`, null, { media })
+            await doneLoad(m)
+          } catch (e) {
+            databases.limit.openaiSell(0.018)
+            await m.reply('Failed to getting *Image*')
+            databases.func.putLog(`[.red.]AiIMGVar : ${e}`)
+          }
+        } else {
+          await m.reply('Where Image??')
         }
       } else {
         await m.reply(('Global Limit Reached!!\nPrice : *0.00018$*\nGlobal Limit : ' + databases.limit.getOpenaiBalance()))

@@ -488,6 +488,31 @@ const runMain = async () => {
     }
   })
 
+  app.post('/setlimit/:auth', (req, res)=>{
+    const { auth } = req.params
+    const { type, limit } = req.body
+    const authList = databases.getAllAuth()
+    if (type && limit && typeof(limit) === 'number' && authList.includes(auth)) {
+      if (type === 'openai') {
+        databases.limit.openaiLimitSet(limit)
+        res.status(200).json({
+          succes: true,
+          message: `Succes Set ${limit}$ to OpenAI`
+        })
+      } else {
+        res.status(404).json({
+          success: false,
+          message: `${type} Not Found`
+        })
+      }
+    } else {
+      res.status(403).json({
+        success: false,
+        message: 'Invalid Data'
+      })
+    }
+  })
+
   app.listen(config.bot.port, () => {
     console.log(`${color.bright + color.magenta}`, `Webserver Started at port ${color.underscore + config.bot.port}`)
   })
