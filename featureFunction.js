@@ -661,18 +661,22 @@ host.on('message_create', async (m) => {
         await m.reply('No Text Found.')
       }
     } else if (matchItem(command, pfcmd('aiimg'))) {
-      if (text) {
-        try {
-          await waitLoad(m)
-          const media = await MessageMedia.fromUrl(await openai.generateImage(text))
-          await m.reply(`This is a *${text}*`, null, { media })
-          await doneLoad(m)
-        } catch (e) {
-          await m.reply('Failed to getting *Image*')
-          databases.func.putLog(`[.red.]AiIMG : ${e}`)
+      if (databases.limit.openaiBuy(0.0018)) {
+        if (text) {
+          try {
+            await waitLoad(m)
+            const media = await MessageMedia.fromUrl(await openai.generateImage(text))
+            await m.reply(`This is a *${text}*`, null, { media })
+            await doneLoad(m)
+          } catch (e) {
+            await m.reply('Failed to getting *Image*')
+            databases.func.putLog(`[.red.]AiIMG : ${e}`)
+          }
+        } else {
+          await m.reply('Where Text or Query??')
         }
       } else {
-        await m.reply('Where Text or Query??')
+        await m.reply(('Global Limit Reached!!\nPrice : *0.00018$*\nGlobal Limit : ' + databases.limit.getOpenaiBalance()))
       }
     };
   } catch (e) {
