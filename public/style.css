@@ -818,3 +818,32 @@ html {
   margin-top: -15px;
   margin-bottom: -5px;
 }
+
+.mimage {
+  align-self: center;
+  justify-self: center;
+  max-width: 80vh;
+  min-width: 80vh;
+  height: auto;
+  margin: 5px;
+  border-radius: 6px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+}
+
+.msticker {
+  align-self: center;
+  justify-self: center;
+  max-width: 40vh;
+  min-width: 40vh;
+  height: auto;
+  margin: 5px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  -ms-border-radius: 6px;
+  -o-border-radius: 6px;
+}

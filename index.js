@@ -429,6 +429,11 @@ const runMain = async () => {
     }
   })
 
+  app.get('/storage/get/:file', (req, res) => {
+    const { file } = req.params
+    res.sendFile(`${process.cwd()}/data-store/storage/${file}`)
+  })
+
   app.get('/botstate/:auth', (req, res) => {
     const { auth } = req.params
     const authList = databases.getAllAuth()
@@ -488,11 +493,11 @@ const runMain = async () => {
     }
   })
 
-  app.post('/setlimit/:auth', (req, res)=>{
+  app.post('/setlimit/:auth', (req, res) => {
     const { auth } = req.params
     const { type, limit } = req.body
     const authList = databases.getAllAuth()
-    if (type && limit && typeof(limit) === 'number' && authList.includes(auth)) {
+    if (type && limit && typeof (limit) === 'number' && authList.includes(auth)) {
       if (type === 'openai') {
         databases.limit.openaiLimitSet(limit)
         res.status(200).json({
@@ -552,6 +557,7 @@ const runMain = async () => {
           profile
         }
         const msg = {
+          id: m.id.id,
           body: `${m.body}`.replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
           type: m.type,
           notifyName: `${m._data.notifyName}`.replaceAll('<', '&lt;').replaceAll('>', '&gt;'),
@@ -561,7 +567,8 @@ const runMain = async () => {
           to: m.to,
           author: senderId,
           timeStamp: m.timestamp,
-          quotedMessage: quotedMsg
+          quotedMessage: quotedMsg,
+          hasMedia: m.hasMedia
         }
         const chatId = chat.id._serialized
         databases.func.addChatMessage(chatId, msg, metadata)

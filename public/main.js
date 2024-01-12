@@ -652,16 +652,16 @@ const page = {
       qrCode.style.display = 'none'
     }
 
-    document.getElementById('setOpenAiLimit').addEventListener('click', ()=>{
+    document.getElementById('setOpenAiLimit').addEventListener('click', () => {
       Notipin.Prompt({
-        msg: "Set Limit For OpenAi", // Pesan kamu
-        placeholder: "Example : 5",
+        msg: 'Set Limit For OpenAi', // Pesan kamu
+        placeholder: 'Example : 5',
         max: 0, // Maksimal karakter (integer)
         textarea: false, // tag element (boolean)
-        yes: "Ok", // Tulisan di tombol 'Yes'
-        no: "Cancel", // Tulisan di tombol 'No'
+        yes: 'Ok', // Tulisan di tombol 'Yes'
+        no: 'Cancel', // Tulisan di tombol 'No'
         onYes: (res) => {
-          if (res && Number(res) && typeof(Number(res)) === 'number') {
+          if (res && Number(res) && typeof (Number(res)) === 'number') {
             fetch(`${ipUrl}/setlimit/${cred.user.auth}`, {
               method: 'POST',
               headers: {
@@ -672,48 +672,48 @@ const page = {
                 limit: Number(res)
               })
             })
-            .then(ress => { return ress.json() })
-            .then(res => {
-              if (res.success) {
-                Notipin.Alert({
-                  msg: `${res.message}`, // Pesan kamu
-                  yes: "Ok", // Tulisan di tombol 'Yes'
-                  onYes: () => { /* Kode di sini */ },
-                  type: "INFO",
-                  mode: "DARK",
-                })
-              } else {
-                Notipin.Alert({
-                  msg: `${res.message}`, // Pesan kamu
-                  yes: "Ok", // Tulisan di tombol 'Yes'
-                  onYes: () => { /* Kode di sini */ },
-                  type: "NORMAL",
-                  mode: "DARK",
-                })
-              }
-            })
-            .catch(()=>{
-              Notipin.Alert({
-                msg: "Server not avabile", // Pesan kamu
-                yes: "Ok", // Tulisan di tombol 'Yes'
-                onYes: () => { /* Kode di sini */ },
-                type: "DANGER",
-                mode: "DARK",
+              .then(ress => { return ress.json() })
+              .then(res => {
+                if (res.success) {
+                  Notipin.Alert({
+                    msg: `${res.message}`, // Pesan kamu
+                    yes: 'Ok', // Tulisan di tombol 'Yes'
+                    onYes: () => { /* Kode di sini */ },
+                    type: 'INFO',
+                    mode: 'DARK'
+                  })
+                } else {
+                  Notipin.Alert({
+                    msg: `${res.message}`, // Pesan kamu
+                    yes: 'Ok', // Tulisan di tombol 'Yes'
+                    onYes: () => { /* Kode di sini */ },
+                    type: 'NORMAL',
+                    mode: 'DARK'
+                  })
+                }
               })
-            })
+              .catch(() => {
+                Notipin.Alert({
+                  msg: 'Server not avabile', // Pesan kamu
+                  yes: 'Ok', // Tulisan di tombol 'Yes'
+                  onYes: () => { /* Kode di sini */ },
+                  type: 'DANGER',
+                  mode: 'DARK'
+                })
+              })
           } else {
             Notipin.Alert({
-              msg: "Please Fill Limit To be set", // Pesan kamu
-              yes: "Ok", // Tulisan di tombol 'Yes'
+              msg: 'Please Fill Limit To be set', // Pesan kamu
+              yes: 'Ok', // Tulisan di tombol 'Yes'
               onYes: () => { /* Kode di sini */ },
-              type: "NORMAL",
-              mode: "DARK",
+              type: 'NORMAL',
+              mode: 'DARK'
             })
           }
         },
         onNo: (res) => { /* Kode di sini */ },
-        type: "BLUE",
-        mode: "DARK",
+        type: 'BLUE',
+        mode: 'DARK'
       })
     })
 
@@ -1074,7 +1074,8 @@ const page = {
               const time = new Date(chat.timeStamp * 1000)
               const quoted = chat.quotedMessage
               enterChatList += `
-              ${(!chat.fromMe) ? `
+              ${(!chat.fromMe)
+? `
               ${(lastUser !== chat.author) ? '<div class="arrow-right"></div>' : ''}
               <div ${(lastUser === chat.author) ? 'style="margin-top: 4px;"' : ''} class="enterChatList">
                 <div class="user">
@@ -1088,11 +1089,14 @@ const page = {
                     <p>${(quoted.type !== 'chat') ? `<span style="color: orange;">[${quoted.type}]</span> ` : ''}${(quoted.body).substring(0, 18)}${((quoted.body).length > 17) ? '...' : ''}</p>
                   </div>`
                 : ''}
-                ${(chat.type === 'chat')
-                ? `<p class="mbody">${`${chat.body}`.replace(/\n/g, '<br>')}</p>`
+                ${(chat.type === 'chat' || chat.type === 'image')
+                ? `${(chat.hasMedia) ? `<img class="mimage" alt="media-${chat.id}.png" src="./storage/get/media-${chat.id}.png"/>` : ''}<p class="mbody">${`${chat.body}`.replace(/\n/g, '<br>')}</p>`
+                : (chat.type === 'sticker')
+                ? `${(chat.hasMedia) ? `<img class="msticker" alt="media-${chat.id}.png" src="./storage/get/media-${chat.id}.png"/>` : ''}`
                 : `<p class="mbody"><span style="color: orange;">[${chat.type}]</span> : ${`${chat.body}`.replace(/\n/g, '<br>')}</p>`}
                 <p class="time">${timeParse(time.getHours(), time.getMinutes())}</p>
-              </div>` : `
+              </div>`
+: `
                 ${(lastUser !== chat.author) ? '<div class="arrow-rightMe"></div>' : ''}
                 <div ${(lastUser === chat.author) ? 'style="margin-top: 4px;"' : ''} class="enterChatListMe">
                   ${(quoted)
@@ -1101,8 +1105,10 @@ const page = {
                       <p>${(quoted.type !== 'chat') ? `<span style="color: orange;">[${quoted.type}]</span> ` : ''}${(quoted.body).substring(0, 18)}${((quoted.body).length > 17) ? '...' : ''}</p>
                     </div>`
                   : ''}
-                  ${(chat.type === 'chat')
-                  ? `<p class="mbody">${`${chat.body}`.replace(/\n/g, '<br>')}</p>`
+                  ${(chat.type === 'chat' || chat.type === 'image')
+                  ? `${(chat.hasMedia) ? `<img class="mimage" alt="media-${chat.id}.png" src="./storage/get/media-${chat.id}.png"/>` : ''}<p class="mbody">${`${chat.body}`.replace(/\n/g, '<br>')}</p>`
+                  : (chat.type === 'sticker')
+                  ? `${(chat.hasMedia) ? `<img class="msticker" alt="media-${chat.id}.png" src="./storage/get/media-${chat.id}.png"/>` : ''}`
                   : `<p class="mbody"><span style="color: orange;">[${chat.type}]</span> : ${`${chat.body}`.replace(/\n/g, '<br>')}</p>`}
                   <p class="time">${timeParse(time.getHours(), time.getMinutes())}</p>
                 </div>

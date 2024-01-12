@@ -2,6 +2,7 @@ const config = require('./config.json')
 const host = require('./index.js')
 const { matchItem, capitalLetter, timeParse, pickRandomString, makeProgressBar, makeid, executeCmd, pickRandomObject, executeNode, takeScreenshotWeb } = require('./lib/Utility/Utility.js')
 const databases = require('./lib/Database/Database.js')
+const { saveMedia } = require('./lib/Storage/SgSave.js')
 const { MessageMedia } = require('whatsapp-web.js')
 const Tesseract = require('tesseract.js')
 const fs = require('fs')
@@ -45,6 +46,7 @@ const menuList = {
   },
   info: {
     speed: ['.speed', 'Test Ping', true],
+    ping: ['.ping', 'Respond Speed', true],
     owner: ['.owner', 'Owner Contact', true]
   },
   owner: {
@@ -62,7 +64,7 @@ const menuList = {
 // Cache
 const botCache = {
   openAi: {}
-} 
+}
 // End cache
 
 const prefix = config.bot.prefix
@@ -118,6 +120,22 @@ host.on('message_create', async (m) => {
     const text = (rawText.startsWith(' ')) ? rawText.replace(' ', '') : rawText
     const chat = await m.getChat()
     const senderId = (m.author) ? m.author : m.from
+    const msgMedia = (m.hasMedia) ? await m.downloadMedia() : null
+
+    // Save Media
+    if (msgMedia) {
+      const isNotSuccess = !(await saveMedia(true, 'media', m.id.id, msgMedia.data))
+      if (isNotSuccess) {
+        databases.func.putLog(`[.red.]Cant Save Media <b>${m.id}</b>`)
+      };
+    };
+    // END Save Media
+
+    // Debug HERE
+    databases.func.putLog('<-- Properties -->')
+    // databases.func.putLog()
+    // console.log(msgMedia)
+    // Debug END
     // Command
     if (matchItem(command, pfcmd('menu'))) {
       try {
@@ -155,7 +173,7 @@ host.on('message_create', async (m) => {
         await m.reply('Failed to load *Menu*')
         databases.func.putLog(`[.red.]Menu : ${e}`)
       }
-    } else if (matchItem(command, pfcmd('sticker')) || matchItem(command, pfcmd('stiker'))) {
+    } else if (matchItem(command, pfcmd('sticker')) || matchItem(command, pfcmd('stiker')) || matchItem(command, pfcmd('s'))) {
       try {
         const runSticker = async (media) => {
           if ((media.mimetype).includes('image')) {
@@ -167,8 +185,8 @@ host.on('message_create', async (m) => {
             await m.reply(`Unknown Format *${media.mimetype}*`)
           }
         }
-        if (m.hasMedia) {
-          await runSticker(await m.downloadMedia())
+        if (msgMedia) {
+          await runSticker(msgMedia)
         } else if (m.hasQuotedMsg) {
           const quotedMsg = await m.getQuotedMessage()
           const media = (quotedMsg.hasMedia) ? await quotedMsg.downloadMedia() : false
@@ -273,8 +291,8 @@ host.on('message_create', async (m) => {
             await m.reply(`Is Not Image, Is A *${media.mimetype}*`)
           }
         }
-        if (m.hasMedia) {
-          await runToText(await m.downloadMedia())
+        if (msgMedia) {
+          await runToText(msgMedia)
         } else if (m.hasQuotedMsg) {
           const quotedMsg = await m.getQuotedMessage()
           const media = (quotedMsg.hasMedia) ? await quotedMsg.downloadMedia() : false
@@ -685,11 +703,11 @@ host.on('message_create', async (m) => {
         if (m.hasMedia || quoted?.hasMedia) {
           try {
             await waitLoad(m)
-            const rawMedia = (quoted?.hasMedia) ? await quoted.downloadMedia() : await m.downloadMedia()
+            const rawMedia = (quoted?.hasMedia) ? await quoted.downloadMedia() : msgMedia
             const buffer = await Buffer.from(rawMedia.data, 'base64')
             await fs.writeFileSync('./data-store/varTemp.png', buffer)
             const media = await MessageMedia.fromUrl(await openai.generateImageVariation(`${process.cwd()}/data-store/varTemp.png`))
-            await m.reply(`Done!!`, null, { media })
+            await m.reply('Done!!', null, { media })
             await doneLoad(m)
           } catch (e) {
             databases.limit.openaiSell(0.018)
@@ -709,6 +727,14 @@ host.on('message_create', async (m) => {
         await doneLoad(m)
       } catch (e) {
         await m.reply('Failed to getting *Database*')
+        databases.func.putLog(`[.red.]Limit : ${e}`)
+      }
+    } else if (matchItem(command, pfcmd('ping'))) {
+      try {
+        // const chatTime = new Date(m.timestamp * 1000)
+        // const timeNow = new Date()
+      } catch (e) {
+        await m.reply('Failed to getting *Info*')
         databases.func.putLog(`[.red.]Limit : ${e}`)
       }
     };
